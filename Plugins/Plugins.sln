@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29230.47
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLPermissions", "SQLPermissions\SQLPermissions.csproj", "{204F86B7-2BD8-4FF6-8524-3382D4B86950}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example", "Example\Example.csproj", "{76370531-B42A-4FFE-BF4E-E1FF208C76EF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{204F86B7-2BD8-4FF6-8524-3382D4B86950}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{204F86B7-2BD8-4FF6-8524-3382D4B86950}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{204F86B7-2BD8-4FF6-8524-3382D4B86950}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{204F86B7-2BD8-4FF6-8524-3382D4B86950}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76370531-B42A-4FFE-BF4E-E1FF208C76EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76370531-B42A-4FFE-BF4E-E1FF208C76EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76370531-B42A-4FFE-BF4E-E1FF208C76EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76370531-B42A-4FFE-BF4E-E1FF208C76EF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {771C0B90-44B1-436C-84FC-1711A6A87DE3}
+	EndGlobalSection
+EndGlobal
