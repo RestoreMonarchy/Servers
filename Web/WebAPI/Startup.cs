@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using AspNet.Security.ApiKey.Providers;
+using AspNet.Security.ApiKey.Providers.Events;
+using AspNet.Security.ApiKey.Providers.Extensions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace RestoreMonarchy.WebAPI
 {
@@ -17,7 +22,34 @@ namespace RestoreMonarchy.WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
-            
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = ApiKeyDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = ApiKeyDefaults.AuthenticationScheme;
+            })
+            .AddApiKey(options =>
+            {
+                options.Events = new ApiKeyEvents
+                {
+                    OnAuthenticationFailed = context =>
+                    {
+                        Trace.TraceError(context.Exception.Message);
+
+                        return Task.CompletedTask;
+                    },
+                    OnApiKeyValidated = context =>
+                    {
+                        if (context.ApiKey == "123")
+                        {
+                            context.Success();
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
+                options.Header = "x-api-key";
+                options.HeaderKey = string.Empty;
+            });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
@@ -33,8 +65,10 @@ namespace RestoreMonarchy.WebAPI
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseMvc(routes =>
+            {
+                routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
