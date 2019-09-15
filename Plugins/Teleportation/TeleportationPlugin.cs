@@ -56,11 +56,11 @@ namespace Teleportation
 
         private void OnPlayerDamaged(Player player, ref EDeathCause cause, ref ELimb limb, ref CSteamID killer, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage)
         {
-            var killerPlayer = UnturnedPlayer.FromSteamPlayer(PlayerTool.getSteamPlayer(killer));
+            var killerPlayer = PlayerTool.getSteamPlayer(killer);
 
             if (killerPlayer != null)
             {
-                this.StartPlayerCombat(killerPlayer);
+                this.StartPlayerCombat(UnturnedPlayer.FromSteamPlayer(killerPlayer));
                 this.StartPlayerCombat(UnturnedPlayer.FromPlayer(player));
             }
         }

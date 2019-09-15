@@ -14,7 +14,6 @@ namespace Kits
             MessageColor = "#10ffdb";
             Kits = new List<Kit>()
             {
-                new Kit()
             };
         }
     }

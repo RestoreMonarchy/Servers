@@ -38,6 +38,11 @@ namespace Kits.Commands
             }
 
             string name = command[0];
+            if (plugin.Configuration.Instance.Kits.Exists(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
+            {
+                UnturnedChat.Say(caller, plugin.Translate("CreateKitExists"), plugin.MessageColor);
+                return;
+            }
             if (!int.TryParse(command[1], out int cooldown))
             {
                 UnturnedChat.Say(caller, plugin.Translate("CreateKitInvalidCooldown"), plugin.MessageColor);
@@ -56,7 +61,7 @@ namespace Kits.Commands
                         continue;
 
                     ItemAsset asset = Assets.find(EAssetType.ITEM, item.item.id) as ItemAsset;
-                    if (asset.type == EItemType.GUN || asset.type == EItemType.MAGAZINE)
+                    if (asset.type == EItemType.GUN)
                         metadataItems.Add(new Kit.MetadataItem(item.item.id, item.item.metadata));
                     else
                         items.Add(item.item.id);

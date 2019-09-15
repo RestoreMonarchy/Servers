@@ -67,8 +67,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\CreateKitCommand.cs" />
+    <Compile Include="Commands\KitCommand.cs" />
+    <Compile Include="Commands\KitsCommand.cs" />
     <Compile Include="KitsConfiguration.cs" />
     <Compile Include="KitsPlugin.cs" />
+    <Compile Include="Models\KitCooldown.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
