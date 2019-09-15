@@ -12,7 +12,7 @@ namespace Teleportation.Commands
 {
     public class TPACommand : IRocketCommand
     {
-        public AllowedCaller AllowedCaller => AllowedCaller.Both;
+        public AllowedCaller AllowedCaller => AllowedCaller.Player;
 
         public string Name => "tpa";
 

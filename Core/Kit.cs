@@ -8,7 +8,7 @@ namespace Core
     public class Kit
     {
         public Kit() { }
-        public Kit(string name, int cooldown, List<Item> items, uint experience = 0, ushort? vehicle = null, decimal price = 0)
+        public Kit(string name, int cooldown, List<ushort> items, List<MetadataItem> metadataItems, uint experience = 0, ushort vehicle = 0, decimal price = 0)
         {
             Name = name;
             Cooldown = cooldown;
@@ -16,29 +16,31 @@ namespace Core
             Vehicle = vehicle;
             Price = price;
             Items = items;
+            MetadataItems = metadataItems;
         }
 
         public string Name { get; set; }
         public int Cooldown { get; set; }
         public uint Experience { get; set; }
-        public ushort? Vehicle { get; set; }
+        public ushort Vehicle { get; set; }
         public decimal Price { get; set; }
 
-        public List<Item> Items { get; set; }
-
-        public class Item
+        [XmlArrayItem("itemid")]
+        public List<ushort> Items { get; set; }
+        public List<MetadataItem> MetadataItems { get; set; }
+        
+        public class MetadataItem
         {
-            public Item() { }
-            public Item(ushort itemId, byte amount)
+            public MetadataItem() { }
+            public MetadataItem(ushort itemId, byte[] metadata)
             {
                 ItemId = itemId;
-                Amount = amount;
+                Metadata = metadata;
             }
 
-            [XmlArrayAttribute("id")]
+            [XmlAttribute("id")]
             public ushort ItemId { get; set; }
-            [XmlArrayAttribute("amount")]
-            public byte Amount { get; set; }
+            public byte[] Metadata { get; set; }
         }
     }
 }
