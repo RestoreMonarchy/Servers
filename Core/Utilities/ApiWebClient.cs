@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
-using System.Text;
 
-namespace Core.Plugins.Models
+namespace Core.Utilities
 {
     public class ApiWebClient : WebClient
     {

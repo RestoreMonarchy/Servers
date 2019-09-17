@@ -1,0 +1,9 @@
+﻿CREATE TABLE [dbo].[Players]
+(
+	PlayerId BIGINT NOT NULL,
+    PlayerName NVARCHAR(255) NOT NULL,
+    PlayerCountry CHAR(2) NULL,
+	PlayerLastActivity DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
+    PlayerCreated DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
+    CONSTRAINT PK_Players PRIMARY KEY (PlayerId)   
+)

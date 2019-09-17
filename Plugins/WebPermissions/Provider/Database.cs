@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using Core;
+using Core.Utilities;
 using Newtonsoft.Json;
 using Rocket.API;
 
@@ -10,13 +11,13 @@ namespace WebPermissions.Provider
     public class Database : IDatabase
     {
         private readonly WebPermissionsPlugin _pluginInstance;
-        private WebClient WebClient { get; set; }
+        private ApiWebClient WebClient { get; set; }
         private string ApiUrl => _pluginInstance.Configuration.Instance.ApiUrl;
 
         public Database(WebPermissionsPlugin pluginInstance)
         {
             this._pluginInstance = pluginInstance;
-            WebClient = new WebClient();
+            WebClient = new ApiWebClient();
             WebClient.Headers.Add("x-api-key", pluginInstance.Configuration.Instance.WebApiKey);            
         }
 

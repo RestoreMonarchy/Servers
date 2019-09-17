@@ -3,7 +3,7 @@ using Rocket.Unturned.Chat;
 using Rocket.Unturned.Player;
 using System.Collections.Generic;
 using System.Linq;
-using Core;
+using Core.Models;
 using SDG.Unturned;
 using System;
 
