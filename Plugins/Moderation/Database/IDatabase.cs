@@ -9,6 +9,6 @@ namespace RestoreMonarchy.Moderation.Database
     public interface IDatabase
     {
         Player GetPlayer(ulong steamId);
-        Player CreatePlayer(this DatabaseManager manager, Player player)
+        Player CreatePlayer(this DatabaseManager manager, Player player);
     }
 }

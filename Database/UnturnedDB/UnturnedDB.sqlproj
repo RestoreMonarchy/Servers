@@ -65,5 +65,7 @@
     <Build Include="dbo\Tables\PermissionGroups.sql" />
     <Build Include="dbo\Tables\Permissions.sql" />
     <Build Include="dbo\Tables\PermissionMembers.sql" />
+    <Build Include="dbo\Tables\PlayerBans.sql" />
+    <Build Include="dbo\Tables\Players.sql" />
   </ItemGroup>
 </Project>

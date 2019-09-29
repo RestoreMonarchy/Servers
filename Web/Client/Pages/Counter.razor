@@ -1,0 +1,39 @@
+﻿@page "/counter"
+@inject HttpClient httpClient
+@using Core.Models
+
+<h1>Counter</h1>
+
+<input type="text" @bind-value="@this.steamId" @onkeyup="GetPlayerAsync" />
+
+@if (player != null)
+{
+    <div>
+        <span>Name: </span> <b>@player.PlayerName</b>
+        <span>Country: </span> <b>@player.PlayerCountry</b>
+    </div>
+}
+
+
+@code {
+    string steamId;
+    Player player;
+
+    async Task GetPlayerAsync()
+    {
+        Console.WriteLine(steamId);
+        Player user = null;
+        try
+        {
+            user = await httpClient.GetJsonAsync<Player>("/api/players/" + steamId);
+        } catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        if (user != null)
+        {
+            player = user;
+        }
+    }
+}
