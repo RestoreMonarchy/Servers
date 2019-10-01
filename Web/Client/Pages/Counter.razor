@@ -1,10 +1,11 @@
 ﻿@page "/counter"
 @inject HttpClient httpClient
 @using Core.Models
+@using Newtonsoft.Json
 
-<h1>Counter</h1>
+<h1>Find Player</h1>
 
-<input type="text" @bind-value="@this.steamId" @onkeyup="GetPlayerAsync" />
+<input type="number" @bind-value="@this.steamId" @onkeydown="GetPlayerAsync" />
 
 @if (player != null)
 {
@@ -12,28 +13,26 @@
         <span>Name: </span> <b>@player.PlayerName</b>
         <span>Country: </span> <b>@player.PlayerCountry</b>
     </div>
+} else
+{
+    <span>Searching...</span>
 }
 
 
 @code {
-    string steamId;
+    Int64 steamId;
     Player player;
 
     async Task GetPlayerAsync()
     {
-        Console.WriteLine(steamId);
-        Player user = null;
-        try
-        {
-            user = await httpClient.GetJsonAsync<Player>("/api/players/" + steamId);
-        } catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
+        player = null;
+        var response = await httpClient.GetAsync("/api/players/" + steamId);
 
-        if (user != null)
+        Console.WriteLine(response.StatusCode.ToString());
+
+        if (response.StatusCode == System.Net.HttpStatusCode.OK)
         {
-            player = user;
+            player = JsonConvert.DeserializeObject<Player>(await response.Content.ReadAsStringAsync());
         }
     }
 }
