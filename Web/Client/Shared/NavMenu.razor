@@ -1,14 +1,28 @@
 ﻿<header class="navbar navbar-dark navbar-full bg-primary doc-navbar-default">
     <button aria-controls="navdrawerDefault" aria-expanded="false" aria-label="Toggle Navdrawer" class="navbar-toggler" data-target="#navdrawerDefault" data-toggle="navdrawer"><span class="navbar-toggler-icon"></span></button>
     <span class="navbar-brand mr-auto">Restore Monarchy</span>
+    <AuthorizeView>
+        <Authorized>
+            <span class="font-weight-bold mr-sm-2" href="javascript:void(0)">@context.User.Identity.Name</span>
+            <form action="/signout" method="post">
+                <button class="btn btn-info mr-sm-2" type="submit">Sign Out</button>
+            </form>
+        </Authorized>
+        <NotAuthorized>
+            <form action="/signin" method="post">
+                <button class="btn btn-info mr-sm-2" type="submit">Sign In</button>
+            </form>
+        </NotAuthorized>
+    </AuthorizeView>
 </header>
 
 <div class="navdrawer navdrawer-default" id="navdrawerDefault" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="navdrawer-content">
         <div class="navdrawer-header">
             <a class="navbar-brand px-0" href="javascript:void(0)">Navdrawer header</a>
+            
         </div>
-        <nav class="navdrawer-nav">
+        <nav class="navdrawer-nav">            
             <a class="nav-item nav-link active" href="javascript:void(0)">Active</a>
             <a class="nav-item nav-link disabled" href="javascript:void(0)">Disabled</a>
             <a class="nav-item nav-link" href="javascript:void(0)">Link</a>

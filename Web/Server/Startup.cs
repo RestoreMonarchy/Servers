@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -22,6 +23,14 @@ namespace Web.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            
+            services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; })                
+                .AddCookie(options => 
+                {
+                    options.LoginPath = "/signin";
+                    options.LogoutPath = "/signout";
+                }).AddSteam();
+
             services.AddSingleton<Database>();
             services.AddSingleton<DiscordMessager>();
 
@@ -47,6 +56,8 @@ namespace Web.Server
             app.UseClientSideBlazorFiles<Client.Startup>();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

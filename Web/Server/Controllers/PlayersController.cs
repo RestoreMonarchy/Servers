@@ -10,10 +10,12 @@ using Core.Models;
 using Dapper;
 using Web.Server.Utilities;
 using Web.Server.Utilities.DiscordMessager;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Server.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
