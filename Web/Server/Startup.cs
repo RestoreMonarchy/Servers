@@ -33,6 +33,7 @@ namespace Web.Server
 
             services.AddSingleton<Database>();
             services.AddSingleton<DiscordMessager>();
+            services.AddSingleton<AvatarManager>();
 
             services.AddMvc().AddNewtonsoftJson();
             services.AddResponseCompression(opts =>

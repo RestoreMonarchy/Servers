@@ -1,0 +1,35 @@
+﻿@page "/dashboard/announcements/add-announcement"
+@using Microsoft.AspNetCore.Components.Web;
+@using System.Globalization;
+@using Core.Models;
+@using System.Security.Claims;
+@using Markdig;
+@using Newtonsoft.Json;
+@inject HttpClient httpClient
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<nav class="mt-4 mb-3" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/dashboard/announcements">Announcements</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Add Announcement</li>
+    </ol>
+</nav>
+
+<AnnouncementForm IsEdit="false" Announcement="announcement" OnSubmitted="PostAnnouncementAsync" />
+
+@code {
+    Announcement announcement = new Announcement();
+
+    public async Task PostAnnouncementAsync(Announcement announcement)
+    {
+        var state = await authenticationStateProvider.GetAuthenticationStateAsync();        
+        if (state.User.Identity.IsAuthenticated && announcement.Content != null && announcement.Title != null)
+        {            
+            announcement.AuthorId = ulong.Parse(state.User.Identity.Name);
+            string content = JsonConvert.SerializeObject(announcement);
+            var response = await httpClient.PostAsync("api/announcements", new StringContent(content, System.Text.Encoding.UTF8, "application/json"));            
+        }
+    }
+}
+

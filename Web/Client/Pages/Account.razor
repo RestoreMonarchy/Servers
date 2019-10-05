@@ -1,0 +1,50 @@
+﻿@page "/account"
+@using Core.Models;
+@inject HttpClient httpClient
+
+<br /><br />
+<AuthorizeView>
+    <Authorized>
+        @if (Player != null)
+        {
+            <img src="/img/avatars/@string.Concat(Player.PlayerId, ".jpg")" class="rounded-circle mx-auto d-block" width="130" height="130">
+            <ul class="list-group">
+                <li class="list-group-item active"><b>SteamID:</b> @context.User.Identity.Name</li>
+                <li class="list-group-item"><b>Name:</b> @Player.PlayerName</li>
+                <li class="list-group-item"><b>Country:</b> @Player.PlayerCountry</li>
+                <li class="list-group-item"><b>Bans:</b> @Player.PlayerBans.Count</li>
+                <li class="list-group-item"><b>Last Activity:</b> @Player.PlayerLastActivity</li>
+            </ul>
+        }
+        else
+        {
+            <div class="progress">
+                <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
+            </div>
+        }
+    </Authorized>
+    <Authorizing>
+        <div class="progress">
+            <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
+        </div>
+    </Authorizing>
+    <NotAuthorized>
+        You don't have access to this page
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
+
+    public Player Player { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateTask;
+
+        if (authState.User.Identity.IsAuthenticated)
+        {
+            Player = await httpClient.GetJsonAsync<Player>("api/players/76561198285897058");            
+        }
+    }
+}

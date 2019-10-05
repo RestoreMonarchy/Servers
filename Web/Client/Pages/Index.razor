@@ -1,17 +1,66 @@
 ﻿@page "/"
+@using System.Globalization;
+@using Core.Models;
+@using Markdig;
+@inject HttpClient httpClient
 
 <br />
 <br />
-@*<AuthorizeView>
-    <Authorized>
-        Hello @context.User.Identity.Name! <br />
-        <form action="/signout" method="post">
-            <button class="btn btn-info" type="submit">Sign Out</button>
-        </form>
-    </Authorized>
-    <NotAuthorized>
-        <form action="/signin" method="post">
-            <button class="btn btn-info" type="submit">Sign In</button>
-        </form>
-    </NotAuthorized>
-</AuthorizeView>*@
+<header class="text-center">
+    <img class="img-fluid" src="/img/logo.png" alt="" height="160" width="160">
+</header>
+<br />
+<br />
+
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        @if (loaded)
+        {
+            foreach (var announcement in announcements)
+            {
+                <dv class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@announcement.Title</h5>
+                        <p class="card-text">                            
+                            @(new MarkupString(announcement.Content))
+                        </p>
+                        <p class="card-text"><small class="text-muted">Published on @announcement.CreateDate.ToString("G", CultureInfo.CreateSpecificCulture("fr-FR")) by @announcement.Author.PlayerName</small></p>
+                    </div>
+                </dv>
+            }
+        }
+        else
+        {
+            <div class="progress">
+                <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
+            </div>
+        }
+    </div>
+    <div class="col-xl-3 d-none d-xl-block">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Discord Guild</h5>
+                <h6 class="card-subtitle mb-2 text-muted">It's time to ditch Skype and TeamSpeak!</h6>
+                <a href="https://discord.gg/SswRqqC" class="btn btn-info">Join us!</a>
+            </div>
+        </div>    
+    </div>
+</div>
+
+@code {
+    public List<Announcement> announcements;
+    public bool loaded;
+
+    protected override async Task OnInitializedAsync()
+    {
+        announcements = await httpClient.GetJsonAsync<List<Announcement>>("api/announcements");
+
+        foreach (var announcement in announcements)
+        {
+            announcement.Content = Markdown.ToHtml(announcement.Content);
+        }
+
+        loaded = true;
+    }
+}
+

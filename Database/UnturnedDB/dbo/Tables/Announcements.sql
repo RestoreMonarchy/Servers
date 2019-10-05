@@ -1,0 +1,11 @@
+﻿CREATE TABLE [dbo].Announcements
+(
+	AnnouncementId INT NOT NULL IDENTITY(1, 1),
+	Title VARCHAR(255) NOT NULL,
+	Content VARCHAR(6000) NOT NULL DEFAULT ('No content'),
+	AuthorId BIGINT NOT NULL,
+	UpdateDate DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
+    CreateDate DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
+    CONSTRAINT PK_Announcements PRIMARY KEY (AnnouncementId),
+	FOREIGN KEY (AuthorId) REFERENCES dbo.Players (PlayerId)
+)

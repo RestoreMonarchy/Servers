@@ -12,7 +12,6 @@ namespace Web.Server.Utilities
     public class Database
     {
         private readonly IConfiguration configuration;
-
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
         public Database(IConfiguration configuration)
@@ -69,7 +68,8 @@ namespace Web.Server.Utilities
                         if (player.PlayerBans == null)
                             player.PlayerBans = new List<PlayerBan>();
 
-                        player.PlayerBans.Add(b);
+                        if (b != null)
+                            player.PlayerBans.Add(b);
                         return p;
                     }, new { PlayerId = (long)playerId }, splitOn: "BanId");
             }

@@ -1,0 +1,36 @@
+﻿@page "/shop"
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<br />
+<br />
+
+<ShopStepper active="active" />
+
+<AuthorizeView>
+    <Authorized>
+        <ShoppingItems />
+    </Authorized>
+    <NotAuthorized>
+        <center>
+            <form action="/signin" method="post">
+                <input type="hidden" name="returnUrl" value="/shop" />
+                <button class="btn btn-lg btn-info mr-sm-2" type="submit">Sign In</button>
+            </form>
+        </center>
+    </NotAuthorized>
+</AuthorizeView>
+
+
+@code {
+    private int active;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var state = await authenticationStateProvider.GetAuthenticationStateAsync();
+
+        if (state.User.Identity.IsAuthenticated)
+            active = 1;
+        else
+            active = 0;
+    }
+}

@@ -15,21 +15,22 @@ using Microsoft.AspNetCore.Authorization;
 namespace Web.Server.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
         private readonly IConfiguration configuration;
         private readonly Database database;
         private readonly DiscordMessager messager;
+        private readonly AvatarManager avatarManager;
 
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        public PlayersController(IConfiguration configuration, Database database, DiscordMessager messager)
-        {
+        public PlayersController(IConfiguration configuration, Database database, DiscordMessager messager, AvatarManager avatarManager)
+        {            
             this.configuration = configuration;
             this.database = database;
             this.messager = messager;
+            this.avatarManager = avatarManager;
         }
 
         [HttpPost]
@@ -47,6 +48,7 @@ namespace Web.Server.Controllers
                 Task.Factory.StartNew(() =>
                 {
                     messager.SendPlayerCreatedWebhook(player);
+                    avatarManager.SaveSteamPlayerAvatar(player.PlayerId);
                 });
             }
 

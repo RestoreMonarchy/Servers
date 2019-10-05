@@ -24,7 +24,7 @@ namespace Web.Client.Providers
             var userInfo = await _httpClient.GetJsonAsync<UserInfo>("user");
 
             var identity = userInfo.IsAuthenticated
-                ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userInfo.Name) }, "serverauth")
+                ? new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userInfo.SteamId.ToString()), new Claim(ClaimTypes.GivenName, userInfo.Name)}, "steamauth")
                 : new ClaimsIdentity();
 
             return new AuthenticationState(new ClaimsPrincipal(identity));

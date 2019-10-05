@@ -1,0 +1,55 @@
+﻿@page "/dashboard/announcements/edit-announcement/{id:int}"
+@using Microsoft.AspNetCore.Components.Web;
+@using System.Globalization;
+@using Core.Models;
+@using System.Security.Claims;
+@using Markdig;
+@using Newtonsoft.Json;
+@inject HttpClient httpClient
+@inject AuthenticationStateProvider authenticationStateProvider
+
+<nav class="mt-4 mb-3" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">Dashboard</li>
+        <li class="breadcrumb-item"><a href="/dashboard/announcements">Announcements</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Edit Announcement</li>
+    </ol>
+</nav>
+
+@if (announcement != null)
+{
+    <AnnouncementForm IsEdit="true" Announcement="announcement" OnSubmitted="UpdateAnnouncementAsync" />
+}
+else
+{
+    <div class="progress">
+        <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public int Id { get; set; }
+
+    Announcement announcement;
+
+    protected override async Task OnInitializedAsync()
+    {
+        announcement = await httpClient.GetJsonAsync<Announcement>("api/announcements/" + Id);
+    }
+
+    public async Task UpdateAnnouncementAsync(Announcement editedAnnouncement)
+    {
+        var state = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.Identity.IsAuthenticated && editedAnnouncement.Content != null && editedAnnouncement.Title != null)
+        {
+            editedAnnouncement.AuthorId = ulong.Parse(state.User.Identity.Name);
+            string content = JsonConvert.SerializeObject(editedAnnouncement);
+            var msg = new HttpRequestMessage(new HttpMethod("PATCH"), "api/announcements");
+            msg.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await httpClient.SendAsync(msg);
+        }
+    }
+}

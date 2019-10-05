@@ -1,9 +1,10 @@
 ﻿<header class="navbar navbar-dark navbar-full bg-primary doc-navbar-default">
     <button aria-controls="navdrawerDefault" aria-expanded="false" aria-label="Toggle Navdrawer" class="navbar-toggler" data-target="#navdrawerDefault" data-toggle="navdrawer"><span class="navbar-toggler-icon"></span></button>
-    <span class="navbar-brand mr-auto">Restore Monarchy</span>
+    <a href="/" class="navbar-brand mr-auto">Restore Monarchy</a>
     <AuthorizeView>
         <Authorized>
-            <span class="font-weight-bold mr-sm-2" href="javascript:void(0)">@context.User.Identity.Name</span>
+            <a class="link" href="/account"><img src="/img/avatars/@string.Concat(context.User.Identity.Name, ".jpg")" width="35" height="35" class="rounded-circle" /></a>
+            <a class="nav-link font-weight-bold mr-sm-2" href="/account">@context.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName).Value</a>
             <form action="/signout" method="post">
                 <button class="btn btn-info mr-sm-2" type="submit">Sign Out</button>
             </form>
@@ -13,32 +14,29 @@
                 <button class="btn btn-info mr-sm-2" type="submit">Sign In</button>
             </form>
         </NotAuthorized>
-    </AuthorizeView>
+    </AuthorizeView>    
 </header>
 
 <div class="navdrawer navdrawer-default" id="navdrawerDefault" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="navdrawer-content">
         <div class="navdrawer-header">
-            <a class="navbar-brand px-0" href="javascript:void(0)">Navdrawer header</a>
-            
+            <a class="navbar-brand px-0" href="javascript:void(0)">Restore Monarchy</a>            
         </div>
         <nav class="navdrawer-nav">            
-            <a class="nav-item nav-link active" href="javascript:void(0)">Active</a>
-            <a class="nav-item nav-link disabled" href="javascript:void(0)">Disabled</a>
-            <a class="nav-item nav-link" href="javascript:void(0)">Link</a>
+            <a class="nav-item nav-link active" href="/">Home</a>
+            <a class="nav-item nav-link " href="/shop">Shop</a>
+            <a class="nav-item nav-link" href="javascript:void(0)">Players</a>
         </nav>
-        <div class="navdrawer-divider"></div>
-        <p class="navdrawer-subheader">Navdrawer subheader</p>
-        <ul class="navdrawer-nav">
-            <li class="nav-item">
-                <a class="nav-link active" href="javascript:void(0)"><i class="material-icons mr-3">alarm_on</i> Active with icon</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link disabled" href="javascript:void(0)"><i class="material-icons mr-3">alarm_off</i> Disabled with icon</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)"><i class="material-icons mr-3">link</i> Link with icon</a>
-            </li>
-        </ul>
+        <AuthorizeView>
+            <Authorized>
+                <div class="navdrawer-divider"></div>
+                <p class="navdrawer-subheader">Dashboard</p>
+                <ul class="navdrawer-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/dashboard/announcements">Announcements</a>
+                    </li>
+                </ul>
+            </Authorized>
+        </AuthorizeView>        
     </div>
 </div>
