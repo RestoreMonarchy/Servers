@@ -18,6 +18,8 @@ namespace Core.Models
         public ulong PlayerId { get; set; }
         public string PlayerName { get; set; }
         public string PlayerCountry { get; set; }
+        public decimal Balance { get; set; }
+        public string Role { get; set; }
         public DateTime PlayerLastActivity { get; set; }
         public DateTime PlayerCreated { get; set; }
 

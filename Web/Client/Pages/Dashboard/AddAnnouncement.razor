@@ -8,15 +8,21 @@
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
 
-<nav class="mt-4 mb-3" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
-        <li class="breadcrumb-item"><a href="/dashboard/announcements">Announcements</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Add Announcement</li>
-    </ol>
-</nav>
-
-<AnnouncementForm IsEdit="false" Announcement="announcement" OnSubmitted="PostAnnouncementAsync" />
+<AuthorizeView Roles="Admin, Moderator">
+    <Authorized>
+        <nav class="mt-4 mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="/dashboard/announcements">Announcements</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Add Announcement</li>
+            </ol>
+        </nav>
+        <AnnouncementForm IsEdit="false" Announcement="announcement" OnSubmitted="PostAnnouncementAsync" />
+    </Authorized>
+    <NotAuthorized>
+        <NotAuthorizedMessage />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     Announcement announcement = new Announcement();

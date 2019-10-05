@@ -1,5 +1,6 @@
 ﻿using Core.Models;
 using Dapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -12,6 +13,7 @@ using Web.Server.Utilities;
 namespace Web.Server.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "Admin")]
     [Route("api/[controller]")]
     public class AnnouncementsController : ControllerBase
     {
@@ -39,6 +41,7 @@ namespace Web.Server.Controllers
             return Ok(rows);
         }
         [HttpGet]
+        [AllowAnonymous]
         public ActionResult<List<Announcement>> GetAnnouncements([FromHeader] int pages = 5)
         {
             string sql = "SELECT TOP(@pages) a.*, p.* FROM dbo.Announcements as a INNER JOIN dbo.Players as p ON a.AuthorId = p.PlayerId ORDER BY a.CreateDate DESC;";
@@ -55,6 +58,7 @@ namespace Web.Server.Controllers
         }
 
         [HttpGet("{announcementId}")]
+        [AllowAnonymous]
         public ActionResult<Announcement> GetAnnouncement(int announcementId)
         {
             string sql = "SELECT a.*, p.* FROM dbo.Announcements as a INNER JOIN dbo.Players as p ON a.AuthorId = p.PlayerId WHERE a.AnnouncementId = @announcementId;";

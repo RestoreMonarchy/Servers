@@ -17,7 +17,7 @@ namespace Web.Server.Controllers
     {
         private readonly IConfiguration configuration;
         private readonly Database database;
-
+        
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
         public ProductsController(IConfiguration configuration, Database database)

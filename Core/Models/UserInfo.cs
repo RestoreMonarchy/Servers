@@ -7,7 +7,6 @@ namespace Core.Models
     public class UserInfo
     {
         public bool IsAuthenticated { get; set; }
-        public ulong SteamId { get; set; }
-        public string Name { get; set; }
+        public Player Player { get; set; }
     }
 }

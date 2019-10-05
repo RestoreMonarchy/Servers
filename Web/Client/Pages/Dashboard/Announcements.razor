@@ -6,55 +6,63 @@
 @using Markdig;
 @using Newtonsoft.Json;
 @inject HttpClient httpClient
+@inject AuthenticationStateProvider authenticationStateProvider
 
-<nav class="mt-4 mb-3" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">Dashboard</li>
-        <li class="breadcrumb-item active" aria-current="page">Announcements</li>
-    </ol>
-</nav>
+<AuthorizeView Roles="Moderator, Admin">
+    <Authorized>
+        <nav class="mt-4 mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">Dashboard</li>
+                <li class="breadcrumb-item active" aria-current="page">Announcements</li>
+            </ol>
+        </nav>
+        @if (loaded)
+        {
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Last Update</th>
+                        <th scope="col">Date Created</th>
+                        @*<th scpoe="col"></th>*@
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var announcement in announcements)
+                    {
+                        <tr>
+                            <th scope="row">@announcement.AnnouncementId</th>
+                            <td>@announcement.Title</td>
+                            <td><a href="https://steamcommunity.com/profiles/@announcement.AuthorId">@announcement.Author.PlayerName</a></td>
+                            <td>@announcement.UpdateDate.ToString()</td>
+                            <td>@announcement.CreateDate.ToString()</td>
+                            <td>
+                                <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
+                                <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
+                                    <a class="dropdown-item" href="/dashboard/announcements/edit-announcement/@announcement.AnnouncementId">Edit</a>
+                                    <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteAnnouncement(announcement))">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <a href="/dashboard/announcements/add-announcement" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+        }
+        else
+        {
+            <div class="progress">
+                <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <NotAuthorizedMessage />
+    </NotAuthorized>
+</AuthorizeView>
 
-@if (loaded)
-{
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Title</th>
-                <th scope="col">Author</th>
-                <th scope="col">Last Update</th>
-                <th scope="col">Date Created</th>
-                @*<th scpoe="col"></th>*@
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var announcement in announcements)
-            {
-                <tr>
-                    <th scope="row">@announcement.AnnouncementId</th>
-                    <td>@announcement.Title</td>
-                    <td><a href="https://steamcommunity.com/profiles/@announcement.AuthorId">@announcement.Author.PlayerName</a></td>
-                    <td>@announcement.UpdateDate.ToString()</td>
-                    <td>@announcement.CreateDate.ToString()</td>
-                    <td>
-                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
-                        <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
-                            <a class="dropdown-item" href="/dashboard/announcements/edit-announcement/@announcement.AnnouncementId">Edit</a>
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteAnnouncement(announcement))">Delete</a>
-                        </div>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-    <a href="/dashboard/announcements/add-announcement" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
-}
-else
-{
-    <div class="progress">
-        <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
-    </div>
-}
 
 @code {
     public List<Announcement> announcements;
@@ -62,14 +70,16 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        announcements = await httpClient.GetJsonAsync<List<Announcement>>("api/announcements?pages=100");
-
-        foreach (var announcement in announcements)
+        var state = await authenticationStateProvider.GetAuthenticationStateAsync();
+        if (state.User.IsInRole("Moderator") || state.User.IsInRole("Admin"))
         {
-            announcement.Content = Markdown.ToHtml(announcement.Content);
-        }
-
-        loaded = true;
+            announcements = await httpClient.GetJsonAsync<List<Announcement>>("api/announcements?pages=100");
+            foreach (var announcement in announcements)
+            {
+                announcement.Content = Markdown.ToHtml(announcement.Content);
+            }
+            loaded = true;
+        }  
     }
 
     public async Task DeleteAnnouncement(Announcement announcement)
@@ -78,4 +88,3 @@ else
         await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, "api/announcements/" + announcement.AnnouncementId));
     }
 }
-

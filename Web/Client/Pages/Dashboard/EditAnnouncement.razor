@@ -8,24 +8,31 @@
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
 
-<nav class="mt-4 mb-3" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">Dashboard</li>
-        <li class="breadcrumb-item"><a href="/dashboard/announcements">Announcements</a></li>
-        <li class="breadcrumb-item active" aria-current="page">Edit Announcement</li>
-    </ol>
-</nav>
+<AuthorizeView Roles="Admin, Moderator">
+    <Authorized>
+        <nav class="mt-4 mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">Dashboard</li>
+                <li class="breadcrumb-item"><a href="/dashboard/announcements">Announcements</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Announcement</li>
+            </ol>
+        </nav>
 
-@if (announcement != null)
-{
-    <AnnouncementForm IsEdit="true" Announcement="announcement" OnSubmitted="UpdateAnnouncementAsync" />
-}
-else
-{
-    <div class="progress">
-        <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
-    </div>
-}
+        @if (announcement != null)
+        {
+            <AnnouncementForm IsEdit="true" Announcement="announcement" OnSubmitted="UpdateAnnouncementAsync" />
+        }
+        else
+        {
+            <div class="progress">
+                <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
+            </div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <NotAuthorizedMessage />
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
 

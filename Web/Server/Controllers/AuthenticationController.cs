@@ -27,10 +27,11 @@ namespace Web.Server.Controllers
 
         [HttpGet("~/user")]
         public UserInfo GetUser()
-        {
+        {   
             if (User.Identity.IsAuthenticated && ulong.TryParse(User.Claims.First().Value.Substring(37), out ulong steamId))
             {
-                return new UserInfo { Name = database.GetPlayer(steamId).PlayerName, IsAuthenticated = true, SteamId = steamId };
+                var player = database.GetPlayer(steamId);
+                return new UserInfo { Player = player, IsAuthenticated = true };
             } else
             {
                 return new UserInfo() { IsAuthenticated = false };
