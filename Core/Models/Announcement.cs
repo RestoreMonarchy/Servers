@@ -9,7 +9,7 @@ namespace Core.Models
         public int AnnouncementId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public ulong AuthorId { get; set; }
+        public string AuthorId { get; set; }
         public DateTime UpdateDate { get; set; }
         public DateTime CreateDate { get; set; }
 

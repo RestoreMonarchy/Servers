@@ -19,6 +19,17 @@ namespace Web.Server.Utilities
             this.configuration = configuration;
         }
 
+        public Player CreatePlayer(Player player)
+        {
+            string sql = "INSERT INTO dbo.Players (PlayerId, PlayerName, PlayerCountry) OUTPUT inserted.* VALUES (@PlayerId, @PlayerName, @PlayerCountry);";
+
+            using (var conn = connection)
+            {
+                player = conn.QuerySingle<Player>(sql, player);
+            }
+            return player;
+        }
+
         public PlayerBan GetPlayerBan(int banId)
         {
             string sql = "SELECT b.*, p.*, p2.* FROM dbo.PlayerBans AS b LEFT JOIN dbo.Players AS p ON p.PlayerId = b.PlayerId " +
@@ -53,7 +64,7 @@ namespace Web.Server.Utilities
             }
         }
 
-        public Player GetPlayer(ulong playerId)
+        public Player GetPlayer(string playerId)
         {
             string sql = "SELECT p.*, b.* FROM dbo.Players AS p LEFT JOIN dbo.PlayerBans AS b ON b.PlayerId = p.PlayerId WHERE p.PlayerId = @PlayerId;";
             Player player = null;
@@ -71,7 +82,7 @@ namespace Web.Server.Utilities
                         if (b != null)
                             player.PlayerBans.Add(b);
                         return p;
-                    }, new { PlayerId = (long)playerId }, splitOn: "BanId");
+                    }, new { PlayerId = playerId }, splitOn: "BanId");
             }
             return player;
         }

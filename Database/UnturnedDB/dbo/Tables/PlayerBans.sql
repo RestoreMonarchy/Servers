@@ -1,8 +1,8 @@
 ﻿CREATE TABLE [dbo].[PlayerBans]
 (
 	BanId INT NOT NULL IDENTITY(1,1),
-    PlayerId BIGINT NOT NULL,
-    PunisherId BIGINT NOT NULL,
+    PlayerId VARCHAR(255) NOT NULL,
+    PunisherId VARCHAR(255) NOT NULL,
     BanReason VARCHAR(255) NULL,
     BanDuration INT NULL,
     BanCreated DATETIME2 NOT NULL DEFAULT(SYSDATETIME()),

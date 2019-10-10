@@ -6,4 +6,3 @@
     [DateCreated]   DATETIME2 (0) DEFAULT (sysdatetime()) NOT NULL,
     PRIMARY KEY CLUSTERED ([GroupID] ASC)
 );
-

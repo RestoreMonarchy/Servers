@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Core.Models;
@@ -11,21 +7,24 @@ using Dapper;
 using Web.Server.Utilities;
 using Web.Server.Utilities.DiscordMessager;
 using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Security.Claims;
 
 namespace Web.Server.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "Moderator, Admin")]
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
         private readonly IConfiguration configuration;
         private readonly Database database;
         private readonly DiscordMessager messager;
-        private readonly AvatarManager avatarManager;
+        private readonly ImageManager avatarManager;
 
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        public PlayersController(IConfiguration configuration, Database database, DiscordMessager messager, AvatarManager avatarManager)
+        public PlayersController(IConfiguration configuration, Database database, DiscordMessager messager, ImageManager avatarManager)
         {            
             this.configuration = configuration;
             this.database = database;
@@ -34,16 +33,11 @@ namespace Web.Server.Controllers
         }
 
         [HttpPost]
-        public ActionResult<int> AddPlayer([FromBody] Player player)
+        public ActionResult<Player> AddPlayer([FromBody] Player player)
         {
-            string sql = "INSERT INTO dbo.Players (PlayerId, PlayerName, PlayerCountry) VALUES (@PlayerId, @PlayerName, @PlayerCountry);";
-            int rows = 0;
-            using (var conn = connection)
-            {
-                rows = conn.Execute(sql, new { PlayerId = (long)player.PlayerId, player.PlayerName, player.PlayerCountry });
-            }
+            player = database.CreatePlayer(player);
 
-            if (rows > 0)
+            if (player != null)
             {
                 Task.Factory.StartNew(() =>
                 {
@@ -52,11 +46,25 @@ namespace Web.Server.Controllers
                 });
             }
 
-            return Ok(rows);
+            return Ok(player);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public ActionResult<Player> GetMyPlayer()
+        {
+            Player player;
+            if (User.Identity.IsAuthenticated)
+            {
+                player = database.GetPlayer(User.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37));
+            } else
+                player = null;
+
+            return player;
         }
 
         [HttpGet("{playerId}")]
-        public ActionResult<Player> GetPlayer(ulong playerId)
+        public ActionResult<Player> GetPlayer(string playerId)
         {
             Player player = database.GetPlayer(playerId);
 

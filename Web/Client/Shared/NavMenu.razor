@@ -1,4 +1,5 @@
-﻿<header class="navbar navbar-dark navbar-full bg-primary doc-navbar-default">
+﻿@inject NavigationManager navigation
+<header class="navbar navbar-dark navbar-full bg-primary doc-navbar-default">
     <button aria-controls="navdrawerDefault" aria-expanded="false" aria-label="Toggle Navdrawer" class="navbar-toggler" data-target="#navdrawerDefault" data-toggle="navdrawer"><span class="navbar-toggler-icon"></span></button>
     <a href="/" class="navbar-brand mr-auto">Restore Monarchy</a>
     <AuthorizeView>
@@ -14,18 +15,18 @@
                 <button class="btn btn-info mr-sm-2" type="submit">Sign In</button>
             </form>
         </NotAuthorized>
-    </AuthorizeView>    
+    </AuthorizeView>
 </header>
 
 <div class="navdrawer navdrawer-default" id="navdrawerDefault" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="navdrawer-content">
         <div class="navdrawer-header">
-            <a class="navbar-brand px-0" href="javascript:void(0)">Restore Monarchy</a>            
+            <a class="navbar-brand px-0" href="javascript:void(0)">Restore Monarchy</a>
         </div>
-        <nav class="navdrawer-nav">            
-            <a class="nav-item nav-link active" href="/">Home</a>
-            <a class="nav-item nav-link " href="/shop">Shop</a>
-            <a class="nav-item nav-link" href="javascript:void(0)">Players</a>
+        <nav class="navdrawer-nav">
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link @(location == "" ? "active" : "")" href="/">Home</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link @(location == "shop" ? "active" : "")" href="/shop">Shop</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link @(location == "players" ? "active" : "")" href="javascript:void(0)">Players</a>
         </nav>
         <AuthorizeView Roles="Admin, Moderator">
             <Authorized>
@@ -33,10 +34,29 @@
                 <p class="navdrawer-subheader">Dashboard</p>
                 <ul class="navdrawer-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" href="/dashboard/announcements">Announcements</a>
+                        <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-link active" href="/dashboard/announcements">Announcements</a>
+                    </li>
+                    <li class="nav-item">
+                        <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-link active" href="/dashboard/products">Products</a>
                     </li>
                 </ul>
             </Authorized>
-        </AuthorizeView>        
+        </AuthorizeView>
     </div>
 </div>
+
+@code {
+
+    string location;
+
+    protected override async Task OnInitializedAsync()
+    {
+        location = navigation.ToBaseRelativePath(navigation.Uri);
+        navigation.LocationChanged += LocationChanged;
+    }
+
+    private void LocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        location = navigation.ToBaseRelativePath(navigation.Uri);
+    }
+}

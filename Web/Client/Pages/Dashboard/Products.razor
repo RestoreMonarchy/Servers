@@ -1,0 +1,101 @@
+﻿@page "/dashboard/products"
+@using Core.Models;
+@inject HttpClient httpClient
+@inject AuthenticationStateProvider authenticationStateProvider
+@using Markdig
+@using Newtonsoft.Json;
+@attribute [Authorize(Roles = "Admin, Moderator")]
+
+
+<nav class="mt-4 mb-3" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">Dashboard</li>
+        <li class="breadcrumb-item active" aria-current="page">Products</li>
+    </ol>
+</nav>
+@if (loaded)
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Category</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Last Update</th>
+                <th scope="col">Date Created</th>
+                @*<th scpoe="col"></th>*@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in products)
+            {
+                <tr>
+                    <th scope="row">@product.ProductId</th>
+                    <td>@product.Name</td>
+                    <td>@product.Price.ToString("C")</td>
+                    <td>@product.Category</td>
+                    <td>@(product.Duration == null ? "permanent" : product.Duration + " days")</td>
+                    <td>@product.UpdateDate.ToString()</td>
+                    <td>@product.CreateDate.ToString()</td>
+                    <td>
+                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
+                        <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
+                            <a class="dropdown-item" data-toggle="modal" data-target="#productModal" href="javascript:void(0)"
+                                @onclick="(e => { editProduct = product; isEdit = true; })">Edit</a>
+                            <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteProductAsync(product))">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a href="javascript:void(0)" data-toggle="modal" data-target="#productModal" @onclick="(e => { editProduct = new Product(); isEdit = false; })" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+    <ProductForm Product="editProduct" IsEdit="isEdit" OnSubmitted="OnSubmittedAsync" />
+}
+else
+{
+    <ProgressBar />
+}
+
+@code {
+    List<Product> products;
+    Product editProduct;
+    bool isEdit;
+    public bool loaded = false;
+
+    public async Task OnSubmittedAsync(Product product)
+    {
+        if (isEdit)
+            await PatchProductAsync(product);
+        else
+            await PostProductAsync(product);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {        
+        products = await httpClient.GetJsonAsync<List<Product>>("api/products");
+        loaded = true;
+    }
+
+    public async Task PostProductAsync(Product product)
+    {
+        await httpClient.PostJsonAsync("api/products", product);
+    }
+
+    public async Task PatchProductAsync(Product product)
+    {
+        string content = JsonConvert.SerializeObject(product);
+        var msg = new HttpRequestMessage(new HttpMethod("PATCH"), "api/products");
+        msg.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
+
+        var response = await httpClient.SendAsync(msg);
+    }
+
+    public async Task DeleteProductAsync(Product product)
+    {
+        products.Remove(product);
+        await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, "api/products/" + product.ProductId));
+    }
+}

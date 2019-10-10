@@ -6,7 +6,7 @@ namespace Core.Models
 {
     public class Player
     {
-        public Player(ulong id, string name, string country)
+        public Player(string id, string name, string country)
         {
             PlayerId = id;
             PlayerName = name;
@@ -15,7 +15,7 @@ namespace Core.Models
         }
 
         public Player() { }
-        public ulong PlayerId { get; set; }
+        public string PlayerId { get; set; }
         public string PlayerName { get; set; }
         public string PlayerCountry { get; set; }
         public decimal Balance { get; set; }

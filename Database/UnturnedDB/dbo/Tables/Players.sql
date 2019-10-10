@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Players]
 (
-	PlayerId BIGINT NOT NULL,
+	PlayerId VARCHAR(255) NOT NULL,
     PlayerName NVARCHAR(255) NOT NULL,
     PlayerCountry CHAR(2) NULL,
 	Balance DECIMAL(9,2) DEFAULT(0) NOT NULL,

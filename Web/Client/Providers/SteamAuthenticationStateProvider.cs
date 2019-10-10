@@ -23,16 +23,27 @@ namespace Web.Client.Providers
         {
             var userInfo = await _httpClient.GetJsonAsync<UserInfo>("user");
 
-            var steamIdentity = userInfo.IsAuthenticated
-                ? new ClaimsIdentity(new[] { 
-                    new Claim(ClaimTypes.Name, userInfo.Player.PlayerId.ToString()), 
-                    new Claim(ClaimTypes.GivenName, userInfo.Player.PlayerName), 
-                    new Claim(ClaimTypes.Role, userInfo.Player.Role), 
-                    new Claim(ClaimTypes.Country, userInfo.Player.PlayerCountry), 
-                    new Claim("Balance", userInfo.Player.Balance.ToString("{0:0.##}"))}, "steamauth")
-                : new ClaimsIdentity();
+            ClaimsIdentity steamIdentity;
+
+            if (userInfo.IsAuthenticated)
+            {
+                steamIdentity = GetClaimsIdentity(userInfo.Player);
+            } else
+            {
+                steamIdentity = new ClaimsIdentity();
+            }
 
             return new AuthenticationState(new ClaimsPrincipal(steamIdentity));
+        }
+
+        private ClaimsIdentity GetClaimsIdentity(Player player)
+        {
+            return new ClaimsIdentity(new[] {
+                        new Claim(ClaimTypes.Name, player.PlayerId),
+                        new Claim(ClaimTypes.GivenName, player.PlayerName),
+                        new Claim(ClaimTypes.Role, player.Role),
+                        new Claim(ClaimTypes.Country, player.PlayerCountry == null ? string.Empty : player.PlayerCountry),
+                        new Claim("Balance", player.Balance.ToString("{0:0.##}"))}, "steamauth");
         }
 
         public void NotifyAuthenticationStateChanged()

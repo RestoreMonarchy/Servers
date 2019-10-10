@@ -24,14 +24,14 @@ namespace Core
         {
             public PermissionMember() { }
 
-            public PermissionMember(string groupId, ulong steamId)
+            public PermissionMember(string groupId, string steamId)
             {
                 GroupID = groupId;
                 SteamID = steamId;
             }
 
             public string GroupID { get; set; }
-            public ulong SteamID { get; set; }
+            public string SteamID { get; set; }
 
             public virtual PermissionGroup Group { get; set; }
         }

@@ -34,7 +34,7 @@ namespace Web.Server.Controllers
             int banId;
             using (var conn = connection)
             {
-                banId = conn.ExecuteScalar<int>(sql, new { PlayerId = (long)ban.PlayerId, PunisherId = (long)ban.PunisherId, ban.BanReason, ban.BanDuration });
+                banId = conn.ExecuteScalar<int>(sql, new { PlayerId = ban.PlayerId, PunisherId = ban.PunisherId, ban.BanReason, ban.BanDuration });
             }
 
             Task.Factory.StartNew(() =>

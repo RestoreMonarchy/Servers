@@ -33,7 +33,7 @@ namespace Web.Server.Controllers
             {
                 using (var conn = connection)
                 {
-                    return Ok(conn.Execute(sql, new { member.GroupID, SteamID = (long)member.SteamID }));
+                    return Ok(conn.Execute(sql, member));
                 }
             }
             catch
@@ -48,7 +48,7 @@ namespace Web.Server.Controllers
             string sql = "DELETE FROM dbo.PermissionMembers WHERE SteamID = @SteamID AND GroupID = @GroupID;";
             using (var conn = connection)
             {
-                return Ok(conn.Execute(sql, new { SteamID = (long)member.SteamID, member.GroupID }));
+                return Ok(conn.Execute(sql, member));
             }
         }
 
@@ -107,7 +107,7 @@ namespace Web.Server.Controllers
         }
 
         [HttpGet("Members/{steamID}")]
-        public ActionResult<List<PermissionGroup>> GetGroups(ulong steamID)
+        public ActionResult<List<PermissionGroup>> GetGroups(string steamID)
         {
             string sql = "SELECT m.*, g.*, p.* FROM dbo.PermissionMembers AS m LEFT JOIN dbo.PermissionGroups as g ON g.GroupID = m.GroupID " +
                 "LEFT JOIN dbo.Permissions as p ON p.GroupID = m.GroupID WHERE m.SteamID = @SteamID;";
@@ -139,7 +139,7 @@ namespace Web.Server.Controllers
                             group.Members.Add(m);
 
                         return m;
-                    }, splitOn: "GroupID,GroupID", param: new { SteamID = (long)steamID });
+                    }, splitOn: "GroupID,GroupID", param: new { SteamID = steamID });
 
                 conn.Query<PermissionGroup, PermissionGroup.Permission, PermissionGroup>(sql2,
                     (g, p) =>

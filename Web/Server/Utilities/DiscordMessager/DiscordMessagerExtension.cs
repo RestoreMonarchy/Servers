@@ -45,7 +45,7 @@ namespace Web.Server.Utilities.DiscordMessager
             }
         }
 
-        public static void SendPlayerCreatedWebhook(this DiscordMessager messager, ulong playerId)
+        public static void SendPlayerCreatedWebhook(this DiscordMessager messager, string playerId)
         {
             SendPlayerCreatedWebhook(messager, messager.Database.GetPlayer(playerId));
         }

@@ -31,11 +31,14 @@ namespace Web.Server.Controllers
         [HttpPost]
         public ActionResult<int> AddAnnouncement([FromBody] Announcement announcement)
         {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Add Announcement called!");
             string sql = "INSERT INTO dbo.Announcements (Title, Content, AuthorId) VALUES (@Title, @Content, @AuthorId);";
+            Console.WriteLine(announcement.AuthorId);
             int rows = 0;
             using (var conn = connection)
             {
-                rows = conn.Execute(sql, new { announcement.Title, announcement.Content, AuthorId = (long)announcement.AuthorId  });
+                rows = conn.Execute(sql, new { announcement.Title, announcement.Content, AuthorId = announcement.AuthorId  });
             }
 
             return Ok(rows);
@@ -81,7 +84,7 @@ namespace Web.Server.Controllers
             int rows = 0;
             using (var conn = connection)
             {
-                rows = conn.Execute(sql, new { announcement.Title, announcement.Content, AuthorId = (long)announcement.AuthorId, UpdateDate = DateTime.Now, announcement.AnnouncementId });
+                rows = conn.Execute(sql, new { announcement.Title, announcement.Content, AuthorId = announcement.AuthorId, UpdateDate = DateTime.Now, announcement.AnnouncementId });
             }
 
             return Ok(rows);

@@ -51,7 +51,7 @@
         var state = await authenticationStateProvider.GetAuthenticationStateAsync();
         if (state.User.Identity.IsAuthenticated && editedAnnouncement.Content != null && editedAnnouncement.Title != null)
         {
-            editedAnnouncement.AuthorId = ulong.Parse(state.User.Identity.Name);
+            editedAnnouncement.AuthorId = state.User.Identity.Name;
             string content = JsonConvert.SerializeObject(editedAnnouncement);
             var msg = new HttpRequestMessage(new HttpMethod("PATCH"), "api/announcements");
             msg.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");

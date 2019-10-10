@@ -68,5 +68,6 @@
     <Build Include="dbo\Tables\PlayerBans.sql" />
     <Build Include="dbo\Tables\Players.sql" />
     <Build Include="dbo\Tables\Announcements.sql" />
+    <Build Include="dbo\Tables\Products.sql" />
   </ItemGroup>
 </Project>

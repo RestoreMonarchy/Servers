@@ -10,21 +10,20 @@ using System.Threading.Tasks;
 
 namespace Web.Server.Utilities
 {
-    public class AvatarManager
+    public class ImageManager
     {
         private readonly IConfiguration configuration;
         private readonly string directory;
         private readonly string avatarDir;
 
-        [Obsolete]
-        public AvatarManager(IHostingEnvironment environment, IConfiguration configuration)
+        public ImageManager(IWebHostEnvironment environment, IConfiguration configuration)
         {
             this.configuration = configuration;
-            this.directory = environment.ContentRootPath + "/wwwroot/img/";
+            this.directory = environment.ContentRootPath + @"\Web.Client\dist\img\";
             this.avatarDir = directory + "avatars/";
         }
 
-        public void SaveSteamPlayerAvatar(ulong steamId)
+        public void SaveSteamPlayerAvatar(string steamId)
         {
             string url = "http://" + "api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=" + configuration["SteamAPI"] + "&steamids=" + steamId;
             string data;
@@ -37,11 +36,11 @@ namespace Web.Server.Utilities
             SaveAvatar(avatarUrl, steamId);
         }
 
-        public void SaveAvatar(string url, ulong steamId)
+        public void SaveAvatar(string url, string steamId)
         {
             using (WebClient wc = new WebClient())
             {
-                wc.DownloadFile(url, @"D:\MCrow\Github\RestoreMonarchy\Web\Client\wwwroot\img\avatars\" + steamId + ".jpg");
+                wc.DownloadFile(url, avatarDir + steamId + ".jpg");
             }
         }
     }

@@ -1,6 +1,3 @@
-using Blazorise;
-using Blazorise.Icons.Material;
-using Blazorise.Material;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,22 +13,10 @@ namespace Web.Client
         {
             services.AddAuthorizationCore();
             services.AddScoped<AuthenticationStateProvider, SteamAuthenticationStateProvider>();
-
-            services
-                .AddBlazorise(options =>
-                {
-                    options.ChangeTextOnKeyPress = true;
-                })
-                .AddMaterialProviders()
-                .AddMaterialIcons();
         }
 
         public void Configure(IComponentsApplicationBuilder app)
         {
-            app.Services
-                .UseMaterialProviders()
-                .UseMaterialIcons();
-
             app.AddComponent<App>("app");
         }
     }

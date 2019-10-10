@@ -6,9 +6,8 @@ namespace Core.Models
 {
     public class PlayerBan
     {
-        public PlayerBan(int id, ulong playerId, ulong punisherId, string reason = null, int? duration = null)
+        public PlayerBan(string playerId, string punisherId, string reason = null, int? duration = null)
         {
-            BanId = id;
             PlayerId = playerId;
             PunisherId = punisherId;
             BanReason = reason;
@@ -16,8 +15,8 @@ namespace Core.Models
         }
         public PlayerBan() { }
         public int BanId { get; set; }
-        public ulong PlayerId { get; set; }
-        public ulong PunisherId { get; set; }
+        public string PlayerId { get; set; }
+        public string PunisherId { get; set; }
         public string BanReason { get; set; }
         public int? BanDuration { get; set; }
         public DateTime BanCreated { get; set; }
