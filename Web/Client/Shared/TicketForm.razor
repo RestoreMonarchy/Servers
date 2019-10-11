@@ -3,6 +3,7 @@
 @using Markdig;
 @using Core.Models;
 @attribute [Authorize]
+@inject IJSRuntime JsRuntime;
 
 <div class="modal fade" id="ticketModal" tabindex="-1" role="dialog" aria-labelledby="ticketLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -67,6 +68,7 @@
 
     private async Task onSumbit()
     {
+        await JsRuntime.InvokeVoidAsync("HideModal", "ticketModal");
         await OnSubmitted.InvokeAsync(Ticket);
     }
 }
