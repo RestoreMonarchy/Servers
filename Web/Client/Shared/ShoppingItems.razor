@@ -26,9 +26,9 @@
                     @foreach (var product in products.Where(x => x.Category.Equals(active, StringComparison.OrdinalIgnoreCase)))
                     {
                         string modalId = product.ProductId + "Details";
-                        <div class="card" style="width: 15rem;">
+                        <div class="card mr-lg-4" style="max-width: 300px;">
                             <button class="unstyle-button" type="button" data-toggle="modal" data-target="#@modalId">
-                                <img class="card-img-top" style="width: 15rem; height: 13rem; object-fit: cover;" src="/img/products/@string.Concat(product.ProductId, ".png")">
+                                <img class="card-img-top" style="max-width: 100%;" src="/img/products/@string.Concat(product.ProductId, ".png")">
                             </button>
 
                             <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@string.Concat(product.ProductId, "DetailsLabel")" aria-hidden="true">
