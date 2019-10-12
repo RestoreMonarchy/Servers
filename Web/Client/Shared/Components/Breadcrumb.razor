@@ -1,0 +1,13 @@
+﻿<nav class="mt-4 mb-3" aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        @for (int i = 0; i < Items.Length; i++)
+        {
+            <li class="breadcrumb-item @(i + 1 == Items.Length ? "active" : "")">@Items[i]</li>
+        }
+    </ol>
+</nav>
+
+@code {
+    [Parameter]
+    public string[] Items { get; set; }
+}

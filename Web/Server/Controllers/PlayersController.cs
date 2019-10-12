@@ -20,16 +20,14 @@ namespace Web.Server.Controllers
         private readonly IConfiguration configuration;
         private readonly Database database;
         private readonly DiscordMessager messager;
-        private readonly ImageManager avatarManager;
 
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        public PlayersController(IConfiguration configuration, Database database, DiscordMessager messager, ImageManager avatarManager)
+        public PlayersController(IConfiguration configuration, Database database, DiscordMessager messager)
         {            
             this.configuration = configuration;
             this.database = database;
             this.messager = messager;
-            this.avatarManager = avatarManager;
         }
 
         [HttpPost]
@@ -42,7 +40,6 @@ namespace Web.Server.Controllers
                 Task.Factory.StartNew(() =>
                 {
                     messager.SendPlayerCreatedWebhook(player);
-                    avatarManager.SaveSteamPlayerAvatar(player.PlayerId);
                 });
             }
 

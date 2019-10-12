@@ -1,7 +1,6 @@
 ﻿@page "/dashboard/announcements/add-announcement"
 @using Core.Models;
 @inject HttpClient httpClient
-@inject AuthenticationStateProvider authenticationStateProvider
 @attribute [Authorize(Roles = "Admin, Moderator")]
 
 <nav class="mt-4 mb-3" aria-label="breadcrumb">
@@ -18,11 +17,6 @@
 
     public async Task PostAnnouncementAsync(Announcement announcement)
     {
-        var state = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (announcement.Content != null && announcement.Title != null)
-        {
-            announcement.AuthorId = state.User.Identity.Name;
-            await httpClient.PostJsonAsync("api/announcements", announcement);
-        }
+        await httpClient.PostJsonAsync("api/announcements", announcement);
     }
 }

@@ -7,8 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
-using Web.Server.Utilities;
+using System.Security.Claims;
 
 namespace Web.Server.Controllers
 {
@@ -18,30 +17,30 @@ namespace Web.Server.Controllers
     public class AnnouncementsController : ControllerBase
     {
         private readonly IConfiguration configuration;
-        private readonly Database database;
 
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        public AnnouncementsController(IConfiguration configuration, Database database)
+        public AnnouncementsController(IConfiguration configuration)
         {
             this.configuration = configuration;
-            this.database = database;
         }
 
         [HttpPost]
-        public ActionResult<int> AddAnnouncement([FromBody] Announcement announcement)
+        public ActionResult<Announcement> AddAnnouncement([FromBody] Announcement announcement)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Add Announcement called!");
-            string sql = "INSERT INTO dbo.Announcements (Title, Content, AuthorId) VALUES (@Title, @Content, @AuthorId);";
-            Console.WriteLine(announcement.AuthorId);
-            int rows = 0;
+            string sql = "INSERT INTO dbo.Announcements (Title, Content, AuthorId, UpdateDate, CreateDate) " +
+                "VALUES (@Title, @Content, @AuthorId, @UpdateDate, @CreateDate);";
+
+            announcement.CreateDate = DateTime.Now;
+            announcement.UpdateDate = DateTime.Now;
+            announcement.AuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+
             using (var conn = connection)
             {
-                rows = conn.Execute(sql, new { announcement.Title, announcement.Content, AuthorId = announcement.AuthorId  });
+                announcement.AnnouncementId = conn.ExecuteScalar<int>(sql, announcement);
             }
 
-            return Ok(rows);
+            return Ok(announcement);
         }
         [HttpGet]
         [AllowAnonymous]
@@ -57,7 +56,8 @@ namespace Web.Server.Controllers
                     return a;
                 }, new { pages }, splitOn: "PlayerId").ToList();
             }
-            return announcements;
+
+            return Ok(announcements);
         }
 
         [HttpGet("{announcementId}")]
@@ -74,7 +74,7 @@ namespace Web.Server.Controllers
                     return a;
                 }, new { announcementId }, splitOn: "PlayerId").FirstOrDefault();
             }
-            return announcement;
+            return Ok(announcement);
         }
 
         [HttpPatch]

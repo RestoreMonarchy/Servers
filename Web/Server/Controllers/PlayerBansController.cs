@@ -11,38 +11,40 @@ using Web.Server.Utilities.DiscordMessager;
 
 namespace Web.Server.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class PlayerBansController : ControllerBase
-    {
-        private readonly IConfiguration configuration;
-        private readonly DiscordMessager messager;
+    // This is useless for now and not used in the project yet
 
-        private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+    //[ApiController]
+    //[Route("api/[controller]")]
+    //public class PlayerBansController : ControllerBase
+    //{
+    //    private readonly IConfiguration configuration;
+    //    private readonly DiscordMessager messager;
 
-        public PlayerBansController(IConfiguration configuration, DiscordMessager messager)
-        {
-            this.configuration = configuration;
-            this.messager = messager;
-        }
+    //    private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        [HttpPost]
-        public ActionResult<int> AddBan([FromBody] PlayerBan ban)
-        {
-            string sql = "INSERT INTO dbo.PlayerBans (PlayerId, PunisherId, BanReason, BanDuration) OUTPUT INSERTED.BanId VALUES (@PlayerId, @PunisherId, @BanReason, @BanDuration);";
+    //    public PlayerBansController(IConfiguration configuration, DiscordMessager messager)
+    //    {
+    //        this.configuration = configuration;
+    //        this.messager = messager;
+    //    }
 
-            int banId;
-            using (var conn = connection)
-            {
-                banId = conn.ExecuteScalar<int>(sql, new { PlayerId = ban.PlayerId, PunisherId = ban.PunisherId, ban.BanReason, ban.BanDuration });
-            }
+    //    [HttpPost]
+    //    public ActionResult<int> AddBan([FromBody] PlayerBan ban)
+    //    {
+    //        string sql = "INSERT INTO dbo.PlayerBans (PlayerId, PunisherId, BanReason, BanDuration) OUTPUT INSERTED.BanId VALUES (@PlayerId, @PunisherId, @BanReason, @BanDuration);";
 
-            Task.Factory.StartNew(() =>
-            {
-                messager.SendBanWebhook(banId);
-            });
+    //        int banId;
+    //        using (var conn = connection)
+    //        {
+    //            banId = conn.ExecuteScalar<int>(sql, new { PlayerId = ban.PlayerId, PunisherId = ban.PunisherId, ban.BanReason, ban.BanDuration });
+    //        }
 
-            return banId;
-        }
-    }
+    //        Task.Factory.StartNew(() =>
+    //        {
+    //            messager.SendBanWebhook(banId);
+    //        });
+
+    //        return banId;
+    //    }
+    //}
 }

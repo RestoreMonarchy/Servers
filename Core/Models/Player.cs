@@ -18,6 +18,7 @@ namespace Core.Models
         public string PlayerId { get; set; }
         public string PlayerName { get; set; }
         public string PlayerCountry { get; set; }
+        public byte[] PlayerAvatar { get; set; }
         public decimal Balance { get; set; }
         public string Role { get; set; }
         public DateTime PlayerLastActivity { get; set; }

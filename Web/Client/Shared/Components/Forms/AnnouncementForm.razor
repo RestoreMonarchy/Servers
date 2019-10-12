@@ -1,0 +1,66 @@
+﻿@using Markdig;
+@using Core.Models;
+@inject NavigationManager navigation
+
+<EditForm Model="Announcement" OnValidSubmit="onSumbit">
+    <div class="row justify-content-center">
+        <div class="card col-xl-6">
+            <div class="card-body">
+                <DataAnnotationsValidator />
+                <h5 class="card-title">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-default">Title</span>
+                        </div>
+                        <InputText @bind-Value="@Announcement.Title" class="form-control is-invalid" />
+                        <div class="invalid-feedback">
+                            <ValidationMessage For="@(() => Announcement.Title)" />
+                        </div>
+                    </div>
+                </h5>
+                <p class="card-text">
+                    <h3>Content</h3>
+                    <InputTextArea rows="20" class="form-control is-invalid" @bind-Value="@Announcement.Content"></InputTextArea>
+                    <div class="invalid-feedback">
+                        <ValidationMessage For="@(() => Announcement.Content)" />
+                    </div>
+                </p>
+                <p class="card-text">
+                    <small class="text-muted">
+                        Published on @DateTime.Now.ToString("G") by You
+                    </small>
+                </p>
+            </div>
+        </div>
+        <div class="card col-xl-6">
+            <div class="card-body">
+                <h5 class="card-title">@Announcement.Title</h5>
+                <p class="card-text">
+                    @if (Announcement.Content != null)
+                    {
+                        @(new MarkupString(Markdown.ToHtml(Announcement.Content)))
+                    }
+                </p>
+                <p class="card-text"><small class="text-muted">Published on @DateTime.Now.ToString("G") by You</small></p>
+            </div>
+        </div>
+    </div>
+    <button class="btn btn-info mt-2" type="submit">@(IsEdit ? "Update" : "Create")</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public bool IsEdit { get; set; }
+
+    [Parameter]
+    public Announcement Announcement { get; set; }
+
+    [Parameter]
+    public EventCallback<Announcement> OnSubmitted { get; set; }
+
+    private async Task onSumbit()
+    {
+        await OnSubmitted.InvokeAsync(Announcement);
+        navigation.NavigateTo("dashboard/announcements");
+    }
+}

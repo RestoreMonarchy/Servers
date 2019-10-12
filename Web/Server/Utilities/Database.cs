@@ -21,7 +21,7 @@ namespace Web.Server.Utilities
 
         public Player CreatePlayer(Player player)
         {
-            string sql = "INSERT INTO dbo.Players (PlayerId, PlayerName, PlayerCountry) OUTPUT inserted.* VALUES (@PlayerId, @PlayerName, @PlayerCountry);";
+            string sql = "INSERT INTO dbo.Players (PlayerId, PlayerName, PlayerCountry, PlayerAvatar) OUTPUT inserted.* VALUES (@PlayerId, @PlayerName, @PlayerCountry, @PlayerAvatar);";
 
             using (var conn = connection)
             {

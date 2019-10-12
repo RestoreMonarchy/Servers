@@ -71,7 +71,7 @@ namespace Web.Server.Controllers
             return Ok(rows);
         }
 
-        [HttpDelete("productId")]
+        [HttpDelete("{productId}")]
         public ActionResult<int> DeleteProduct(string productId)
         {
             string sql = "DELETE FROM dbo.Products WHERE ProductId = @productId;";
@@ -82,6 +82,20 @@ namespace Web.Server.Controllers
             }
 
             return Ok(rows);
+        }
+
+        [HttpGet("{productId}")]
+        public ActionResult<Product> GetProduct(string productId)
+        {
+            string sql = "SELECT FROM dbo.Products WHERE ProductId = @productId;";
+
+            Product product;
+            using (var conn = connection)
+            {
+                product = conn.QuerySingle(sql, new { productId });
+            }
+
+            return Ok(product);
         }
     }
 }

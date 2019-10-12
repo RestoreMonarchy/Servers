@@ -1,15 +1,12 @@
 using Core.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -36,7 +33,6 @@ namespace Web.Server
             database = new Database(Configuration);
             steam = new SteamUtility(new HttpClient(), Configuration);
             services.AddSingleton<DiscordMessager>();
-            services.AddSingleton<ImageManager>();
             services.AddSingleton(steam);
             services.AddSingleton(database);
             services.AddTransient<HttpClient>();
@@ -64,8 +60,9 @@ namespace Web.Server
 
             if (player == null)
             {
+                HttpClient httpClient = new HttpClient();
                 string url = "http://ip-api.com/json/" + context.Request.HttpContext.Connection.RemoteIpAddress.ToString();
-                string content = await (new HttpClient()).GetStringAsync(url);
+                string content = await httpClient.GetStringAsync(url);
                 JObject obj = JObject.Parse(content);
 
                 string countryCode = null;
@@ -79,6 +76,7 @@ namespace Web.Server
                 if (steamPlayer != null)
                 {
                     player = new Player(steamId, steamPlayer.personaname, countryCode);
+                    player.PlayerAvatar = await httpClient.GetByteArrayAsync(steamPlayer.avatarfull);
                     player = database.CreatePlayer(player);
                 }
             }

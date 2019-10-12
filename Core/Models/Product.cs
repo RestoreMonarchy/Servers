@@ -15,6 +15,8 @@ namespace Core.Models
         [StringLength(4000, ErrorMessage = "Description is too long.")]
         public string Description { get; set; }
         [Required]
+        public byte[] Image { get; set; }
+        [Required]
         [Range(0, 999999999, ErrorMessage = "Accommodation invalid (0-999999999)")]
         public decimal Price { get; set; }
         [Required]

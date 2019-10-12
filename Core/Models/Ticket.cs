@@ -16,7 +16,7 @@ namespace Core.Models
         public string TicketContent { get; set; }
         [Required]
         public string TicketCategory { get; set; }
-        public string TicketAuthor { get; set; }
+        public string TicketAuthorId { get; set; }
         public int? TargetTicketId { get; set; }
         public DateTime TicketUpdate { get; set; }
         public DateTime TicketCreated { get; set; }

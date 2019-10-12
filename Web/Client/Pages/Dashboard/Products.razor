@@ -2,17 +2,10 @@
 @using Core.Models;
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
-@using Markdig
 @using Newtonsoft.Json;
 @attribute [Authorize(Roles = "Admin, Moderator")]
 
-
-<nav class="mt-4 mb-3" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">Dashboard</li>
-        <li class="breadcrumb-item active" aria-current="page">Products</li>
-    </ol>
-</nav>
+<Breadcrumb Items="@(new[] { "Dashboard", "Products" })" />
 @if (loaded)
 {
     <table class="table table-striped">
@@ -25,7 +18,6 @@
                 <th scope="col">Duration</th>
                 <th scope="col">Last Update</th>
                 <th scope="col">Date Created</th>
-                @*<th scpoe="col"></th>*@
             </tr>
         </thead>
         <tbody>
@@ -81,6 +73,8 @@ else
 
     public async Task PostProductAsync(Product product)
     {
+        // I don't know how to get an array of bytes from form razro
+
         await httpClient.PostJsonAsync("api/products", product);
     }
 
@@ -94,8 +88,8 @@ else
     }
 
     public async Task DeleteProductAsync(Product product)
-    {
-        products.Remove(product);
+    {        
         await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, "api/products/" + product.ProductId));
+        products.Remove(product);
     }
 }

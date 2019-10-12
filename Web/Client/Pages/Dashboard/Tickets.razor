@@ -1,5 +1,4 @@
 ﻿@page "/dashboard/tickets"
-
 @using Core.Models;
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
@@ -36,7 +35,7 @@
                     <th scope="row">@ticket.TicketId</th>
                     <td>@ticket.TicketTitle</td>
                     <td>@ticket.TicketCategory</td>
-                    <td>@ticket.TicketAuthor</td>
+                    <td>@ticket.TicketAuthorId</td>
                     <td>@ticket.Responses.Count</td>
                     <td>@ticket.TicketUpdate.ToString()</td>
                     <td>@ticket.TicketCreated.ToString()</td>
@@ -67,7 +66,7 @@ else
 
     public async Task OnSubmittedAsync(Ticket ticket)
     {
-
+        // TODO: Has to be finished
     }
 
     protected override async Task OnInitializedAsync()

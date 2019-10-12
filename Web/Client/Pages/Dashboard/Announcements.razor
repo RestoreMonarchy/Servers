@@ -5,12 +5,7 @@
 @inject AuthenticationStateProvider authenticationStateProvider
 @attribute [Authorize(Roles = "Admin, Moderator")]
 
-<nav class="mt-4 mb-3" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">Dashboard</li>
-        <li class="breadcrumb-item active" aria-current="page">Announcements</li>
-    </ol>
-</nav>
+<Breadcrumb Items="@(new[] { "Dashboard", "Announcements" })" />
 
 @if (loaded)
 {

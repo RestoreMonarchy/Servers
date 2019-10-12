@@ -1,170 +1,170 @@
 ﻿using Core;
 using Dapper;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Web.Server.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class PermissionsController : ControllerBase
-    {
-        private readonly IConfiguration configuration;
+    // This is useless for now and not used in the project yet
 
-        private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+    //[ApiController]
+    //[Route("api/[controller]")]
+    //public class PermissionsController : ControllerBase
+    //{
+    //    private readonly IConfiguration configuration;
 
-        public PermissionsController(IConfiguration configuration)
-        {
-            this.configuration = configuration;
-        }
+    //    private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        [HttpPost("Members")]
-        public ActionResult<int> AddPlayerToGroup([FromBody] PermissionGroup.PermissionMember member)
-        {
-            Console.WriteLine(member.GroupID + " " + member.SteamID);
-            string sql = "INSERT INTO dbo.PermissionMembers (GroupID, SteamID) VALUES (@GroupID, @SteamID);";
-            try
-            {
-                using (var conn = connection)
-                {
-                    return Ok(conn.Execute(sql, member));
-                }
-            }
-            catch
-            {
-                return NotFound();
-            }
-        }
+    //    public PermissionsController(IConfiguration configuration)
+    //    {
+    //        this.configuration = configuration;
+    //    }
 
-        [HttpDelete("Members")]
-        public ActionResult<int> RemovePlayerFromGroup([FromBody] PermissionGroup.PermissionMember member)
-        {
-            string sql = "DELETE FROM dbo.PermissionMembers WHERE SteamID = @SteamID AND GroupID = @GroupID;";
-            using (var conn = connection)
-            {
-                return Ok(conn.Execute(sql, member));
-            }
-        }
+    //    [HttpPost("Members")]
+    //    public ActionResult<int> AddPlayerToGroup([FromBody] PermissionGroup.PermissionMember member)
+    //    {
+    //        Console.WriteLine(member.GroupID + " " + member.SteamID);
+    //        string sql = "INSERT INTO dbo.PermissionMembers (GroupID, SteamID) VALUES (@GroupID, @SteamID);";
+    //        try
+    //        {
+    //            using (var conn = connection)
+    //            {
+    //                return Ok(conn.Execute(sql, member));
+    //            }
+    //        }
+    //        catch
+    //        {
+    //            return NotFound();
+    //        }
+    //    }
 
-        [HttpPost("Groups")]
-        public ActionResult<int> AddGroup([FromBody] PermissionGroup group)
-        {
-            string sql = "INSERT INTO dbo.PermissionGroups (GroupID, GroupName, GroupColor, GroupPriority) VALUES (@GroupID, @GroupName, @GroupColor, @GroupPriority);";
+    //    [HttpDelete("Members")]
+    //    public ActionResult<int> RemovePlayerFromGroup([FromBody] PermissionGroup.PermissionMember member)
+    //    {
+    //        string sql = "DELETE FROM dbo.PermissionMembers WHERE SteamID = @SteamID AND GroupID = @GroupID;";
+    //        using (var conn = connection)
+    //        {
+    //            return Ok(conn.Execute(sql, member));
+    //        }
+    //    }
 
-            using (var conn = connection)
-            {
-                return Ok(conn.Execute(sql, new { group.GroupID, group.GroupName, group.GroupColor, group.GroupPriority }));
-            }
+    //    [HttpPost("Groups")]
+    //    public ActionResult<int> AddGroup([FromBody] PermissionGroup group)
+    //    {
+    //        string sql = "INSERT INTO dbo.PermissionGroups (GroupID, GroupName, GroupColor, GroupPriority) VALUES (@GroupID, @GroupName, @GroupColor, @GroupPriority);";
 
-        }
+    //        using (var conn = connection)
+    //        {
+    //            return Ok(conn.Execute(sql, new { group.GroupID, group.GroupName, group.GroupColor, group.GroupPriority }));
+    //        }
 
-        [HttpDelete("Groups/{groupID}")]
-        public ActionResult<int> DeleteGroup(string groupID)
-        {
-            string sql = "DELETE FROM dbo.PermissionGroups WHERE GroupID = @GroupID;";
-            using (var conn = connection)
-            {
-                return Ok(conn.Execute(sql, new { GroupID = groupID }));
-            }
-        }
+    //    }
 
-        [HttpGet("Groups/{id}")]
-        public ActionResult<PermissionGroup> GetGroup([FromRoute] string id)
-        {
-            string sql = "SELECT g.*, p.*, m.* FROM dbo.PermissionGroups AS g LEFT JOIN dbo.Permissions as p ON p.GroupID = g.GroupID " +
-                "LEFT JOIN dbo.PermissionMembers AS m ON m.GroupID = g.GroupID WHERE g.GroupID = @GroupID;";
-            PermissionGroup group = null;
+    //    [HttpDelete("Groups/{groupID}")]
+    //    public ActionResult<int> DeleteGroup(string groupID)
+    //    {
+    //        string sql = "DELETE FROM dbo.PermissionGroups WHERE GroupID = @GroupID;";
+    //        using (var conn = connection)
+    //        {
+    //            return Ok(conn.Execute(sql, new { GroupID = groupID }));
+    //        }
+    //    }
 
-            using (var conn = connection)
-            {
-                conn.Query<PermissionGroup, PermissionGroup.Permission, PermissionGroup.PermissionMember, PermissionGroup>(sql,
-                        (g, p, m) =>
-                        {
-                            if (group == null)
-                                group = g;
+    //    [HttpGet("Groups/{id}")]
+    //    public ActionResult<PermissionGroup> GetGroup([FromRoute] string id)
+    //    {
+    //        string sql = "SELECT g.*, p.*, m.* FROM dbo.PermissionGroups AS g LEFT JOIN dbo.Permissions as p ON p.GroupID = g.GroupID " +
+    //            "LEFT JOIN dbo.PermissionMembers AS m ON m.GroupID = g.GroupID WHERE g.GroupID = @GroupID;";
+    //        PermissionGroup group = null;
 
-                            if (group.Permissions == null)
-                                group.Permissions = new List<PermissionGroup.Permission>();
-                            if (group.Members == null)
-                                group.Members = new List<PermissionGroup.PermissionMember>();
+    //        using (var conn = connection)
+    //        {
+    //            conn.Query<PermissionGroup, PermissionGroup.Permission, PermissionGroup.PermissionMember, PermissionGroup>(sql,
+    //                    (g, p, m) =>
+    //                    {
+    //                        if (group == null)
+    //                            group = g;
 
-                            if (p != null && !group.Permissions.Exists(x => x.PermissionID == p.PermissionID))
-                                group.Permissions.Add(p);
-                            if (m != null && !group.Members.Exists(x => m.SteamID == m.SteamID))
-                                group.Members.Add(m);
+    //                        if (group.Permissions == null)
+    //                            group.Permissions = new List<PermissionGroup.Permission>();
+    //                        if (group.Members == null)
+    //                            group.Members = new List<PermissionGroup.PermissionMember>();
 
-                            return g;
-                        }, splitOn: "GroupID,GroupID", param: new { GroupID = id });
-            }
+    //                        if (p != null && !group.Permissions.Exists(x => x.PermissionID == p.PermissionID))
+    //                            group.Permissions.Add(p);
+    //                        if (m != null && !group.Members.Exists(x => m.SteamID == m.SteamID))
+    //                            group.Members.Add(m);
 
-            return Ok(group);
-        }
+    //                        return g;
+    //                    }, splitOn: "GroupID,GroupID", param: new { GroupID = id });
+    //        }
 
-        [HttpGet("Members/{steamID}")]
-        public ActionResult<List<PermissionGroup>> GetGroups(string steamID)
-        {
-            string sql = "SELECT m.*, g.*, p.* FROM dbo.PermissionMembers AS m LEFT JOIN dbo.PermissionGroups as g ON g.GroupID = m.GroupID " +
-                "LEFT JOIN dbo.Permissions as p ON p.GroupID = m.GroupID WHERE m.SteamID = @SteamID;";
-            string sql2 = "SELECT g.*, p.* FROM dbo.PermissionGroups AS g LEFT JOIN dbo.Permissions as p ON p.GroupID = g.GroupID WHERE g.GroupID = 'default';";
+    //        return Ok(group);
+    //    }
 
-            List<PermissionGroup> groups = new List<PermissionGroup>();
+    //    [HttpGet("Members/{steamID}")]
+    //    public ActionResult<List<PermissionGroup>> GetGroups(string steamID)
+    //    {
+    //        string sql = "SELECT m.*, g.*, p.* FROM dbo.PermissionMembers AS m LEFT JOIN dbo.PermissionGroups as g ON g.GroupID = m.GroupID " +
+    //            "LEFT JOIN dbo.Permissions as p ON p.GroupID = m.GroupID WHERE m.SteamID = @SteamID;";
+    //        string sql2 = "SELECT g.*, p.* FROM dbo.PermissionGroups AS g LEFT JOIN dbo.Permissions as p ON p.GroupID = g.GroupID WHERE g.GroupID = 'default';";
 
-            using (var conn = connection)
-            {
-                conn.Query<PermissionGroup.PermissionMember, PermissionGroup, PermissionGroup.Permission, PermissionGroup.PermissionMember>(sql,
-                    (m, g, p) =>
-                    {
-                        PermissionGroup group = groups.FirstOrDefault(x => x.GroupID == g.GroupID);
+    //        List<PermissionGroup> groups = new List<PermissionGroup>();
 
-                        if (group == null)
-                        {
-                            group = g;
-                            groups.Add(group);
-                        }
+    //        using (var conn = connection)
+    //        {
+    //            conn.Query<PermissionGroup.PermissionMember, PermissionGroup, PermissionGroup.Permission, PermissionGroup.PermissionMember>(sql,
+    //                (m, g, p) =>
+    //                {
+    //                    PermissionGroup group = groups.FirstOrDefault(x => x.GroupID == g.GroupID);
 
-                        if (group.Permissions == null)
-                            group.Permissions = new List<PermissionGroup.Permission>();
-                        if (group.Members == null)
-                            group.Members = new List<PermissionGroup.PermissionMember>();
+    //                    if (group == null)
+    //                    {
+    //                        group = g;
+    //                        groups.Add(group);
+    //                    }
 
-                        if (p != null && !group.Permissions.Exists(x => x.PermissionID == p.PermissionID))
-                            group.Permissions.Add(p);
-                        if (m != null && !group.Members.Exists(x => m.SteamID == m.SteamID))
-                            group.Members.Add(m);
+    //                    if (group.Permissions == null)
+    //                        group.Permissions = new List<PermissionGroup.Permission>();
+    //                    if (group.Members == null)
+    //                        group.Members = new List<PermissionGroup.PermissionMember>();
 
-                        return m;
-                    }, splitOn: "GroupID,GroupID", param: new { SteamID = steamID });
+    //                    if (p != null && !group.Permissions.Exists(x => x.PermissionID == p.PermissionID))
+    //                        group.Permissions.Add(p);
+    //                    if (m != null && !group.Members.Exists(x => m.SteamID == m.SteamID))
+    //                        group.Members.Add(m);
 
-                conn.Query<PermissionGroup, PermissionGroup.Permission, PermissionGroup>(sql2,
-                    (g, p) =>
-                    {
-                        PermissionGroup group = groups.FirstOrDefault(x => x.GroupID == g.GroupID);
+    //                    return m;
+    //                }, splitOn: "GroupID,GroupID", param: new { SteamID = steamID });
 
-                        if (group == null)
-                        {
-                            group = g;
-                            groups.Add(group);
-                        }
+    //            conn.Query<PermissionGroup, PermissionGroup.Permission, PermissionGroup>(sql2,
+    //                (g, p) =>
+    //                {
+    //                    PermissionGroup group = groups.FirstOrDefault(x => x.GroupID == g.GroupID);
 
-                        if (group.Permissions == null)
-                            group.Permissions = new List<PermissionGroup.Permission>();
-                        if (group.Members == null)
-                            group.Members = new List<PermissionGroup.PermissionMember>();
+    //                    if (group == null)
+    //                    {
+    //                        group = g;
+    //                        groups.Add(group);
+    //                    }
 
-                        if (p != null && !group.Permissions.Exists(x => x.PermissionID == p.PermissionID))
-                            group.Permissions.Add(p);
+    //                    if (group.Permissions == null)
+    //                        group.Permissions = new List<PermissionGroup.Permission>();
+    //                    if (group.Members == null)
+    //                        group.Members = new List<PermissionGroup.PermissionMember>();
 
-                        return g;
-                    }, splitOn: "GroupID");
-            }
+    //                    if (p != null && !group.Permissions.Exists(x => x.PermissionID == p.PermissionID))
+    //                        group.Permissions.Add(p);
 
-            return Ok(groups);
-        }
-    }
+    //                    return g;
+    //                }, splitOn: "GroupID");
+    //        }
+
+    //        return Ok(groups);
+    //    }
+    //}
 }

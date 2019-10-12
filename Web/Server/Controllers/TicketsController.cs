@@ -9,44 +9,44 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace Web.Server.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin,Moderator")]
     [Route("api/[controller]")]
     public class TicketsController : Controller
     {
         private readonly IConfiguration configuration;
-        private readonly HttpClient httpClient;
 
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        public TicketsController(IConfiguration configuration, HttpClient httpClient)
+        public TicketsController(IConfiguration configuration)
         {
             this.configuration = configuration;
-            this.httpClient = httpClient;
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
-        public int CreateTicket([FromBody] Ticket ticket)
+        public Ticket CreateTicket([FromBody] Ticket ticket)
         {
-            string sql = "INSERT INTO dbo.Tickets (TicketTitle, TicketContent, TicketCategory, TicketAuthor, TargetTicketId) " +
-                "VALUES (@TicketTitle, @TicketContent, @TicketCategory, @TicketAuthor, @TargetTicketId);";
+            string sql = "INSERT INTO dbo.Tickets (TicketTitle, TicketContent, TicketCategory, TicketAuthorId, TargetTicketId, TicketUpdate, TicketCreated) " +
+                "OUTPUT INSERTED.TicketId VALUES(@TicketTitle, @TicketContent, @TicketCategory, @TicketAuthorId, @TargetTicketId, @TicketUpdate, @TicketCreated);";
 
-            ticket.TicketAuthor = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
-            if (ticket.TicketTitle == null || ticket.TicketCategory == null || ticket.TicketContent == null || ticket.TicketAuthor == null)
-                return 0;
+            ticket.TicketAuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+            ticket.TicketUpdate = DateTime.Now;
+            ticket.TicketCreated = DateTime.Now;
 
-            int rows;
+            if (ticket == null || ticket.TicketTitle == null || ticket.TicketCategory == null || ticket.TicketContent == null || ticket.TicketAuthorId == null)
+                return null;
+
             using (var conn = connection)
             {
-                rows = conn.Execute(sql, ticket);
+                ticket.TicketId = conn.ExecuteScalar<int>(sql, ticket);
             }
-            return rows;
+            return ticket;
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpGet("dashboard")]
         public List<Ticket> GetTickets()
         {
@@ -75,10 +75,10 @@ namespace Web.Server.Controllers
             return tickets;
         }
 
-        [HttpGet]
         [Authorize]
+        [HttpGet]
         public List<Ticket> GetMyTickets()
-        {            
+        {
             string sql = "SELECT * FROM dbo.GetMyTickets(@playerId);";
             string playerId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
 
@@ -101,18 +101,21 @@ namespace Web.Server.Controllers
                     }                    
                     return t;
                 }, new { playerId }, splitOn: "PlayerName");
-
             }
-
-            
 
             return tickets;
         }
 
-        //[HttpGet("ticketId")]
+        // TODO: Controller for getting a master ticket and it's responses
+
+        //[Authorize]
+        //[HttpGet("{ticketId}")]        
         //public Ticket GetTicket(int ticketId)
         //{
-        //    string sql = "SELECT * FROM dbo.Tickets";
+        //    string sql = "SELECT t.*, p.* FROM dbo.Tickets t JOIN dbo.Players p ON t.TicketAuthorId = p.PlayerId " +
+        //        "WHERE (t.TicketId = @ticketId OR t.TargetTicketId = @ticketId);" 
+        //    if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+
         //}
     }
 }

@@ -4,7 +4,7 @@
     <a href="/" class="navbar-brand mr-auto">Restore Monarchy</a>
     <AuthorizeView>
         <Authorized>
-            <a class="link" href="/account"><img src="/img/avatars/@string.Concat(context.User.Identity.Name, ".jpg")" width="35" height="35" class="rounded-circle" /></a>
+            <a class="link" href="/account"><img src="data:image;base64,@context.User.FindFirst("Avatar").Value" width="35" height="35" class="rounded-circle" /></a>
             <a class="nav-link font-weight-bold mr-sm-2" href="/account">@context.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName).Value</a>
             <form action="/signout" method="post">
                 <button class="btn btn-info mr-sm-2" type="submit">Sign Out</button>
@@ -24,9 +24,9 @@
             <a class="navbar-brand px-0" href="javascript:void(0)">Restore Monarchy</a>
         </div>
         <nav class="navdrawer-nav">
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link @(location == "" ? "active" : "")" href="/">Home</a>
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link @(location == "shop" ? "active" : "")" href="/shop">Shop</a>
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link @(location == "support" ? "active" : "")" href="/support">Support</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/">Home</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/shop">Shop</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/support">Support</a>
         </nav>
         <AuthorizeView Roles="Admin, Moderator">
             <Authorized>
@@ -44,19 +44,3 @@
         </AuthorizeView>
     </div>
 </div>
-
-@code {
-
-    string location;
-
-    protected override async Task OnInitializedAsync()
-    {
-        location = navigation.ToBaseRelativePath(navigation.Uri);
-        navigation.LocationChanged += LocationChanged;
-    }
-
-    private void LocationChanged(object sender, LocationChangedEventArgs e)
-    {
-        location = navigation.ToBaseRelativePath(navigation.Uri);
-    }
-}

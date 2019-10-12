@@ -10,7 +10,7 @@
 {
     <div class="row">
         <div class="col-lg-4">
-            <img src="/img/avatars/@string.Concat(player.PlayerId, ".jpg")" class="rounded-circle mx-auto d-block" width="130" height="130">
+            <img src="data:image;base64,@Convert.ToBase64String(player.PlayerAvatar)" class="rounded-circle mx-auto d-block" width="130" height="130">
             <h4 class="display-4 mt-lg-2 text-align-center">@player.PlayerName</h4>
             <ul class="list-group">
                 <li class="list-group-item active"><b>SteamID:</b> @player.PlayerId</li>
@@ -25,7 +25,7 @@
         </div>
         <div class="col-lg-8 bg-light rounded mt-3">
             <h3 class="display-3 mb-lg-3 mt-2">Your Tickets</h3>
-            <table class="table table-striped table-responsive-lg">
+            <table class="table table-striped">
                 <thead>
                     <tr>
                         <th scope="col">ID</th>
@@ -39,7 +39,7 @@
                     {
                         <tr>
                             <th scope="row">@ticket.TicketId</th>
-                            <td>@ticket.TicketTitle</td>
+                            <td><a href="/ticket/@ticket.TicketId">@ticket.TicketTitle</a></td>
                             <td>@ticket.Responses.Count</td>
                             <td>@ticket.TicketCreated</td>
                         </tr>
@@ -67,7 +67,9 @@ else
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         player = await httpClient.GetJsonAsync<Player>("api/players");
+        Console.WriteLine("players fine");
         tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets");
+        Console.WriteLine("tickets fine...");
     }
 
     public async Task OnSubmittedAsync(Ticket ticket)
@@ -86,11 +88,6 @@ else
 
     public async Task PatchProductAsync(Ticket ticket)
     {
-        Console.WriteLine("Patch");
-        //string content = JsonConvert.SerializeObject(product);
-        //var msg = new HttpRequestMessage(new HttpMethod("PATCH"), "api/products");
-        //msg.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
-
-        //var response = await httpClient.SendAsync(msg);
+        // TODO: Has to be finished
     }
 }

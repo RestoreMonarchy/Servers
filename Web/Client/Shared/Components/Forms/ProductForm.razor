@@ -1,0 +1,94 @@
+﻿@using Core.Models;
+@inject IJSRuntime JsRuntime
+@attribute [Authorize(Roles = "Admin, Moderator")]
+
+<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">@(IsEdit ? "Update" : "Create") Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @if (Product != null)
+            {
+                <EditForm Model="@Product" OnValidSubmit="onSumbit">
+                    <div class="modal-body">
+                        <DataAnnotationsValidator />
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <InputText id="name" class="form-control is-invalid" @bind-Value="@Product.Name" />
+                            <div class="invalid-feedback">
+                                <ValidationMessage For="@(() => Product.Name)" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description</label>
+                            <InputTextArea rows="8" id="descirption" class="form-control is-invalid" @bind-Value="@Product.Description" />
+                            <div class="invalid-feedback">
+                                <ValidationMessage For="@(() => Product.Description)" />
+                            </div>
+                        </div>
+                        <!-- TODO: Add image upload for products -->
+                        @*<div class="form-group">
+                            <label for="price">Image</label>
+                            <input type="file" id="price" class="form-control is-invalid" @bind="@Product.Image" />                            
+                            <img src="data:image;base64,@Convert.ToBase64String(Product.Image)" style="max-width: 150px;"/>
+                            <div class="invalid-feedback">
+                                <ValidationMessage For="@(() => Product.Price)" />
+                            </div>
+                        </div>*@
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <InputSelect id="category" class="form-control is-invalid" @bind-Value="@Product.Category">
+                                <option value="">Select Category</option>
+                                <option value="ranks">Ranks</option>
+                                <option value="kits">Kits</option>
+                                <option value="extras">Extras</option>
+                            </InputSelect>
+                            <div class="invalid-feedback">
+                                <ValidationMessage For="@(() => Product.Category)" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="price">Price</label>
+                            <InputNumber id="price" class="form-control is-invalid" @bind-Value="@Product.Price" />
+                            <div class="invalid-feedback">
+                                <ValidationMessage For="@(() => Product.Price)" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duration</label>
+                            <InputNumber id="duration" class="form-control is-invalid" @bind-Value="@Product.Duration" />
+                            <div class="invalid-feedback">
+                                <ValidationMessage For="@(() => Product.Duration)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                        <button class="btn btn-info" type="submit">@(IsEdit ? "Update" : "Create")</button>
+                    </div>
+                </EditForm>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public bool IsEdit { get; set; }
+
+    [Parameter]
+    public Product Product { get; set; }
+
+    [Parameter]
+    public EventCallback<Product> OnSubmitted { get; set; }
+
+    private async Task onSumbit()
+    {
+        await JsRuntime.InvokeVoidAsync("HideModal", "productModal");
+        await OnSubmitted.InvokeAsync(Product);
+    }
+}

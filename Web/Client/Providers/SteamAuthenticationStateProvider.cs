@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Web.Client.Providers
@@ -40,9 +41,10 @@ namespace Web.Client.Providers
         {
             return new ClaimsIdentity(new[] {
                         new Claim(ClaimTypes.Name, player.PlayerId),
-                        new Claim(ClaimTypes.GivenName, player.PlayerName),
+                        new Claim(ClaimTypes.GivenName, player.PlayerName),                        
                         new Claim(ClaimTypes.Role, player.Role),
                         new Claim(ClaimTypes.Country, player.PlayerCountry == null ? string.Empty : player.PlayerCountry),
+                        new Claim("Avatar", Convert.ToBase64String(player.PlayerAvatar)),
                         new Claim("Balance", player.Balance.ToString("{0:0.##}"))}, "steamauth");
         }
 
