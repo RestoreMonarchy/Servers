@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+Web/Web.Client/wwwroot/css/bootstrap/* linguist-vendored
+Web/Web.Client/wwwroot/css/open-iconic-bootstrap.min.css linguist-vendored
+Web/Web.Client/wwwroot/css/material.min.css linguist-vendored
