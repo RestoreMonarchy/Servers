@@ -4,9 +4,9 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 # Other projects
-oldweb
-lib
-Plugins
+oldweb/
+lib/
+Plugins/
 
 # User-specific files
 *.rsuser
