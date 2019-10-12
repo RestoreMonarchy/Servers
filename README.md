@@ -6,8 +6,8 @@ This is official repository of Restore Monarchy Unturned servers project. It con
 
 ### Website DEMO GIF
 > #### Authentication, Index, Announcements
-![](https://i.imgur.com/OCyMvRp.gif)
+<img src="https://i.imgur.com/OCyMvRp.gif" height="344" width="446" /> o
 > #### Account page
-![](https://i.imgur.com/gvBH1J1.png)
+<img src="https://i.imgur.com/gvBH1J1.png" height="344" width="446" />  
 ## Contributing
 Please, if you find any bugs or know how to improve code, create a pull request or write an issue.
