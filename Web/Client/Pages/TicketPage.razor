@@ -75,15 +75,20 @@ else
     {
         state = await authenticationStateProvider.GetAuthenticationStateAsync();
         ticket = await httpClient.GetJsonAsync<Ticket>("/api/tickets/" + TicketId);
-        newAnswer = new TicketAnswer();
-        newAnswer.TicketId = TicketId;
+        await InitializeAnswerAsync();
         loaded = true;
     }
 
     private async Task SubmitAsync()
     {
-        ticket.Answers.Add(await httpClient.SendJsonAsync<TicketAnswer>(HttpMethod.Post, "/api/tickets/answer", newAnswer));
+        ticket.Answers.Add(await httpClient.SendJsonAsync<TicketAnswer>(HttpMethod.Post, "/api/tickets/answer", newAnswer));        
+        await InitializeAnswerAsync();
+    }
+
+    private async Task InitializeAnswerAsync()
+    {
         newAnswer = new TicketAnswer();
+        newAnswer.Author = await httpClient.GetJsonAsync<Player>("api/players");
         newAnswer.TicketId = TicketId;
     }
 }

@@ -70,8 +70,8 @@ namespace Web.Server.Utilities.Database
 
         public static int CreateTicket(this DatabaseManager database, Ticket ticket)
         {
-            string sql = "INSERT INTO dbo.Tickets (TicketTitle, TicketContent, TicketCategory, TicketAuthorId, TargetTicketId, TicketUpdate, TicketCreated) " +
-                "OUTPUT INSERTED.TicketId VALUES(@TicketTitle, @TicketContent, @TicketCategory, @TicketAuthorId, @TargetTicketId, @TicketUpdate, @TicketCreated);";
+            string sql = "INSERT INTO dbo.Tickets (Title, Content, Category, AuthorId, LastUpdate, CreateDate) " +
+                "OUTPUT INSERTED.TicketId VALUES (@Title, @Content, @Category, @AuthorId, @LastUpdate, @CreateDate);";
 
             using (var conn = database.connection)
             {

@@ -1,13 +1,9 @@
 ﻿using Core.Models;
-using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using Web.Server.Utilities.Database;
 
@@ -26,13 +22,14 @@ namespace Web.Server.Controllers
 
         [Authorize]
         [HttpPost("Answer")]
-        public TicketAnswer CreateResponse([FromBody] TicketAnswer answer)
+        public TicketAnswer CreateAnswer([FromBody] TicketAnswer answer)
         {
             answer.AuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
             answer.LastUpdate = DateTime.Now;
             answer.CreateDate = DateTime.Now;
 
             // TODO: For some reason when used in TicketPage.razor throw null not implemented exception when adding to list
+            // Solved, it wasn't it, it was just because it doesn't return the Author property
             
             answer.AnswerId = database.CreateAnswer(answer);
             return answer;
