@@ -13,6 +13,7 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Web.Server.Utilities;
+using Web.Server.Utilities.Database;
 using Web.Server.Utilities.DiscordMessager;
 
 namespace Web.Server
@@ -25,12 +26,12 @@ namespace Web.Server
         }
 
         public IConfiguration Configuration { get; }
-        private Database database;
+        private DatabaseManager database;
         private SteamUtility steam;
 
         public void ConfigureServices(IServiceCollection services)
         {
-            database = new Database(Configuration);
+            database = new DatabaseManager(Configuration);
             steam = new SteamUtility(new HttpClient(), Configuration);
             services.AddSingleton<DiscordMessager>();
             services.AddSingleton(steam);

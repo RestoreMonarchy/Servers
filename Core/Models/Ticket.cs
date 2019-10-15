@@ -6,22 +6,30 @@ using System.Text;
 namespace Core.Models
 {
     public class Ticket
-    {
+    {        
+        public Ticket() { }
+        public Ticket(string title, string content, string category)
+        {
+            Title = title;
+            Content = content;
+            Category = category;
+        }
+
         public int TicketId { get; set; }
         [Required]
-        [StringLength(40, ErrorMessage = "Title is too long.")]
-        public string TicketTitle { get; set; }
+        [StringLength(60, ErrorMessage = "Title is too long.")]
+        public string Title { get; set; }
         [Required]
-        [StringLength(5000, ErrorMessage = "Content is too long.")]
-        public string TicketContent { get; set; }
+        [StringLength(4000, ErrorMessage = "Content is too long.")]
+        public string Content { get; set; }
         [Required]
-        public string TicketCategory { get; set; }
-        public string TicketAuthorId { get; set; }
-        public int? TargetTicketId { get; set; }
-        public DateTime TicketUpdate { get; set; }
-        public DateTime TicketCreated { get; set; }
+        public string Category { get; set; }
+        public string AuthorId { get; set; }
+        public bool Status { get; set; }
+        public DateTime LastUpdate { get; set; }
+        public DateTime CreateDate { get; set; }
 
         public virtual Player Author { get; set; }
-        public virtual List<Ticket> Responses { get; set; }
+        public virtual List<TicketAnswer> Answers { get; set; }
     }
 }

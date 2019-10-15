@@ -1,0 +1,9 @@
+﻿CREATE TABLE dbo.TicketAnswers 
+(
+	AnswerId INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_TicketAnswers PRIMARY KEY,
+	TicketId INT NOT NULL CONSTRAINT FK_Tickets_TicketId REFERENCES dbo.Tickets (TicketId),
+	Content NVARCHAR(4000) NOT NULL,
+	AuthorId VARCHAR(255) NOT NULL CONSTRAINT FK_TicketAnswers_AuthorId REFERENCES dbo.Players (PlayerId),
+	LastUpdate DATETIME2(0) NOT NULL CONSTRAINT DF_TicketAnswers_LastUpdate DEFAULT (SYSDATETIME()),
+	CreateDate DATETIME2(0) NOT NULL CONSTRAINT DF_TicketAnswers_CreateDate DEFAULT (SYSDATETIME())
+);

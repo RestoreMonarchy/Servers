@@ -2,10 +2,8 @@
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
+using Web.Server.Utilities.Database;
 
 namespace Web.Server.Utilities.DiscordMessager
 {
@@ -15,9 +13,9 @@ namespace Web.Server.Utilities.DiscordMessager
         private readonly WebClient webClient;
         public DiscordUnbanNotifier Notifier { get; set; }
 
-        public Database Database { get; set; }
+        public DatabaseManager Database { get; set; }
 
-        public DiscordMessager(IConfiguration configuration, Database database)
+        public DiscordMessager(IConfiguration configuration, DatabaseManager database)
         {
             Database = database;
             webhookUrl = configuration["WebhookURL"];

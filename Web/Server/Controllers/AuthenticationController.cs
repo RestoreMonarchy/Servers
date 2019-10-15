@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Core.Models;
 using Web.Server.Utilities;
+using Web.Server.Utilities.Database;
 
 namespace Web.Server.Controllers
 {
     public class AuthenticationController : Controller
     {
-        private readonly Database database;
+        private readonly DatabaseManager database;
         
-        public AuthenticationController(Database database)
+        public AuthenticationController(DatabaseManager database)
         {
             this.database = database;
         }

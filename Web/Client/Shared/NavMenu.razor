@@ -5,7 +5,7 @@
     <AuthorizeView>
         <Authorized>
             <a class="link" href="/account"><img src="data:image;base64,@context.User.FindFirst("Avatar").Value" width="35" height="35" class="rounded-circle" /></a>
-            <a class="nav-link font-weight-bold mr-sm-2" href="/account">@context.User.FindFirst(System.Security.Claims.ClaimTypes.GivenName).Value</a>
+            <a class="nav-link font-weight-bold mr-sm-2" href="/account">@context.User.FindFirst("PlayerName").Value</a>
             <form action="/signout" method="post">
                 <button class="btn btn-info mr-sm-2" type="submit">Sign Out</button>
             </form>
@@ -38,6 +38,9 @@
                     </li>
                     <li class="nav-item">
                         <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-link active" href="/dashboard/products">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-link active" href="/dashboard/tickets">Tickets</a>
                     </li>
                 </ul>
             </Authorized>

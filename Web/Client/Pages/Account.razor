@@ -25,32 +25,34 @@
         </div>
         <div class="col-lg-8 bg-light rounded mt-3">
             <h3 class="display-3 mb-lg-3 mt-2">Your Tickets</h3>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Title</th>
-                        <th scope="col">Responses</th>
-                        <th scope="col">Create Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var ticket in tickets)
-                    {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
                         <tr>
-                            <th scope="row">@ticket.TicketId</th>
-                            <td><a href="/ticket/@ticket.TicketId">@ticket.TicketTitle</a></td>
-                            <td>@ticket.Responses.Count</td>
-                            <td>@ticket.TicketCreated</td>
+                            <th scope="col">ID</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Responses</th>
+                            <th scope="col">Create Date</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in tickets)
+                        {
+                            <tr>
+                                <th scope="row">@ticket.TicketId</th>
+                                <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
+                                <td>@ticket.Answers.Count</td>
+                                <td>@ticket.CreateDate</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
-    <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" @onclick="(e => { editTicket = new Ticket(); isEdit = false; })" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
-    <TicketForm Ticket="editTicket" IsEdit="isEdit" OnSubmitted="OnSubmittedAsync" />
+    <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+    <TicketForm Ticket="new Ticket()" IsEdit="false" OnSubmitted="OnSubmittedAsync" />
 }
 else
 {
@@ -60,34 +62,22 @@ else
 @code {
     Player player;
     List<Ticket> tickets;
-    Ticket editTicket;
-    bool isEdit;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         player = await httpClient.GetJsonAsync<Player>("api/players");
-        Console.WriteLine("players fine");
         tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets");
-        Console.WriteLine("tickets fine...");
     }
 
     public async Task OnSubmittedAsync(Ticket ticket)
     {
-        if (isEdit)
-            await PatchProductAsync(ticket);
-        else
-            await PostTicketAsync(ticket);
+        await PostTicketAsync(ticket);            
     }
 
     public async Task PostTicketAsync(Ticket ticket)
-    {
+    {        
+        ticket = await httpClient.PostJsonAsync<Ticket>("api/tickets", ticket);
         tickets.Add(ticket);
-        await httpClient.PostJsonAsync("api/tickets", ticket);
-    }
-
-    public async Task PatchProductAsync(Ticket ticket)
-    {
-        // TODO: Has to be finished
     }
 }

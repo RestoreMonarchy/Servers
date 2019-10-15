@@ -41,7 +41,7 @@ namespace Web.Client.Providers
         {
             return new ClaimsIdentity(new[] {
                         new Claim(ClaimTypes.Name, player.PlayerId),
-                        new Claim(ClaimTypes.GivenName, player.PlayerName),                        
+                        new Claim("PlayerName", player.PlayerName),                        
                         new Claim(ClaimTypes.Role, player.Role),
                         new Claim(ClaimTypes.Country, player.PlayerCountry == null ? string.Empty : player.PlayerCountry),
                         new Claim("Avatar", Convert.ToBase64String(player.PlayerAvatar)),

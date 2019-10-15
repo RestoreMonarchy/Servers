@@ -1,21 +1,20 @@
 ﻿using Core.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Timers;
+using Web.Server.Utilities.Database;
 
 namespace Web.Server.Utilities.DiscordMessager
 {
     public delegate void PlayerBanAdded(int banId);
     public class DiscordUnbanNotifier
     {
-        public event PlayerBanAdded onPlayerBanAdded;
+        public event PlayerBanAdded OnPlayerBanAdded;
 
         public Dictionary<int, Timer> ActiveBans { get; private set; }
-        private readonly Database database;
+        private readonly DatabaseManager database;
         private readonly DiscordMessager messager;
-        public DiscordUnbanNotifier(Database database, DiscordMessager messager)
+        public DiscordUnbanNotifier(DatabaseManager database, DiscordMessager messager)
         {
             this.database = database;
             this.messager = messager;
@@ -32,10 +31,10 @@ namespace Web.Server.Utilities.DiscordMessager
                 TryAddPlayerBan(ban);
             }
 
-            onPlayerBanAdded += OnPlayerBanAdded;
+            OnPlayerBanAdded += onPlayerBanAdded;
         }
 
-        private void OnPlayerBanAdded(int banId)
+        private void onPlayerBanAdded(int banId)
         {
             PlayerBan ban = database.GetPlayerBan(banId);
             TryAddPlayerBan(ban);

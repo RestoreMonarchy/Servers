@@ -30,6 +30,18 @@
                                 <ValidationMessage For="@(() => Product.Description)" />
                             </div>
                         </div>
+                        @*<div class="form-group">
+                            <label for="image">Image</label>
+                            <input type="file" class="form-control is-valid" @onchange="SetImage" id="fileUpload" />
+                            @if (Product.Image != null)
+                            {
+                                <img src="data:image;base64,@Convert.ToBase64String(Product.Image)" style="max-width: 150px;" />
+                            }   
+                            <div class="invalid-feedback">
+                                <ValidationMessage For="@(() => Product.Image)" />
+                            </div>
+                        </div>*@
+
                         <!-- TODO: Add image upload for products -->
                         @*<div class="form-group">
                             <label for="price">Image</label>
@@ -91,4 +103,10 @@
         await JsRuntime.InvokeVoidAsync("HideModal", "productModal");
         await OnSubmitted.InvokeAsync(Product);
     }
+
+    //async Task SetImage()
+    //{
+    //    string data = await JsRuntime.InvokeAsync<string>("getFileData", "fileUpload");
+    //    Product.Image = Convert.FromBase64String(data);
+    //}
 }

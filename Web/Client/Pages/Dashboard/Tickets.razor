@@ -2,18 +2,10 @@
 @using Core.Models;
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
-@using Markdig
-@using Newtonsoft.Json;
 @attribute [Authorize(Roles = "Admin, Moderator")]
 
-
-<nav class="mt-4 mb-3" aria-label="breadcrumb">
-    <ol class="breadcrumb">
-        <li class="breadcrumb-item">Dashboard</li>
-        <li class="breadcrumb-item active" aria-current="page">Tickets</li>
-    </ol>
-</nav>
-@if (loaded)
+<Breadcrumb Items="@(new[] { "Dashboard", "Tickets" })" />
+@if (tickets != null)
 {
     <table class="table table-striped">
         <thead>
@@ -25,7 +17,6 @@
                 <th scope="col">Responses</th>
                 <th scope="col">Last Update</th>
                 <th scope="col">Date Created</th>
-                @*<th scpoe="col"></th>*@
             </tr>
         </thead>
         <tbody>
@@ -33,25 +24,17 @@
             {
                 <tr>
                     <th scope="row">@ticket.TicketId</th>
-                    <td>@ticket.TicketTitle</td>
-                    <td>@ticket.TicketCategory</td>
-                    <td>@ticket.TicketAuthorId</td>
-                    <td>@ticket.Responses.Count</td>
-                    <td>@ticket.TicketUpdate.ToString()</td>
-                    <td>@ticket.TicketCreated.ToString()</td>
-                    <td>
-                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
-                        <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
-                            <a class="dropdown-item" data-toggle="modal" data-target="#productModal" href="javascript:void(0)"
-                               @onclick="(e => { editTicket = ticket; isEdit = true; })">Edit</a>
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteProductAsync(ticket))">Delete</a>
-                        </div>
-                    </td>
+                    <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
+                    <td>@ticket.Category</td>
+                    <td>@ticket.AuthorId</td>
+                    <td>@ticket.Answers.Count</td>
+                    <td>@ticket.LastUpdate.ToString()</td>
+                    <td>@ticket.CreateDate.ToString()</td>
                 </tr>
             }
         </tbody>
     </table>
-    <TicketForm Ticket="editTicket" IsEdit="isEdit" OnSubmitted="OnSubmittedAsync" />
+    @*<TicketForm Ticket="editTicket" IsEdit="isEdit" OnSubmitted="OnSubmittedAsync" />*@
 }
 else
 {
@@ -60,24 +43,14 @@ else
 
 @code {
     List<Ticket> tickets;
-    Ticket editTicket;
-    bool isEdit;
-    public bool loaded = false;
 
-    public async Task OnSubmittedAsync(Ticket ticket)
-    {
-        // TODO: Has to be finished
-    }
+    //public async Task OnSubmittedAsync(Ticket ticket)
+    //{
+    //    // TODO: Has to be finished
+    //}
 
     protected override async Task OnInitializedAsync()
     {
-        tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets");
-        loaded = true;
-    }
-
-    public async Task DeleteProductAsync(Ticket ticket)
-    {
-        tickets.Remove(ticket);
-        await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, "api/tickets/dashboard" + ticket.TicketId));
+        tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets/dashboard");
     }
 }

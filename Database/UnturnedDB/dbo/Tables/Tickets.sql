@@ -1,14 +1,11 @@
-﻿CREATE TABLE [dbo].[Tickets]
+﻿CREATE TABLE dbo.Tickets 
 (
-	TicketId INT IDENTITY(1, 1) NOT NULL,
-	TicketTitle VARCHAR(255) NOT NULL,
-	TicketContent NVARCHAR(3000) NOT NULL,
-	TicketCategory VARCHAR(50) NOT NULL,
-	TicketAuthorId VARCHAR(255) NOT NULL,
-	TargetTicketId INT NULL,
-	TicketUpdate DATETIME2(0) NOT NULL CONSTRAINT DF_Tickets_TicketUpdate DEFAULT(SYSDATETIME()),
-	TicketCreated DATETIME2(0) NOT NULL CONSTRAINT DF_Tickets_TicketCreated DEFAULT(SYSDATETIME()),
-	CONSTRAINT PK_Tickets_TicketId PRIMARY KEY (TicketId),
-	CONSTRAINT FK_Tickets_TicketAuthorId FOREIGN KEY (TicketAuthorId) REFERENCES dbo.Players(PlayerId),
-	CONSTRAINT FK_Tickets_TargetTicketId FOREIGN KEY (TargetTicketId) REFERENCES dbo.Tickets(TicketId)	
-)
+	TicketId INT IDENTITY(1,1) NOT NULL CONSTRAINT PK_Tickets PRIMARY KEY,
+	Title NVARCHAR(60) NOT NULL,
+	Content NVARCHAR(4000) NOT NULL,
+	Category VARCHAR(60) NOT NULL,
+	AuthorId VARCHAR(255) NOT NULL CONSTRAINT FK_Tickets_AuthorId REFERENCES dbo.Players (PlayerId),
+	Status BIT NOT NULL CONSTRAINT DF_Tickets_Status DEFAULT (0),	
+	LastUpdate DATETIME2(0) NOT NULL CONSTRAINT DF_Tickets_LastUpdate DEFAULT (SYSDATETIME()),
+	CreateDate DATETIME2(0) NOT NULL CONSTRAINT DF_Tickets_CreateDate DEFAULT (SYSDATETIME())
+);

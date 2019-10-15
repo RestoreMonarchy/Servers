@@ -1,14 +1,11 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using System.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Core.Models;
-using Dapper;
 using Web.Server.Utilities;
 using Web.Server.Utilities.DiscordMessager;
 using Microsoft.AspNetCore.Authorization;
-using System.Linq;
 using System.Security.Claims;
+using Web.Server.Utilities.Database;
 
 namespace Web.Server.Controllers
 {
@@ -17,15 +14,11 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
-        private readonly IConfiguration configuration;
-        private readonly Database database;
+        private readonly DatabaseManager database;
         private readonly DiscordMessager messager;
 
-        private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
-
-        public PlayersController(IConfiguration configuration, Database database, DiscordMessager messager)
-        {            
-            this.configuration = configuration;
+        public PlayersController(DatabaseManager database, DiscordMessager messager)
+        {
             this.database = database;
             this.messager = messager;
         }

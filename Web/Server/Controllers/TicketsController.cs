@@ -9,6 +9,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
+using Web.Server.Utilities.Database;
 
 namespace Web.Server.Controllers
 {
@@ -16,106 +17,75 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class TicketsController : Controller
     {
-        private readonly IConfiguration configuration;
+        private readonly DatabaseManager database;
 
-        private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
-
-        public TicketsController(IConfiguration configuration)
+        public TicketsController(DatabaseManager database)
         {
-            this.configuration = configuration;
+            this.database = database;
+        }
+
+        [Authorize]
+        [HttpPost("Answer")]
+        public TicketAnswer CreateResponse([FromBody] TicketAnswer answer)
+        {
+            answer.AuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+            answer.LastUpdate = DateTime.Now;
+            answer.CreateDate = DateTime.Now;
+
+            // TODO: For some reason when used in TicketPage.razor throw null not implemented exception when adding to list
+            
+            answer.AnswerId = database.CreateAnswer(answer);
+            return answer;
         }
 
         [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         public Ticket CreateTicket([FromBody] Ticket ticket)
-        {
-            string sql = "INSERT INTO dbo.Tickets (TicketTitle, TicketContent, TicketCategory, TicketAuthorId, TargetTicketId, TicketUpdate, TicketCreated) " +
-                "OUTPUT INSERTED.TicketId VALUES(@TicketTitle, @TicketContent, @TicketCategory, @TicketAuthorId, @TargetTicketId, @TicketUpdate, @TicketCreated);";
+        {            
+            ticket.AuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+            ticket.LastUpdate = DateTime.Now;
+            ticket.CreateDate = DateTime.Now;
 
-            ticket.TicketAuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
-            ticket.TicketUpdate = DateTime.Now;
-            ticket.TicketCreated = DateTime.Now;
-
-            if (ticket == null || ticket.TicketTitle == null || ticket.TicketCategory == null || ticket.TicketContent == null || ticket.TicketAuthorId == null)
+            if (ticket == null || ticket.Title == null || ticket.Category == null || ticket.Content == null || ticket.AuthorId == null)
                 return null;
 
-            using (var conn = connection)
-            {
-                ticket.TicketId = conn.ExecuteScalar<int>(sql, ticket);
-            }
+            ticket.TicketId = database.CreateTicket(ticket);
             return ticket;
         }
 
         [Authorize(Roles = "Admin,Moderator")]
         [HttpGet("dashboard")]
         public List<Ticket> GetTickets()
-        {
-            string sql = "SELECT * FROM dbo.Tickets;";
-
-            List<Ticket> tickets = new List<Ticket>();
-            using (var conn = connection)
-            {
-                tickets = conn.Query<Ticket>(sql).ToList();
-            }
-
-            foreach (var ticket in tickets)
-            {                
-                if (ticket.TargetTicketId.HasValue)
-                {
-                    var target = tickets.FirstOrDefault(x => x.TicketId == ticket.TargetTicketId.Value);
-
-                    target.Responses.Add(ticket);
-                    tickets.Remove(ticket);
-                } else
-                {
-                    ticket.Responses = new List<Ticket>();
-                }
-            }
-
-            return tickets;
+        {            
+            return database.GetTickets();
         }
 
         [Authorize]
         [HttpGet]
         public List<Ticket> GetMyTickets()
         {
-            string sql = "SELECT * FROM dbo.GetMyTickets(@playerId);";
             string playerId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
-
-            List<Ticket> tickets = new List<Ticket>();
-
-            using (var conn = connection)
-            {
-                conn.Query<Ticket, Player, Ticket>(sql, (t, p) =>
-                {
-                    t.Author = p;
-                    if (t.TargetTicketId.HasValue)
-                    {
-                        var main = tickets.First(x => x.TicketId == t.TargetTicketId.Value);
-                        main.Responses.Add(t);
-                    }
-                    else
-                    {
-                        t.Responses = new List<Ticket>();
-                        tickets.Add(t);
-                    }                    
-                    return t;
-                }, new { playerId }, splitOn: "PlayerName");
-            }
-
-            return tickets;
+            var tickets = database.GetTickets();
+            return tickets.Where(x => x.AuthorId == playerId || x.Answers.Exists(y => y.AuthorId == playerId)).ToList();
         }
 
         // TODO: Controller for getting a master ticket and it's responses
 
-        //[Authorize]
-        //[HttpGet("{ticketId}")]        
-        //public Ticket GetTicket(int ticketId)
-        //{
-        //    string sql = "SELECT t.*, p.* FROM dbo.Tickets t JOIN dbo.Players p ON t.TicketAuthorId = p.PlayerId " +
-        //        "WHERE (t.TicketId = @ticketId OR t.TargetTicketId = @ticketId);" 
-        //    if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+        [Authorize]
+        [HttpGet("{ticketId}")]
+        public Ticket GetTicket(int ticketId)
+        {
+            var ticket = database.GetTicket(ticketId);
 
-        //}
+            string playerId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+            if (!(User.IsInRole("Admin") || User.IsInRole("Moderator") || ticket.AuthorId == playerId || ticket.Answers.Any(x => x.AuthorId == playerId)))
+            {
+                return null;
+            }
+            else
+            {
+                return ticket;
+            }
+        }
     }
 }

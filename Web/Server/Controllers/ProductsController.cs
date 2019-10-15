@@ -16,14 +16,12 @@ namespace Web.Server.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IConfiguration configuration;
-        private readonly Database database;
         
         private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
 
-        public ProductsController(IConfiguration configuration, Database database)
+        public ProductsController(IConfiguration configuration)
         {
-            this.configuration = configuration;
-            this.database = database;
+            this.configuration = configuration;           
         }
 
         [HttpGet]
