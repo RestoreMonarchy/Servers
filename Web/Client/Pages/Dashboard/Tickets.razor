@@ -17,6 +17,7 @@
                 <th scope="col">Responses</th>
                 <th scope="col">Last Update</th>
                 <th scope="col">Date Created</th>
+                <th scope="col">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -30,6 +31,7 @@
                     <td>@ticket.Answers.Count</td>
                     <td>@ticket.LastUpdate.ToString()</td>
                     <td>@ticket.CreateDate.ToString()</td>
+                    <td><a href="javascript:void(0)" @onclick="@(() => ToggleTicketAsync(ticket))">@(ticket.Status ? "Closed" : "Open")</a></td>
                 </tr>
             }
         </tbody>
@@ -52,5 +54,10 @@ else
     protected override async Task OnInitializedAsync()
     {
         tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets/dashboard");
+    }
+
+    private async Task ToggleTicketAsync(Ticket ticket)
+    {
+        ticket.Status = await httpClient.PutJsonAsync<bool>("api/tickets/" + ticket.TicketId, null);
     }
 }

@@ -52,16 +52,12 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var state = await authenticationStateProvider.GetAuthenticationStateAsync();
-        if (state.User.IsInRole("Moderator") || state.User.IsInRole("Admin"))
+        announcements = await httpClient.GetJsonAsync<List<Announcement>>("api/announcements?pages=100");
+        foreach (var announcement in announcements)
         {
-            announcements = await httpClient.GetJsonAsync<List<Announcement>>("api/announcements?pages=100");
-            foreach (var announcement in announcements)
-            {
-                announcement.Content = Markdown.ToHtml(announcement.Content);
-            }
-            loaded = true;
-        }  
+            announcement.Content = Markdown.ToHtml(announcement.Content);
+        }
+        loaded = true;
     }
 
     public async Task DeleteAnnouncement(Announcement announcement)

@@ -89,5 +89,15 @@ namespace Web.Server.Utilities.Database
                 return conn.ExecuteScalar<int>(sql, answer);
             }
         }
+
+        public static bool ToggleTicket(this DatabaseManager database, int ticketId)
+        {
+            string sql = "UPDATE dbo.Tickets SET Status = ~Status OUTPUT INSERTED.Status WHERE TicketId = @ticketId;";
+            
+            using (var conn = database.connection)
+            {
+                return conn.ExecuteScalar<bool>(sql, new { ticketId });
+            }
+        }
     }
 }

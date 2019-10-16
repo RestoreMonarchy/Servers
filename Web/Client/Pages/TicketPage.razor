@@ -33,24 +33,33 @@
                 </div>
             </div>
         }
-        <div class="card mt-3">
-            <h5 class="card-header font-weight-bold">
-                <img src="data:image;base64,@state.User.FindFirst("Avatar").Value" class="rounded-circle" width="35" height="35"> @state.User.FindFirst("PlayerName").Value
-            </h5>
-            <div class="card-body">
-                <EditForm Model="newAnswer" OnValidSubmit="SubmitAsync">
-                    <DataAnnotationsValidator />
-                    <p class="card-text"><InputTextArea rows="4" id="content" class="form-control is-invalid" @bind-Value="@newAnswer.Content" /></p>
-                    <div class="invalid-feedback">
-                        <ValidationMessage For="@(() => newAnswer.Content)" />
-                    </div>                    
-                    <button type="submit" class="btn btn-info float-right">Submit</button>
-                </EditForm>
+        if (!ticket.Status)
+        {
+            <div class="card mt-3">
+                <h5 class="card-header font-weight-bold">
+                    <img src="data:image;base64,@state.User.FindFirst("Avatar").Value" class="rounded-circle" width="35" height="35"> @state.User.FindFirst("PlayerName").Value
+                </h5>
+                <div class="card-body">
+                    <EditForm Model="newAnswer" OnValidSubmit="SubmitAsync">
+                        <DataAnnotationsValidator />
+                        <p class="card-text"><InputTextArea rows="4" id="content" class="form-control is-invalid" @bind-Value="@newAnswer.Content" /></p>
+                        <div class="invalid-feedback">
+                            <ValidationMessage For="@(() => newAnswer.Content)" />
+                        </div>
+                        <button type="submit" class="btn btn-info float-right">Submit</button>
+                    </EditForm>
+                </div>
+                <div class="card-footer text-muted">
+                    Create Date @DateTime.Now.ToString("G") Last Update @DateTime.Now.ToString("G")
+                </div>
             </div>
-            <div class="card-footer text-muted">
-                Create Date @DateTime.Now.ToString("G") Last Update @DateTime.Now.ToString("G")
+        }
+        else
+        {
+            <div class="alert alert-danger mt-3" role="alert">
+                <i class="material-icons">warning</i> The ticket is closed
             </div>
-        </div>
+        }
     }
     else
     {
@@ -81,7 +90,7 @@ else
 
     private async Task SubmitAsync()
     {
-        ticket.Answers.Add(await httpClient.SendJsonAsync<TicketAnswer>(HttpMethod.Post, "/api/tickets/answer", newAnswer));        
+        ticket.Answers.Add(await httpClient.SendJsonAsync<TicketAnswer>(HttpMethod.Post, "/api/tickets/answer", newAnswer));
         await InitializeAnswerAsync();
     }
 

@@ -24,12 +24,17 @@ namespace Web.Server.Controllers
         [HttpPost("Answer")]
         public TicketAnswer CreateAnswer([FromBody] TicketAnswer answer)
         {
-            answer.AuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+            var steamId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
+            if (!(User.IsInRole("Moderator") || User.IsInRole("Admin")))
+            {
+                var ticket = database.GetTicket(answer.TicketId);
+                if (!(ticket.AuthorId == steamId || ticket.Answers.Exists(x => x.AuthorId == steamId)))
+                    return null;
+            }
+
+            answer.AuthorId = steamId;
             answer.LastUpdate = DateTime.Now;
             answer.CreateDate = DateTime.Now;
-
-            // TODO: For some reason when used in TicketPage.razor throw null not implemented exception when adding to list
-            // Solved, it wasn't it, it was just because it doesn't return the Author property
             
             answer.AnswerId = database.CreateAnswer(answer);
             return answer;
@@ -66,8 +71,6 @@ namespace Web.Server.Controllers
             return tickets.Where(x => x.AuthorId == playerId || x.Answers.Exists(y => y.AuthorId == playerId)).ToList();
         }
 
-        // TODO: Controller for getting a master ticket and it's responses
-
         [Authorize]
         [HttpGet("{ticketId}")]
         public Ticket GetTicket(int ticketId)
@@ -83,6 +86,13 @@ namespace Web.Server.Controllers
             {
                 return ticket;
             }
+        }
+
+        [Authorize(Roles = "Admin,Moderator")]
+        [HttpPut("{ticketId}")]
+        public bool ToggleTicket(int ticketId)
+        {
+            return database.ToggleTicket(ticketId);
         }
     }
 }
