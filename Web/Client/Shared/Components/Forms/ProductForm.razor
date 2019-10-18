@@ -17,17 +17,17 @@
                     <div class="modal-body">
                         <DataAnnotationsValidator />
                         <div class="form-group">
-                            <label for="name">Name</label>
-                            <InputText id="name" class="form-control is-invalid" @bind-Value="@Product.Name" />
+                            <label for="name">Label</label>
+                            <InputText id="name" class="form-control is-invalid" @bind-Value="@Product.Label" />
                             <div class="invalid-feedback">
-                                <ValidationMessage For="@(() => Product.Name)" />
+                                <ValidationMessage For="@(() => Product.Label)" />
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="description">Description</label>
-                            <InputTextArea rows="8" id="descirption" class="form-control is-invalid" @bind-Value="@Product.Description" />
+                            <label for="description">Details</label>
+                            <InputTextArea rows="8" id="descirption" class="form-control is-invalid" @bind-Value="@Product.Details" />
                             <div class="invalid-feedback">
-                                <ValidationMessage For="@(() => Product.Description)" />
+                                <ValidationMessage For="@(() => Product.Details)" />
                             </div>
                         </div>
                         @*<div class="form-group">

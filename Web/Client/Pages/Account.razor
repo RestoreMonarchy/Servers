@@ -10,29 +10,35 @@
 {
     <div class="row">
         <div class="col-lg-4">
-            <img src="data:image;base64,@Convert.ToBase64String(player.PlayerAvatar)" class="rounded-circle mx-auto d-block" width="130" height="130">
-            <h4 class="display-4 mt-lg-2 text-align-center">@player.PlayerName</h4>
+            <div class="row justify-content-center mb-3"    >
+                <div class="col-lg-auto">
+                    <img src="data:image;base64,@Convert.ToBase64String(player.PlayerAvatar)" class="rounded-circle mx-auto d-block" width="110" height="110">
+                </div>
+                <div class="col-lg-auto mt-lg-4 text-center">
+                    <h4>@player.PlayerName</h4>
+                    <h6 class="text-muted">@player.PlayerId</h6>
+                </div>
+            </div>
             <ul class="list-group">
-                <li class="list-group-item active"><b>SteamID:</b> @player.PlayerId</li>
-                <li class="list-group-item"><b>Name:</b> @player.PlayerName</li>
+                <li class="list-group-item disabled font-weight-bold">Personal Information</li>
                 <li class="list-group-item"><b>Balance:</b> @player.Balance.ToString("C")</li>
                 <li class="list-group-item"><b>Role:</b> @player.Role</li>
-                <li class="list-group-item"><b>Country:</b> @player.PlayerCountry</li>
+                <li class="list-group-item"><b>Country:</b> @(player.PlayerCountry == null ? "unkown" : player.PlayerCountry)</li>
                 <li class="list-group-item"><b>Bans:</b> @player.PlayerBans.Count</li>
                 <li class="list-group-item"><b>Tickets:</b> @tickets.Count</li>
                 <li class="list-group-item"><b>Last Activity:</b> @player.PlayerLastActivity</li>
             </ul>
         </div>
         <div class="col-lg-8 bg-light rounded mt-3">
-            <h3 class="display-3 mb-lg-3 mt-2">Your Tickets</h3>
-            <div class="table-responsive">
+            <h3 class="display-4 mb-lg-3 mt-2">Your Tickets</h3>
+            <div class="table-responsive text-nowrap">
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
                             <th scope="col">Title</th>
                             <th scope="col">Responses</th>
-                            <th scope="col">Create Date</th>
+                            <th class="visible-lg" scope="col">Create Date</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,7 +48,7 @@
                                 <th scope="row">@ticket.TicketId</th>
                                 <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
                                 <td>@ticket.Answers.Count</td>
-                                <td>@ticket.CreateDate</td>
+                                <td class="visible-lg">@ticket.CreateDate</td>
                             </tr>
                         }
                     </tbody>
@@ -51,7 +57,7 @@
         </div>
     </div>
     
-    <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+    <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: fixed; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
     <TicketForm Ticket="new Ticket()" IsEdit="false" OnSubmitted="OnSubmittedAsync" />
 }
 else

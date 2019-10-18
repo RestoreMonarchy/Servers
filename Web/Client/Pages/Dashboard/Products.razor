@@ -25,11 +25,11 @@
             {
                 <tr>
                     <th scope="row">@product.ProductId</th>
-                    <td>@product.Name</td>
+                    <td>@product.Label</td>
                     <td>@product.Price.ToString("C")</td>
                     <td>@product.Category</td>
                     <td>@(product.Duration == null ? "permanent" : product.Duration + " days")</td>
-                    <td>@product.UpdateDate.ToString()</td>
+                    <td>@product.LastUpdate.ToString()</td>
                     <td>@product.CreateDate.ToString()</td>
                     <td>
                         <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>

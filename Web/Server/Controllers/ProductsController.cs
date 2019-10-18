@@ -3,10 +3,12 @@ using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using Web.Server.Utilities;
+using Web.Server.Utilities.Database;
 
 namespace Web.Server.Controllers
 {
@@ -15,85 +17,48 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly IConfiguration configuration;
-        
-        private SqlConnection connection => new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
-
-        public ProductsController(IConfiguration configuration)
+        private readonly DatabaseManager database;
+        public ProductsController(DatabaseManager database)
         {
-            this.configuration = configuration;           
+            this.database = database;
         }
 
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<List<Product>> GetProducts([FromHeader] string category)
+        public List<Product> GetProducts([FromHeader] string category)
         {
-            string sql = "SELECT * FROM dbo.Products";
-
-            if (category != null)
-                sql = sql + " WHERE Category = @category";
-
-            List<Product> products;
-
-            using (var conn = connection)
-            {
-                products = conn.Query<Product>(sql, new { category }).ToList();
-            }
-
-            return Ok(products);
+            return database.GetProducts();
         }
 
         [HttpPost]
-        public ActionResult<int> PostProduct([FromBody] Product product)
+        public Product CreateProduct([FromBody] Product product)
         {
-            string sql = "INSERT INTO dbo.Products (Name, Description, Category, Price, Duration) VALUES (@Name, @Description, @Category, @Price, @Duration);";
-            int rows;
-            using (var conn = connection)
-            {
-                rows = conn.Execute(sql, product);
-            }
+            product.LastUpdate = DateTime.Now;
+            product.CreateDate = DateTime.Now;
 
-            return Ok(rows);
+            product.ProductId = database.CreateProduct(product);
+            return product;
         }
 
         [HttpPatch]
-        public ActionResult<int> PatchProduct([FromBody] Product product)
+        public Product PatchProduct([FromBody] Product product)
         {
-            string sql = "UPDATE dbo.Products SET Name = @Name, Description = @Description, Category = @Category, Price = @Price, Duration = @Duration WHERE ProductId = @ProductId;";
-            int rows;
-            using (var conn = connection)
-            {
-                rows = conn.Execute(sql, product);
-            }
+            product.LastUpdate = DateTime.Now;
 
-            return Ok(rows);
+            database.UpdateProduct(product);
+            return product;
         }
 
-        [HttpDelete("{productId}")]
-        public ActionResult<int> DeleteProduct(string productId)
+        [HttpPut("{productId}")]
+        public bool ToggleProduct(int productId)
         {
-            string sql = "DELETE FROM dbo.Products WHERE ProductId = @productId;";
-            int rows;
-            using (var conn = connection)
-            {
-                rows = conn.Execute(sql, new { productId });
-            }
-
-            return Ok(rows);
+            return database.ToggleProduct(productId);
         }
 
         [HttpGet("{productId}")]
-        public ActionResult<Product> GetProduct(string productId)
+        public ActionResult<Product> GetProduct(int productId)
         {
-            string sql = "SELECT FROM dbo.Products WHERE ProductId = @productId;";
-
-            Product product;
-            using (var conn = connection)
-            {
-                product = conn.QuerySingle(sql, new { productId });
-            }
-
-            return Ok(product);
+            return database.GetProduct(productId);
         }
     }
 }
