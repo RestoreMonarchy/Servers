@@ -42,6 +42,7 @@ namespace Web.Server.Controllers
 
             return Ok(announcement);
         }
+
         [HttpGet]
         [AllowAnonymous]
         public ActionResult<List<Announcement>> GetAnnouncements([FromHeader] int pages = 5)

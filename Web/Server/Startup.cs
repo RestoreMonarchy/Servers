@@ -28,12 +28,14 @@ namespace Web.Server
         public IConfiguration Configuration { get; }
         private DatabaseManager database;
         private SteamUtility steam;
+        private DiscordMessager messager;
 
         public void ConfigureServices(IServiceCollection services)
         {
             database = new DatabaseManager(Configuration);
             steam = new SteamUtility(new HttpClient(), Configuration);
-            services.AddSingleton<DiscordMessager>();
+            messager = new DiscordMessager(Configuration, database);
+            services.AddSingleton(messager);
             services.AddSingleton(steam);
             services.AddSingleton(database);
             services.AddTransient<HttpClient>();
@@ -80,6 +82,11 @@ namespace Web.Server
                     player.PlayerAvatar = await httpClient.GetByteArrayAsync(steamPlayer.avatarfull);
                     player = database.CreatePlayer(player);
                 }
+
+                await Task.Factory.StartNew(async () =>
+                {
+                    await messager.SendPlayerCreatedWebhook(player.PlayerId);
+                });
             }
 
             List<Claim> claims = new List<Claim>();

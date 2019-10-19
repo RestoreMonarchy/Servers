@@ -72,5 +72,8 @@
     <Build Include="dbo\Tables\Products.sql" />
     <Build Include="dbo\Tables\Tickets.sql" />
     <Build Include="dbo\Functions\GetMyTickets.sql" />
+    <Build Include="dbo\Tables\ProductPermissions_1.sql" />
+    <Build Include="dbo\Tables\ProductTransactions_1.sql" />
+    <Build Include="dbo\Tables\PlayerPunishments.sql" />
   </ItemGroup>
 </Project>

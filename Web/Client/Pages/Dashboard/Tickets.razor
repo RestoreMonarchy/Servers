@@ -36,7 +36,6 @@
             }
         </tbody>
     </table>
-    @*<TicketForm Ticket="editTicket" IsEdit="isEdit" OnSubmitted="OnSubmittedAsync" />*@
 }
 else
 {
@@ -45,11 +44,6 @@ else
 
 @code {
     List<Ticket> tickets;
-
-    //public async Task OnSubmittedAsync(Ticket ticket)
-    //{
-    //    // TODO: Has to be finished
-    //}
 
     protected override async Task OnInitializedAsync()
     {

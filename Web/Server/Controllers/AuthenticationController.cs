@@ -10,11 +10,11 @@ namespace Web.Server.Controllers
 {
     public class AuthenticationController : Controller
     {
-        private readonly DatabaseManager database;
+        private readonly DatabaseManager _database;
         
         public AuthenticationController(DatabaseManager database)
         {
-            this.database = database;
+            _database = database;
         }
 
         [HttpGet("~/user")]
@@ -22,7 +22,7 @@ namespace Web.Server.Controllers
         {   
             if (User.Identity.IsAuthenticated)
             {                
-                var player = database.GetPlayer(User.Claims.First().Value.Substring(37));
+                var player = _database.GetPlayer(User.Claims.First().Value.Substring(37));
                 return new UserInfo { Player = player, IsAuthenticated = true };
             } else
             {

@@ -40,7 +40,7 @@ namespace Web.Server.Controllers
             return answer;
         }
 
-        [Authorize(Roles = "Admin,Moderator")]
+        [Authorize]
         [HttpPost]
         public Ticket CreateTicket([FromBody] Ticket ticket)
         {            

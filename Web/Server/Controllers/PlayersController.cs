@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Core.Models;
-using Web.Server.Utilities;
 using Web.Server.Utilities.DiscordMessager;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
@@ -14,30 +13,26 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
-        private readonly DatabaseManager database;
-        private readonly DiscordMessager messager;
+        private readonly DatabaseManager _database;
+        private readonly DiscordMessager _messager;
 
         public PlayersController(DatabaseManager database, DiscordMessager messager)
         {
-            this.database = database;
-            this.messager = messager;
+            this._database = database;
+            this._messager = messager;
         }
 
-        [HttpPost]
-        public ActionResult<Player> AddPlayer([FromBody] Player player)
-        {
-            player = database.CreatePlayer(player);
+        //[HttpPost]
+        //public async Task<Player> CreatePlayer([FromBody] Player player)
+        //{
+        //    player = _database.CreatePlayer(player);
 
-            if (player != null)
-            {
-                Task.Factory.StartNew(() =>
-                {
-                    messager.SendPlayerCreatedWebhook(player);
-                });
-            }
-
-            return Ok(player);
-        }
+        //    if (player != null)
+        //    {
+                
+        //    }
+        //    return player;
+        //}
 
         [HttpGet]
         [AllowAnonymous]
@@ -46,17 +41,24 @@ namespace Web.Server.Controllers
             Player player;
             if (User.Identity.IsAuthenticated)
             {
-                player = database.GetPlayer(User.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37));
+                player = _database.GetPlayer(User.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37));
             } else
                 player = null;
 
             return player;
         }
 
+        [HttpGet("avatar/{playerId}")]
+        [AllowAnonymous]
+        public ActionResult GetPlayerAvatar(string playerId)
+        {
+            return File(_database.GetPlayer(playerId).PlayerAvatar, "image/jpg");
+        }
+
         [HttpGet("{playerId}")]
         public ActionResult<Player> GetPlayer(string playerId)
         {
-            Player player = database.GetPlayer(playerId);
+            Player player = _database.GetPlayer(playerId);
 
             if (player != null)
                 return Ok(player);

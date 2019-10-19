@@ -8,6 +8,7 @@
   <ItemGroup>
     <PackageReference Include="AspNet.Security.OpenId.Steam" Version="2.1.0" />
     <PackageReference Include="Dapper" Version="2.0.30" />
+    <PackageReference Include="Discord.Net.Webhook" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Blazor.Server" Version="3.0.0-preview9.19424.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.0.0-preview9.19424.4" />
     <PackageReference Include="System.Data.SqlClient" Version="4.7.0" />

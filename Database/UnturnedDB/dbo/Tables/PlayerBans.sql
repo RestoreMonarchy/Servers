@@ -1,13 +1,9 @@
-﻿CREATE TABLE [dbo].[PlayerBans]
+﻿CREATE TABLE PlayerBans 
 (
-	BanId INT NOT NULL IDENTITY(1,1),
-    PlayerId VARCHAR(255) NOT NULL,
-    PunisherId VARCHAR(255) NOT NULL,
-    BanReason VARCHAR(255) NULL,
-    BanDuration INT NULL,
-    BanCreated DATETIME2 NOT NULL DEFAULT(SYSDATETIME()),
-    SendFlag BIT NOT NULL DEFAULT 0,
-    CONSTRAINT PK_BanId PRIMARY KEY (BanId),
-    CONSTRAINT FK_PlayerBans_PlayerId FOREIGN KEY (PlayerId) REFERENCES Players(PlayerId),
-    CONSTRAINT FK_PlayerBans_PunisherId FOREIGN KEY (PunisherId) REFERENCES Players(PlayerId)
-)
+	BanId INT IDENTITY(1, 1) NOT NULL CONSTRAINT PK_PlayerBans PRIMARY KEY,
+	PlayerId VARCHAR(255) NOT NULL CONSTRAINT FK_PlayerBans_PlayerId REFERENCES dbo.Players (PlayerId),
+	PunisherId VARCHAR(255) NOT NULL CONSTRAINT FK_PlayerBans_PunisherId REFERENCES dbo.Players (PlayerId),
+	Reason NVARCHAR(1000) NOT NULL,
+	ExpiryDate DATETIME2(0) NULL,
+	CreateDate DATETIME2(0) NOT NULL CONSTRAINT DF_PlayerBans_CreateDate DEFAULT (SYSDATETIME())
+);

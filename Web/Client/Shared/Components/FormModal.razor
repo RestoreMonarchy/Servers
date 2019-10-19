@@ -1,0 +1,35 @@
+﻿<div class="modal fade" id="@Id" tabindex="-1" role="dialog" aria-labelledby="@string.Concat(Id, "Label")" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="@string.Concat(Id, "Label")">@Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <EditForm Model="Model" OnValidSubmit="OnValidSubmit">
+                <DataAnnotationsValidator />
+                <div class="modal-body">
+                    @ChildContent
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    [Parameter]
+    public string Title { get; set; }
+    [Parameter]
+    public object Model { get; set; }
+    [Parameter]
+    public EventCallback<EditContext> OnValidSubmit { get; set; }
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+}

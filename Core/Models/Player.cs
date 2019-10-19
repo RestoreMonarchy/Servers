@@ -23,7 +23,5 @@ namespace Core.Models
         public string Role { get; set; }
         public DateTime PlayerLastActivity { get; set; }
         public DateTime PlayerCreated { get; set; }
-
-        public virtual List<PlayerBan> PlayerBans { get; set; }
     }
 }

@@ -1,11 +1,9 @@
 ﻿CREATE TABLE [dbo].Announcements
 (
-	AnnouncementId INT NOT NULL IDENTITY(1, 1),
+	AnnouncementId INT NOT NULL IDENTITY(1, 1) CONSTRAINT PK_Announcements PRIMARY KEY,
 	Title VARCHAR(255) NOT NULL,
-	Content VARCHAR(6000) NOT NULL DEFAULT ('No content'),
-	AuthorId VARCHAR(255) NOT NULL,
-	UpdateDate DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
-    CreateDate DATETIME2 NOT NULL DEFAULT (SYSDATETIME()),
-    CONSTRAINT PK_Announcements PRIMARY KEY (AnnouncementId),
-	FOREIGN KEY (AuthorId) REFERENCES dbo.Players (PlayerId)
+	Content NVARCHAR(4000) NOT NULL,
+	AuthorId VARCHAR(255) NOT NULL CONSTRAINT FK_Announcemenets_AuthorId REFERENCES dbo.Players (PlayerId),
+	LastUpdate DATETIME2 NOT NULL CONSTRAINT DF_Announcements_LastUpdate DEFAULT (SYSDATETIME()),
+    CreateDate DATETIME2 NOT NULL CONSTRAINT DF_Announcements_CreateDate DEFAULT (SYSDATETIME())
 )

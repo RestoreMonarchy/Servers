@@ -1,13 +1,8 @@
 ﻿using Core.Models;
-using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Linq;
-using Web.Server.Utilities;
 using Web.Server.Utilities.Database;
 
 namespace Web.Server.Controllers
@@ -17,17 +12,17 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly DatabaseManager database;
+        private readonly DatabaseManager _database;
         public ProductsController(DatabaseManager database)
         {
-            this.database = database;
+            _database = database;
         }
 
         [HttpGet]
         [AllowAnonymous]
         public List<Product> GetProducts([FromHeader] string category)
         {
-            return database.GetProducts();
+            return _database.GetProducts();
         }
 
         [HttpPost]
@@ -36,7 +31,7 @@ namespace Web.Server.Controllers
             product.LastUpdate = DateTime.Now;
             product.CreateDate = DateTime.Now;
 
-            product.ProductId = database.CreateProduct(product);
+            product.ProductId = _database.CreateProduct(product);
             return product;
         }
 
@@ -45,20 +40,20 @@ namespace Web.Server.Controllers
         {
             product.LastUpdate = DateTime.Now;
 
-            database.UpdateProduct(product);
+            _database.UpdateProduct(product);
             return product;
         }
 
         [HttpPut("{productId}")]
         public bool ToggleProduct(int productId)
         {
-            return database.ToggleProduct(productId);
+            return _database.ToggleProduct(productId);
         }
 
         [HttpGet("{productId}")]
         public ActionResult<Product> GetProduct(int productId)
         {
-            return database.GetProduct(productId);
+            return _database.GetProduct(productId);
         }
     }
 }
