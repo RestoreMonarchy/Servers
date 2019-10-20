@@ -9,76 +9,7 @@
 
 @if (punishments != null)
 {
-<div class="card">
-    <div class="card-header d-flex pr-0">
-        <h5 class="card-title mb-0">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(category) Punishments</h5>
-        <div class="card-actions ml-auto py-0">
-            <div class="dropdown">
-                <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop1" type="button"><i class="material-icons">filter_list</i></button>
-                <div aria-labelledby="cardTableDrop1" class="dropdown-menu dropdown-menu-right menu">
-                    <a class="dropdown-item" @onclick="@(() => category = "ban")" href="javascript:void(0)">Bans</a>
-                    <a class="dropdown-item" @onclick="@(() => category = "kick")" href="javascript:void(0)">Kicks</a>
-                    <a class="dropdown-item" @onclick="@(() => category = "warn")" href="javascript:void(0)">Warns</a>
-                </div>
-            </div>
-            <div class="dropdown">
-                <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
-                <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
-                    <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="#punishmentModal">Create</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="table-responsive text-nowrap">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    <th scope="col">ID</th>
-                    <th scope="col">Player</th>
-                    <th scope="col">Punisher</th>
-                    @if (category == "ban")
-                    {
-                        <th scope="col">Expiry Date</th>
-                    }
-                    <th scope="col">Create Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var punishment in punishments.Where(x => x.Category.Equals(category, StringComparison.OrdinalIgnoreCase)).Skip(skip).Take(rows))
-                {
-                    <tr>
-                        <th scope="row">@punishment.PunishmentId</th>
-                        <td>@punishment.Player.PlayerName</td>
-                        <td>@punishment.Punisher.PlayerName</td>
-                        @if (category == "ban")
-                        {
-                            <td>@punishment.ExpiryDate</td>
-                        }
-                        <td>@punishment.CreateDate</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <hr class="my-0 w-100">
-    <div class="card-actions align-items-center justify-content-end">
-        <span class="align-self-center mb-1 mx-1 text-muted">Rows per page:</span>
-        <div class="dropdown">
-            <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline dropdown-toggle" data-toggle="dropdown" type="button">@rows</button>
-            <div class="dropdown-menu dropdown-menu-right menu">
-                <a class="dropdown-item active" @onclick="@(() => ChangeRows(5))" href="javascript:void(0)">5</a>
-                <a class="dropdown-item active" @onclick="@(() => ChangeRows(10))" href="javascript:void(0)">10</a>
-                <a class="dropdown-item" @onclick="@(() => ChangeRows(25))" href="javascript:void(0)">25</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" @onclick="@(() => ChangeRows(count))" href="javascript:void(0)">Show all @count</a>
-            </div>
-        </div>
-        <span class="align-self-center mb-1 mr-2 text-muted"></span>
-        <a class="btn btn-outline @(skip - rows < 0 ? "disabled" : "")" @onclick="@Previous" href="javascript:void(0)"><i class="material-icons">chevron_left</i></a>
-        <a class="btn btn-outline @(count - rows - skip <= 0 ? "disabled" : "")" @onclick="@Next" href="javascript:void(0)"><i class="material-icons">chevron_right</i></a>
-    </div>
-</div>
-
+    <DataTable Data="punishments" Categories="categories" FormModalId="@("#punishmentModal")" TableStructure="tableStructure" />
     <FormModal Id="punishmentModal" Title="Create Punishment" Model="punishment" OnValidSubmit="SumbitAsync">
         <div class="form-row mb-2">
             <div class="form-group">
@@ -93,7 +24,7 @@
                     @foreach (var player in filteredPlayers)
                     {
                         <a value="@player.Key" class="dropdown-item" @onclick="((args) => ChangePlayerId(player))" href="javascript:void(0)">
-                            @player.Key (@player.Value.Substring(0, 16))
+                            @player.Key (@player.Value)
                         </a>
                     }
                 </div>
@@ -136,14 +67,26 @@ else
 }
 
 @code {
+    string[] categories = new string[]
+    {
+        "ban",
+        "kick",
+        "warn"
+    };
+
+    Dictionary<string, string> tableStructure = new Dictionary<string, string>()
+    {
+        { "ID", "PunishmentId" },
+        { "Player", "Player.PlayerName" },
+        { "Punisher", "Punisher.PlayerName" },
+        { "Expiry Date", "ExpiryDate" },
+        { "Create Date", "CreateDate" }
+    };
+
     string filter = string.Empty;
     KeyValuePair<string, string> target;
-    int skip = 0;
-    int rows = 5;
-    int count => punishments.Where(x => x.Category == category).Count();
-    string category = "ban";
     List<PlayerPunishment> punishments;
-    Dictionary<string, string> filteredPlayers => 
+    Dictionary<string, string> filteredPlayers =>
         players.Where(x => x.Key.ToLower().Contains(filter.ToLower()) || x.Value.ToLower().Contains(filter.ToLower())).Take(3).ToDictionary(x=> x.Key, x=> x.Value);
     Dictionary<string, string> players;
     PlayerPunishment punishment = new PlayerPunishment();
@@ -151,6 +94,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         punishments = await httpClient.GetJsonAsync<List<PlayerPunishment>>("api/punishments/dashboard");
+        Console.WriteLine("Count of idk: " + punishments.Count);
         players = await httpClient.GetJsonAsync<Dictionary<string, string>>("api/players/search");
     }
 
@@ -172,19 +116,5 @@ else
         punishment.ExpiryDate = DateTime.Now.AddMinutes(Convert.ToDouble(args.Value));
     }
 
-    void Next()
-    {
-        skip += rows;
-    }
 
-    void Previous()
-    {
-        skip -= rows;
-    }
-
-    void ChangeRows(int amount)
-    {
-        skip = 0;
-        rows = amount;
-    }
 }

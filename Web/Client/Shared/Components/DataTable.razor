@@ -1,71 +1,76 @@
 ﻿@using System.Globalization
 
-<div class="card">
-    <div class="card-header d-flex pr-0">
-        <h5 class="card-title mb-0">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(category) Punishments</h5>
-        <div class="card-actions ml-auto py-0">
-            <div class="dropdown">
-                <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop1" type="button"><i class="material-icons">filter_list</i></button>
-                <div aria-labelledby="cardTableDrop1" class="dropdown-menu dropdown-menu-right menu">
-                    @foreach (string item in Categories)
-                    {
-                        <a class="dropdown-item" @onclick="@(() => category = item)" href="javascript:void(0)">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(category)</a>
-                    }
+@if (Data != null && Categories != null && TableStructure != null)
+{
+    <div class="card">
+        <div class="card-header d-flex pr-0">
+            <h5 class="card-title mb-0">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(category) Punishments</h5>
+            <div class="card-actions ml-auto py-0">
+                <div class="dropdown">
+                    <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop1" type="button"><i class="material-icons">filter_list</i></button>
+                    <div aria-labelledby="cardTableDrop1" class="dropdown-menu dropdown-menu-right menu">
+                        @foreach (string item in Categories)
+                        {
+                            <a class="dropdown-item" @onclick="@(() => category = item)" href="javascript:void(0)">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item)</a>
+                        }
+                    </div>
                 </div>
-            </div>
-            <div class="dropdown">
-                <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
-                <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
-                    <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="@FormModalId">Create</a>
+                <div class="dropdown">
+                    <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
+                    <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
+                        <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="@FormModalId">Create</a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="table-responsive text-nowrap">
-        <table class="table mb-0">
-            <thead>
-                <tr>
-                    @foreach (var structure in TableStructure)
-                    {
-                        <th scope="col">@structure.Key</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in FilteredData)
-                {
+        <div class="table-responsive text-nowrap">
+            <table class="table mb-0">
+                <thead>
                     <tr>
                         @foreach (var structure in TableStructure)
                         {
-                            <td>@item.GetType().GetProperty(structure.Value).GetValue(item)</td>
+                            <th scope="col">@structure.Key</th>
                         }
                     </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    <hr class="my-0 w-100">
-    <div class="card-actions align-items-center justify-content-end">
-        <span class="align-self-center mb-1 mx-1 text-muted">Rows per page:</span>
-        <div class="dropdown">
-            <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline dropdown-toggle" data-toggle="dropdown" type="button">@rows</button>
-            <div class="dropdown-menu dropdown-menu-right menu">
-                <a class="dropdown-item active" @onclick="@(() => ChangeRows(5))" href="javascript:void(0)">5</a>
-                <a class="dropdown-item active" @onclick="@(() => ChangeRows(10))" href="javascript:void(0)">10</a>
-                <a class="dropdown-item" @onclick="@(() => ChangeRows(25))" href="javascript:void(0)">25</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" @onclick="@(() => ChangeRows(count))" href="javascript:void(0)">Show all @count</a>
-            </div>
+                </thead>
+                <tbody>
+                    @foreach (var item in FilteredData.Skip(skip).Take(rows))
+                    {
+                        <tr>
+                            @foreach (var structure in TableStructure)
+                            {
+                                <td>@GetProperty(item, structure.Value)</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
-        <span class="align-self-center mb-1 mr-2 text-muted"></span>
-        <a class="btn btn-outline @(skip - rows < 0 ? "disabled" : "")" @onclick="@Previous" href="javascript:void(0)"><i class="material-icons">chevron_left</i></a>
-        <a class="btn btn-outline @(count - rows - skip <= 0 ? "disabled" : "")" @onclick="@Next" href="javascript:void(0)"><i class="material-icons">chevron_right</i></a>
+        <hr class="my-0 w-100">
+        <div class="card-actions align-items-center justify-content-end">
+            <span class="align-self-center mb-1 mx-1 text-muted">Rows per page:</span>
+            <div class="dropdown">
+                <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline dropdown-toggle" data-toggle="dropdown" type="button">@rows</button>
+                <div class="dropdown-menu dropdown-menu-right menu">
+                    <a class="dropdown-item active" @onclick="@(() => ChangeRows(5))" href="javascript:void(0)">5</a>
+                    <a class="dropdown-item active" @onclick="@(() => ChangeRows(10))" href="javascript:void(0)">10</a>
+                    <a class="dropdown-item" @onclick="@(() => ChangeRows(25))" href="javascript:void(0)">25</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" @onclick="@(() => ChangeRows(count))" href="javascript:void(0)">Show all @count</a>
+                </div>
+            </div>
+            <span class="align-self-center mb-1 mr-2 text-muted"></span>
+            <a class="btn btn-outline @(skip - rows < 0 ? "disabled" : "")" @onclick="@Previous" href="javascript:void(0)"><i class="material-icons">chevron_left</i></a>
+            <a class="btn btn-outline @(count - rows - skip <= 0 ? "disabled" : "")" @onclick="@Next" href="javascript:void(0)"><i class="material-icons">chevron_right</i></a>
+        </div>
     </div>
-</div>
+}
+
 
 @code {
+
     [Parameter]
-    public List<object> Data { get; set; }
+    public IEnumerable<object> Data { get; set; }
     [Parameter]
     public string[] Categories { get; set; }
     [Parameter]
@@ -80,10 +85,9 @@
             if (Categories.Length > 0 && category != string.Empty)
                 return Data.Where(x => ((string)x.GetType().GetProperty("Category").GetValue(x)).Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
             else
-                return Data;
+                return Data.ToList();
         }
     }
-
 
     private string category = "";
     private int skip = 0;
@@ -106,4 +110,16 @@
         rows = amount;
     }
 
+    string GetProperty(object item, string structure)
+    {
+        var properties = structure.Split('.');
+
+        foreach (var property in properties)
+        {
+            item = item.GetType()?.GetProperty(property)?.GetValue(item);            
+        }
+
+        return item == null ? "" : item.ToString();
+    }
 }
+ 
