@@ -5,6 +5,7 @@ using Web.Server.Utilities.DiscordMessager;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Web.Server.Utilities.Database;
+using System.Collections.Generic;
 
 namespace Web.Server.Controllers
 {
@@ -53,6 +54,13 @@ namespace Web.Server.Controllers
         public ActionResult GetPlayerAvatar(string playerId)
         {
             return File(_database.GetPlayer(playerId).PlayerAvatar, "image/jpg");
+        }
+
+        [HttpGet("search")]
+        [AllowAnonymous]
+        public Dictionary<string, string> GetPlayersSearch()
+        {
+            return _database.GetPlayersSearch();
         }
 
         [HttpGet("{playerId}")]

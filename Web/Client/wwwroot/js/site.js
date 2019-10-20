@@ -2,6 +2,8 @@
     $('#' + id).modal('hide')
 }
 
+$('#datePicker').pickdate();
+
 //function getFileData(inputId) {
 //    var file = document.getElementById(inputId).files[0];
 //    if (file) {

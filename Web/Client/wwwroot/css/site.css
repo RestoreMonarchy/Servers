@@ -18,3 +18,11 @@ input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
+
+.validation-message {
+    color: #f44336;
+    font-size: .75rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    line-height: 1.5;
+}
