@@ -1,0 +1,55 @@
+﻿@inject HttpClient httpClient
+@using System.ComponentModel.DataAnnotations;
+
+@if (players != null)
+{
+    <div class="form-row mb-2">
+        <div class="form-group">
+            <label for="player">Player</label>
+            <input readonly id="player" class="form-control-plaintext" value="@(selectedPlayer.Key != null ? $"{selectedPlayer.Key} ({selectedPlayer.Value})" : "")" />
+            @ChildContent
+        </div>
+        <div class="form-group mx-sm-3 dropdown @(filter.Length > 2 ? "show" : "")">
+            <label for="search">Search</label>
+            <input id="search" class="form-control" @bind-value="@filter" @bind-value:event="oninput" placeholder="Find Player" />
+            <div class="dropdown-menu @(filter.Length > 2 ? "show" : "")">
+                @foreach (var player in filteredPlayers)
+                {
+                    <a value="@player.Key" class="dropdown-item" @onclick="((args) => ChangePlayerId(player))" href="javascript:void(0)">
+                        @player.Key (@player.Value)
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public string BindingValue { get; set; }
+    [Parameter]
+    public EventCallback<string> BindingValueChanged { get; set; } 
+
+    Dictionary<string, string> players;
+    string filter = string.Empty;
+    KeyValuePair<string, string> selectedPlayer;
+    Dictionary<string, string> filteredPlayers =>
+        players.Where(x => x.Key.ToLower().Contains(filter.ToLower()) || x.Value.ToLower().Contains(filter.ToLower())).Take(3).ToDictionary(x => x.Key, x => x.Value);
+
+    protected override async Task OnInitializedAsync()
+    {
+        players = await httpClient.GetJsonAsync<Dictionary<string, string>>("api/players/search");
+    }
+
+    async Task ChangePlayerId(KeyValuePair<string, string> player)
+    {
+        BindingValue = player.Key;
+        await BindingValueChanged.InvokeAsync(player.Key);
+        selectedPlayer = player;
+        filter = string.Empty;
+    }
+}

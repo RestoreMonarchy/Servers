@@ -6,15 +6,18 @@
         <div class="card-header d-flex pr-0">
             <h5 class="card-title mb-0">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(category) Punishments</h5>
             <div class="card-actions ml-auto py-0">
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop1" type="button"><i class="material-icons">filter_list</i></button>
-                    <div aria-labelledby="cardTableDrop1" class="dropdown-menu dropdown-menu-right menu">
-                        @foreach (string item in Categories)
-                        {
-                            <a class="dropdown-item" @onclick="@(() => category = item)" href="javascript:void(0)">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item)</a>
-                        }
+                @if (Categories != null && Categories.Length > 0) 
+                { 
+                    <div class="dropdown">
+                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop1" type="button"><i class="material-icons">filter_list</i></button>
+                        <div aria-labelledby="cardTableDrop1" class="dropdown-menu dropdown-menu-right menu">
+                            @foreach (string item in Categories)
+                            {
+                                <a class="dropdown-item" @onclick="@(() => category = item)" href="javascript:void(0)">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(item)</a>
+                            }
+                        </div>
                     </div>
-                </div>
+                }                    
                 <div class="dropdown">
                     <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
                     <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
