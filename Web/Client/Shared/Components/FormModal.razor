@@ -8,14 +8,14 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <EditForm Model="Model" OnValidSubmit="onSubmit">
+            <EditForm Model="Model" OnValidSubmit="onSumbit">
                 <DataAnnotationsValidator />
                 <div class="modal-body">
                     @ChildContent
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button class="btn btn-primary" type="submit">Submit</button>
                 </div>
             </EditForm>
         </div>
@@ -34,7 +34,8 @@
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
-    private async Task onSubmit()
+
+    private async Task onSumbit()
     {        
         await OnValidSubmit.InvokeAsync(Model);
         await JsRuntime.InvokeVoidAsync("HideModal", Id);

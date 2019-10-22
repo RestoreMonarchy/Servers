@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -26,9 +27,13 @@ namespace Web.Server.Controllers
         [HttpPost]
         public async Task<PlayerPunishment> CreatePunishment([FromBody] PlayerPunishment punishment)
         {
-            punishment.PunisherId = User.Identity.Name;
+            Console.ForegroundColor = ConsoleColor.Red;
+            
+            punishment.PunisherId = User.FindFirst(ClaimTypes.Name).Value;
             punishment.CreateDate = DateTime.Now;
             punishment.PunishmentId = _database.CreatePunishment(punishment);
+
+            punishment = _database.GetPunishment(punishment.PunishmentId);
 
             await Task.Factory.StartNew(async () =>
             {
@@ -48,7 +53,7 @@ namespace Web.Server.Controllers
         [Authorize]
         public List<PlayerPunishment> GetMyPunishments()
         {
-            return _database.GetPlayerPunishments(User.Identity.Name);    
+            return _database.GetPlayerPunishments(User.FindFirst(ClaimTypes.Name).Value);    
         }
     }
 }

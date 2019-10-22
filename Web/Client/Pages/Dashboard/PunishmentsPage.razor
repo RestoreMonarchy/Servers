@@ -80,18 +80,14 @@ else
         players = await httpClient.GetJsonAsync<Dictionary<string, string>>("api/players/search");
     }
 
-    private async Task SumbitAsync()
+    private async Task SumbitAsync(object model)
     {
-        await httpClient.SendJsonAsync(HttpMethod.Post, "api/punishments", punishment);
+        punishments.Add(await httpClient.SendJsonAsync<PlayerPunishment>(HttpMethod.Post, "api/punishments", punishment));
         punishment = new PlayerPunishment();
     }
-
-    
 
     void ChangeExpiryDate(ChangeEventArgs args)
     {
         punishment.ExpiryDate = DateTime.Now.AddMinutes(Convert.ToDouble(args.Value));
     }
-
-
 }

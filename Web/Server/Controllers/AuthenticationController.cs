@@ -5,6 +5,7 @@ using System.Linq;
 using Core.Models;
 using Web.Server.Utilities;
 using Web.Server.Utilities.Database;
+using System.Security.Claims;
 
 namespace Web.Server.Controllers
 {
@@ -22,7 +23,7 @@ namespace Web.Server.Controllers
         {   
             if (User.Identity.IsAuthenticated)
             {                
-                var player = _database.GetPlayer(User.Claims.First().Value.Substring(37));
+                var player = _database.GetPlayer(User.FindFirst(ClaimTypes.Name).Value);
                 return new UserInfo { Player = player, IsAuthenticated = true };
             } else
             {

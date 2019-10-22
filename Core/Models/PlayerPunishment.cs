@@ -16,7 +16,6 @@ namespace Core.Models
         [Required]
         [StringLength(1000, ErrorMessage = "Content is too long.")]
         public string Reason { get; set; }
-        [Required]
         public DateTime? ExpiryDate { get; set; }
         public DateTime CreateDate { get; set; }
 
