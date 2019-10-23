@@ -10,7 +10,7 @@
 {
     <div class="row">
         <div class="col-lg-4">
-            <div class="row justify-content-center mb-3"    >
+            <div class="row justify-content-center mb-3">
                 <div class="col-lg-auto">
                     <img src="data:image;base64,@Convert.ToBase64String(player.PlayerAvatar)" class="rounded-circle mx-auto d-block" width="110" height="110">
                 </div>
@@ -29,33 +29,62 @@
             </ul>
         </div>
         <div class="col-lg-8 bg-light rounded mt-3">
-            <h3 class="display-4 mb-lg-3 mt-2">Your Tickets</h3>
-            <div class="table-responsive text-nowrap">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Title</th>
-                            <th scope="col">Responses</th>
-                            <th class="visible-lg" scope="col">Create Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var ticket in tickets)
-                        {
-                            <tr>
-                                <th scope="row">@ticket.TicketId</th>
-                                <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
-                                <td>@ticket.Answers.Count</td>
-                                <td class="visible-lg">@ticket.CreateDate</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <ul class="nav nav-justified nav-tabs" id="justifiedTab" role="tablist">
+                <li class="nav-item">
+                    <a aria-controls="tickets" aria-selected="true" class="nav-link active" data-toggle="tab" href="/account/#tickets" id="tickets-tab" role="tab">Tickets</a>
+                </li>
+                <li class="nav-item">
+                    <a aria-controls="punishments" aria-selected="false" class="nav-link" data-toggle="tab" href="/account/#punishments" id="punishments-tab" role="tab">Punishments</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="justifiedTabContent">
+                <div aria-labelledby="tickets-tab" class="tab-pane fade show active" id="tickets" role="tabpanel">
+                    <h3 class="display-4 mb-lg-3 mt-2">Your Tickets</h3>
+                    <div class="table-responsive text-nowrap">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Responses</th>
+                                    <th class="visible-lg" scope="col">Create Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ticket in tickets)
+                                {
+                                    <tr>
+                                        <th scope="row">@ticket.TicketId</th>
+                                        <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
+                                        <td>@ticket.Answers.Count</td>
+                                        <td class="visible-lg">@ticket.CreateDate</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div aria-labelledby="punishments-tab" class="tab-pane fade" id="punishments" role="tabpanel">
+
+                </div>
+                <div aria-labelledby="contact-tab" class="tab-pane fade" id="contact" role="tabpanel">...</div>
             </div>
+
         </div>
     </div>
-    
+
+    <Tabs>
+        <Tab Text="Tab 1">
+            <h1>The first tab</h1>
+        </Tab>
+        <Tab Text="Tab 2">
+            <h1>The second tab</h1>
+        </Tab>
+        <Tab Text="Tab 3">
+            <h1>The third tab</h1>
+        </Tab>
+    </Tabs>
+
     <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: fixed; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
     <TicketForm Ticket="new Ticket()" IsEdit="false" OnSubmitted="OnSubmittedAsync" />
 }
@@ -67,22 +96,40 @@ else
 @code {
     Player player;
     List<Ticket> tickets;
+    List<PlayerPunishment> punishments;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         player = await httpClient.GetJsonAsync<Player>("api/players");
         tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets");
+        punishments = await httpClient.GetJsonAsync<List<PlayerPunishment>>("api/punishments");
     }
 
     public async Task OnSubmittedAsync(Ticket ticket)
     {
-        await PostTicketAsync(ticket);            
+        await PostTicketAsync(ticket);
     }
 
     public async Task PostTicketAsync(Ticket ticket)
-    {        
+    {
         ticket = await httpClient.PostJsonAsync<Ticket>("api/tickets", ticket);
         tickets.Add(ticket);
     }
+
+    Dictionary<string, string> punishmentsStructure = new Dictionary<string, string>()
+{
+        { "ID", "PunishmentId" },
+        { "Punisher", "Punisher.PlayerName" },
+        { "Reason", "Reason" },
+        { "Expiry Date", "ExpiryDate" },
+        { "Create Date", "CreateDate" }
+    };
+
+    string[] categories = new string[]
+    {
+        "ban",
+        "kick",
+        "warn"
+        };
 }

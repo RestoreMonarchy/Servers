@@ -1,0 +1,40 @@
+﻿<div>This is a TabControl</div>
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+<div class="btn-group" role="group">
+    @foreach (Tab tab in Pages)
+    {
+        <button type="button"
+                class="btn @GetButtonClass(tab)"
+                @onclick=@( () => ActivatePage(tab) )>
+            @tab.Text
+        </button>
+    }
+</div>
+
+@code {
+    // Next line is needed so we are able to add <TabPage> components inside
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public Tab ActivePage { get; set; }
+    List<Tab> Pages = new List<Tab>();
+    internal void AddPage(Tab tab)
+    {
+        Pages.Add(tab);
+        if (Pages.Count == 1)
+            ActivePage = tab;
+        StateHasChanged();
+    }
+
+    string GetButtonClass(Tab tab)
+    {
+      return tab == ActivePage ? "btn-primary" : "btn-secondary";
+    }
+    void ActivatePage(Tab tab)
+    {
+      ActivePage = tab;
+    }
+}
