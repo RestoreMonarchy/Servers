@@ -1,21 +1,17 @@
-﻿<div>This is a TabControl</div>
+﻿<ul class="nav nav-justified nav-tabs mb-3" id="justifiedTab" role="tablist">
+    @foreach (Tab tab in Pages)
+    {
+        <li class="nav-item">
+            <a class="nav-link @GetButtonClass(tab)" @onclick=@(() => ActivatePage(tab)) href="javascript:void(0)">@tab.Text</a>
+        </li>
+    }
+</ul>
+
 <CascadingValue Value="this">
     @ChildContent
 </CascadingValue>
 
-<div class="btn-group" role="group">
-    @foreach (Tab tab in Pages)
-    {
-        <button type="button"
-                class="btn @GetButtonClass(tab)"
-                @onclick=@( () => ActivatePage(tab) )>
-            @tab.Text
-        </button>
-    }
-</div>
-
 @code {
-    // Next line is needed so we are able to add <TabPage> components inside
     [Parameter]
     public RenderFragment ChildContent { get; set; }
 
@@ -31,7 +27,7 @@
 
     string GetButtonClass(Tab tab)
     {
-      return tab == ActivePage ? "btn-primary" : "btn-secondary";
+      return tab == ActivePage ? "active" : "";
     }
     void ActivatePage(Tab tab)
     {

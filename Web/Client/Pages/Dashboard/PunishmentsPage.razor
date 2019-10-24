@@ -9,7 +9,7 @@
 
 @if (punishments != null)
 {
-    <DataTable Data="punishments" Categories="categories" FormModalId="@("#punishmentModal")" TableStructure="tableStructure" />
+    <DataTable Data="punishments" Categories="categories" FormModalId="@("#punishmentModal")" TableStructure="tableStructure" Title="Punishments" />
     <FormModal Id="punishmentModal" Title="Create Punishment" Model="punishment" OnValidSubmit="SumbitAsync">                
         <PlayersSearch @bind-BindingValue="@punishment.PlayerId">
             <ValidationMessage class="validation-message" For="@(() => punishment.PlayerId)" />

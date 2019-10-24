@@ -2,14 +2,14 @@
 @using Microsoft.AspNetCore.Components;
 @using Microsoft.AspNetCore.Components.Web;
 
-@if (Data != null && Categories != null && TableStructure != null)
+@if (Data != null && TableStructure != null)
 {
     <div class="card">
         <div class="card-header d-flex pr-0">
-            <h5 class="card-title mb-0">@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(category) Punishments</h5>
+            <h5 class="card-title mb-0">@GetTitle()</h5>
             <div class="card-actions ml-auto py-0">
-                @if (Categories != null && Categories.Length > 0) 
-                { 
+                @if (Categories != null && Categories.Length > 0)
+                {
                     <div class="dropdown">
                         <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop1" type="button"><i class="material-icons">filter_list</i></button>
                         <div aria-labelledby="cardTableDrop1" class="dropdown-menu dropdown-menu-right menu">
@@ -19,13 +19,17 @@
                             }
                         </div>
                     </div>
-                }                    
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
-                    <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
-                        <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="@FormModalId">Create</a>
+                }
+                @if (FormModalId != null)
+                {
+                    <div class="dropdown">
+                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
+                        <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
+                            <a class="dropdown-item" href="javascript:void(0)" data-toggle="modal" data-target="@FormModalId">Create</a>
+                        </div>
                     </div>
-                </div>
+                }
+
             </div>
         </div>
         <div class="table-responsive text-nowrap">
@@ -82,12 +86,14 @@
     public string FormModalId { get; set; }
     [Parameter]
     public Dictionary<string, string> TableStructure { get; set; }
+    [Parameter]
+    public string Title { get; set; }
 
     private List<object> FilteredData
     {
         get
         {
-            if (Categories.Length > 0 && category != string.Empty)
+            if (Categories != null && Categories.Length > 0 && category != string.Empty)
                 return Data.Where(x => ((string)x.GetType().GetProperty("Category").GetValue(x)).Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
             else
                 return Data.ToList();
@@ -115,13 +121,19 @@
         rows = amount;
     }
 
+    string GetTitle()
+    {
+        category = category != "" ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(category) + " " : string.Empty;        
+        return Title.Replace("$category ", category);
+    }
+
     string GetProperty(object item, string structure)
     {
         var properties = structure.Split('.');
 
         foreach (var property in properties)
         {
-            item = item.GetType()?.GetProperty(property)?.GetValue(item);            
+            item = item.GetType()?.GetProperty(property)?.GetValue(item);
         }
 
         return item == null ? "" : item.ToString();
