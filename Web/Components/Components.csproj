@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RazorLangVersion>3.0</RazorLangVersion>
+    <RootNamespace>Components</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="_Imports.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <Generator>MSBuild:RazorGenerateComponentDeclarationDesignTime</Generator>
+    </Content>
+  </ItemGroup>
+
+</Project>

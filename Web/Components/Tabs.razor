@@ -1,0 +1,36 @@
+﻿<ul class="nav nav-justified nav-tabs mb-3" id="justifiedTab" role="tablist">
+    @foreach (Tab tab in Pages)
+    {
+        <li class="nav-item">
+            <a class="nav-link @GetButtonClass(tab)" @onclick=@(() => ActivatePage(tab)) href="javascript:void(0)">@tab.Text</a>
+        </li>
+    }
+</ul>
+
+<CascadingValue Value="this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    public Tab ActivePage { get; set; }
+    List<Tab> Pages = new List<Tab>();
+    internal void AddPage(Tab tab)
+    {
+        Pages.Add(tab);
+        if (Pages.Count == 1)
+            ActivePage = tab;
+        StateHasChanged();
+    }
+
+    string GetButtonClass(Tab tab)
+    {
+      return tab == ActivePage ? "active" : "";
+    }
+    void ActivatePage(Tab tab)
+    {
+      ActivePage = tab;
+    }
+}

@@ -6,11 +6,11 @@
 
 <br />
 <br />
-@if (player != null && tickets != null)
+@if (player != null && tickets != null && punishments != null)
 {
     <div class="row">
         <div class="col-lg-4">
-            <div class="row justify-content-center mb-3"    >
+            <div class="row justify-content-center mb-3">
                 <div class="col-lg-auto">
                     <img src="data:image;base64,@Convert.ToBase64String(player.PlayerAvatar)" class="rounded-circle mx-auto d-block" width="110" height="110">
                 </div>
@@ -28,36 +28,19 @@
                 <li class="list-group-item"><b>Last Activity:</b> @player.PlayerLastActivity</li>
             </ul>
         </div>
-        <div class="col-lg-8 bg-light rounded mt-3">
-            <h3 class="display-4 mb-lg-3 mt-2">Your Tickets</h3>
-            <div class="table-responsive text-nowrap">
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Title</th>
-                            <th scope="col">Responses</th>
-                            <th class="visible-lg" scope="col">Create Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var ticket in tickets)
-                        {
-                            <tr>
-                                <th scope="row">@ticket.TicketId</th>
-                                <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
-                                <td>@ticket.Answers.Count</td>
-                                <td class="visible-lg">@ticket.CreateDate</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-lg-8 bg-light rounded mt-3 pb-3">
+            <Tabs>
+                <Tab Text="Tickets">
+                    <DataTable Data="tickets" TableStructure="ticketsStructure" Title="Your Tickets" />
+                    <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: fixed; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+                    <TicketForm Ticket="new Ticket()" IsEdit="false" OnSubmitted="OnSubmittedAsync" />
+                </Tab>
+                <Tab Text="Punishments">
+                    <DataTable Data="punishments" TableStructure="punishmentsStructure" Categories="categories" Title="Your $category Punishments" />
+                </Tab>
+            </Tabs>
         </div>
-    </div>
-    
-    <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" class="btn btn-float btn-info my-1 mb-2 mr-2" style="position: fixed; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
-    <TicketForm Ticket="new Ticket()" IsEdit="false" OnSubmitted="OnSubmittedAsync" />
+    </div>    
 }
 else
 {
@@ -67,22 +50,48 @@ else
 @code {
     Player player;
     List<Ticket> tickets;
+    List<PlayerPunishment> punishments;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
         player = await httpClient.GetJsonAsync<Player>("api/players");
         tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets");
+        punishments = await httpClient.GetJsonAsync<List<PlayerPunishment>>("api/punishments");
     }
 
     public async Task OnSubmittedAsync(Ticket ticket)
     {
-        await PostTicketAsync(ticket);            
+        await PostTicketAsync(ticket);
     }
 
     public async Task PostTicketAsync(Ticket ticket)
-    {        
+    {
         ticket = await httpClient.PostJsonAsync<Ticket>("api/tickets", ticket);
         tickets.Add(ticket);
     }
+
+    Dictionary<string, string> punishmentsStructure = new Dictionary<string, string>()
+{
+        { "ID", "PunishmentId" },
+        { "Punisher", "Punisher.PlayerName" },
+        { "Reason", "Reason" },
+        { "Expiry Date", "ExpiryDate" },
+        { "Create Date", "CreateDate" }
+    };
+
+    string[] categories = new string[]
+    {
+        "ban",
+        "kick",
+        "warn"
+    };
+
+    Dictionary<string, string> ticketsStructure = new Dictionary<string, string>()
+    {
+        { "ID", "TicketId" },
+        { "Title", "Title" },
+        { "Answers", "Answers.Count" },
+        { "Create Date", "CreateDate" }
+    };
 }
