@@ -1,5 +1,5 @@
 ﻿@inject NavigationManager navigation
-<header class="navbar navbar-dark navbar-full bg-primary doc-navbar-default">
+<navbar class="navbar navbar-dark navbar-full bg-primary doc-navbar-default">
     <button aria-controls="navdrawerDefault" aria-expanded="false" aria-label="Toggle Navdrawer" class="navbar-toggler" data-target="#navdrawerDefault" data-toggle="navdrawer"><span class="navbar-toggler-icon"></span></button>
     <a href="/" class="navbar-brand mr-auto">Restore Monarchy</a>
     <AuthorizeView>
@@ -7,16 +7,16 @@
             <a class="link" href="/account"><img src="data:image;base64,@context.User.FindFirst("Avatar").Value" width="35" height="35" class="rounded-circle" /></a>
             <a class="nav-link font-weight-bold mr-sm-2" href="/account">@context.User.FindFirst("PlayerName").Value</a>
             <form action="/signout" method="post">
-                <button class="btn btn-info mr-sm-2" type="submit">Sign Out</button>
+                <button class="btn btn-outline-primary text-white mr-sm-2" type="submit">Sign Out</button>
             </form>
         </Authorized>
         <NotAuthorized>
             <form action="/signin" method="post">
-                <button class="btn btn-info mr-sm-2" type="submit">Sign In</button>
+                <button class="btn btn-outline-primary text-white mr-sm-2" type="submit">Sign In</button>
             </form>
         </NotAuthorized>
     </AuthorizeView>
-</header>
+</navbar>
 
 <div class="navdrawer navdrawer-default" id="navdrawerDefault" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="navdrawer-content">
