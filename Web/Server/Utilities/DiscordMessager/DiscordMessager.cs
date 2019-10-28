@@ -27,9 +27,7 @@ namespace Web.Server.Utilities.DiscordMessager
         {            
             foreach (var ban in database.GetActiveBans())
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine((ban.ExpiryDate.Value - DateTime.Now).TotalMilliseconds);
-                var timer = new Timer((ban.ExpiryDate.Value - DateTime.Now).TotalMilliseconds);
+                var timer = new Timer((ban.ExpiryDate.Value.AddHours(1) - DateTime.Now).TotalMilliseconds);
                 timer.AutoReset = false;
                 timer.Elapsed += async (sender, e) => await SendUnbanWebhook(ban.PunishmentId);
                 timer.Start();

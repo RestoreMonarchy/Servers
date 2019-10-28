@@ -12,7 +12,7 @@ using Web.Server.Utilities.DiscordMessager;
 namespace Web.Server.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Admin,Moderator")]
+    [Authorize]
     [Route("api/[controller]")]
     public class PunishmentsController : ControllerBase
     {
@@ -24,6 +24,7 @@ namespace Web.Server.Controllers
             _messager = messager;
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         public async Task<PlayerPunishment> CreatePunishment([FromBody] PlayerPunishment punishment)
         {
@@ -43,6 +44,7 @@ namespace Web.Server.Controllers
             return punishment;
         }
 
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpGet("dashboard")]
         public List<PlayerPunishment> GetPunishments()
         {
@@ -50,10 +52,11 @@ namespace Web.Server.Controllers
         }
 
         [HttpGet]
-        [Authorize]
         public List<PlayerPunishment> GetMyPunishments()
         {
-            return _database.GetPlayerPunishments(User.FindFirst(ClaimTypes.Name).Value);    
+            var punishments = _database.GetPlayerPunishments(User.FindFirst(ClaimTypes.Name).Value);
+
+            return punishments;    
         }
     }
 }

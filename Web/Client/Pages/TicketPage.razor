@@ -5,7 +5,7 @@
 
 @if (loaded)
 {
-    if (ticket != null)
+    if (ticket != null && ticket.AuthorId != null)
     {
         <div class="card mt-3">
             <h5 class="card-header font-weight-bold">
@@ -84,6 +84,7 @@ else
     {
         state = await authenticationStateProvider.GetAuthenticationStateAsync();
         ticket = await httpClient.GetJsonAsync<Ticket>("/api/tickets/" + TicketId);
+
         await InitializeAnswerAsync();
         loaded = true;
     }

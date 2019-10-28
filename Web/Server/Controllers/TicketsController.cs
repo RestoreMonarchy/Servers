@@ -80,7 +80,7 @@ namespace Web.Server.Controllers
             string playerId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
             if (!(User.IsInRole("Admin") || User.IsInRole("Moderator") || ticket.AuthorId == playerId || ticket.Answers.Any(x => x.AuthorId == playerId)))
             {
-                return null;
+                return new Ticket();
             }
             else
             {
