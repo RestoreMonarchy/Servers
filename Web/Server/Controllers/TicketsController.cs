@@ -37,6 +37,7 @@ namespace Web.Server.Controllers
             answer.CreateDate = DateTime.Now;
             
             answer.AnswerId = database.CreateAnswer(answer);
+            answer.Author = database.GetPlayer(steamId);
             return answer;
         }
 
@@ -73,14 +74,13 @@ namespace Web.Server.Controllers
 
         [Authorize]
         [HttpGet("{ticketId}")]
-        public Ticket GetTicket(int ticketId)
+        public ActionResult<Ticket> GetTicket(int ticketId)
         {
             var ticket = database.GetTicket(ticketId);
-
             string playerId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
             if (!(User.IsInRole("Admin") || User.IsInRole("Moderator") || ticket.AuthorId == playerId || ticket.Answers.Any(x => x.AuthorId == playerId)))
             {
-                return new Ticket();
+                return Unauthorized();
             }
             else
             {

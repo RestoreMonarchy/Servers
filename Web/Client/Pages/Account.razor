@@ -3,6 +3,7 @@
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
 @attribute [Authorize]
+@using System.Globalization;
 
 <br />
 <br />
@@ -31,12 +32,84 @@
         <div class="col-lg-8 bg-light rounded mt-3 pb-3">
             <Tabs>
                 <Tab Text="Tickets">
-                    <DataTable Data="tickets" TableStructure="ticketsStructure" Title="Your Tickets" />
+                    <h3 class="display-4">Your Tickets</h3>
+                    <div class="table-responsive">
+                        <table class="table text-nowrap">
+                            <caption>To start a new ticket press the button in bottom right corner.</caption>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Answers</th>
+                                    <th>Create Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var ticket in tickets)
+                                {
+                                    <tr class="@GetTicketClass(ticket)">
+                                        <td scope="row">@ticket.TicketId</td>
+                                        <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
+                                        <td>@ticket.Answers.Count</td>
+                                        <td>@ticket.CreateDate</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                     <a href="javascript:void(0)" data-toggle="modal" data-target="#ticketModal" class="btn btn-float btn-primary my-1 mb-2 mr-2" style="position: fixed; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
                     <TicketForm Ticket="new Ticket()" IsEdit="false" OnSubmitted="OnSubmittedAsync" />
                 </Tab>
                 <Tab Text="Punishments">
-                    <DataTable Data="punishments" TableStructure="punishmentsStructure" Categories="categories" Title="Your $category Punishments" />
+                    <h3 class="display-4">Your Bans & Other Punishments</h3>
+                    <div class="table-responsive">
+                        <table class="table text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Reason</th>
+                                    <th>Punisher</th>
+                                    <th>Expiry Date</th>
+                                    <th>Create Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var punishment in punishments.Where(x=> x.Category == "ban"))
+                                {
+                                    <tr class="@GetPunishmentClass(punishment)">
+                                        <td scope="row">@punishment.PunishmentId</td>
+                                        <td>@punishment.Reason</td>
+                                        <td>@punishment.Punisher.PlayerName</td>
+                                        <td>@punishment.ExpiryDate</td>
+                                        <td>@punishment.CreateDate</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <table class="table text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Type</th>
+                                    <th>Reason</th>
+                                    <th>Punisher</th>
+                                    <th>Create Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var punishment in punishments.Where(x => x.Category != "ban"))
+                                {
+                                    <tr>
+                                        <td scope="row">@punishment.PunishmentId</td>
+                                        <td>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(punishment.Category)</td>
+                                        <td>@punishment.Reason</td>
+                                        <td>@punishment.Punisher.PlayerName</td>
+                                        <td>@punishment.CreateDate</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </Tab>
             </Tabs>
         </div>
@@ -71,27 +144,16 @@ else
         tickets.Add(ticket);
     }
 
-    Dictionary<string, string> punishmentsStructure = new Dictionary<string, string>()
-{
-        { "ID", "PunishmentId" },
-        { "Punisher", "Punisher.PlayerName" },
-        { "Reason", "Reason" },
-        { "Expiry Date", "ExpiryDate" },
-        { "Create Date", "CreateDate" }
-    };
-
-    string[] categories = new string[]
+    string GetTicketClass(Ticket ticket)
     {
-        "ban",
-        "kick",
-        "warn"
-    };
+        return ticket.Status ? "table-active" : string.Empty;
+    }
 
-    Dictionary<string, string> ticketsStructure = new Dictionary<string, string>()
+    string GetPunishmentClass(PlayerPunishment punishment)
     {
-        { "ID", "TicketId" },
-        { "Title", "Title" },
-        { "Answers", "Answers.Count" },
-        { "Create Date", "CreateDate" }
-    };
+        if (punishment.Category == "ban" && punishment.ExpiryDate == null || punishment.ExpiryDate > DateTime.Now)
+            return "table-danger";
+        else
+            return string.Empty;
+    }
 }

@@ -42,8 +42,8 @@
                 <div class="card-body">
                     <EditForm Model="newAnswer" OnValidSubmit="SubmitAsync">
                         <DataAnnotationsValidator />
-                        <p class="card-text"><InputTextArea rows="4" id="content" class="form-control is-invalid" @bind-Value="@newAnswer.Content" /></p>
-                        <div class="invalid-feedback">
+                        <p class="card-text"><InputTextArea rows="4" id="content" class="form-control" @bind-Value="@newAnswer.Content" /></p>
+                        <div class="validation-message">
                             <ValidationMessage For="@(() => newAnswer.Content)" />
                         </div>
                         <button type="submit" class="btn btn-primary float-right">Submit</button>
@@ -63,7 +63,7 @@
     }
     else
     {
-        <h3 class="display-3">It seems like you are not a part of this ticket</h3>
+        <h3 class="display-3 mt-5 text-center">It seems like you are not a part of this ticket</h3>
     }
 }
 else
@@ -76,29 +76,30 @@ else
     [Parameter]
     public int TicketId { get; set; }
     private Ticket ticket;
-    private TicketAnswer newAnswer;
+    private TicketAnswer newAnswer = new TicketAnswer();
+    bool isAuthorized = false;
     bool loaded = false;
     AuthenticationState state;
 
     protected override async Task OnInitializedAsync()
     {
         state = await authenticationStateProvider.GetAuthenticationStateAsync();
-        ticket = await httpClient.GetJsonAsync<Ticket>("/api/tickets/" + TicketId);
+        var response = await httpClient.GetAsync("/api/tickets/" + TicketId);
 
-        await InitializeAnswerAsync();
+        if (response.StatusCode != HttpStatusCode.Unauthorized)
+        {
+            ticket = await response.Content.GetJsonAsync<Ticket>();
+            isAuthorized = true;
+        }
+
         loaded = true;
     }
 
     private async Task SubmitAsync()
     {
+        newAnswer.TicketId = ticket.TicketId;
+        newAnswer.AuthorId = state.User.Identity.Name;
         ticket.Answers.Add(await httpClient.SendJsonAsync<TicketAnswer>(HttpMethod.Post, "/api/tickets/answer", newAnswer));
-        await InitializeAnswerAsync();
-    }
-
-    private async Task InitializeAnswerAsync()
-    {
         newAnswer = new TicketAnswer();
-        newAnswer.Author = await httpClient.GetJsonAsync<Player>("api/players");
-        newAnswer.TicketId = TicketId;
     }
 }

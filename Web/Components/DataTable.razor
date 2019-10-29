@@ -62,7 +62,7 @@
                 <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline dropdown-toggle" data-toggle="dropdown" type="button">@rows</button>
                 <div class="dropdown-menu dropdown-menu-right menu">
                     <a class="dropdown-item active" @onclick="@(() => ChangeRows(5))" href="javascript:void(0)">5</a>
-                    <a class="dropdown-item active" @onclick="@(() => ChangeRows(10))" href="javascript:void(0)">10</a>
+                    <a class="dropdown-item" @onclick="@(() => ChangeRows(10))" href="javascript:void(0)">10</a>
                     <a class="dropdown-item" @onclick="@(() => ChangeRows(25))" href="javascript:void(0)">25</a>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" @onclick="@(() => ChangeRows(count))" href="javascript:void(0)">Show all @count</a>
