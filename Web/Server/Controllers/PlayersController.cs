@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Web.Server.Utilities.Database;
 using System.Collections.Generic;
+using AspNet.Security.ApiKey.Providers;
+using System;
 
 namespace Web.Server.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Moderator, Admin")]
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
@@ -63,15 +64,13 @@ namespace Web.Server.Controllers
             return _database.GetPlayersSearch();
         }
 
-        [HttpGet("{playerId}")]
-        public ActionResult<Player> GetPlayer(string playerId)
-        {
-            Player player = _database.GetPlayer(playerId);
 
-            if (player != null)
-                return Ok(player);
-            else
-                return NotFound(player);
+        [HttpGet("{playerId}")]
+        [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
+        public async Task<Player> GetPlayer(string playerId, [FromQuery] string ip)
+        {
+            Player player = await _database.GetInitializedPlayerAsync(playerId, ip);
+            return player;
         }
     }
 }

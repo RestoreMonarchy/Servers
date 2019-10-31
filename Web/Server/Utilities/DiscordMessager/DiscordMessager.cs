@@ -19,8 +19,26 @@ namespace Web.Server.Utilities.DiscordMessager
         public DiscordMessager(IConfiguration configuration, DatabaseManager database)
         {
             this.database = database;
+            database.onPlayerCreated += onPlayerCreatedAsync;
             webhookUrl = configuration["WebhookURL"];
             InitializePendingUnbans();
+        }
+
+        private async Task onPlayerCreatedAsync(Player player)
+        {
+            string country = player.PlayerCountry != null ? $":flag_{player.PlayerCountry.ToLower()}:" : "unkown";
+
+            using (var client = new DiscordWebhookClient(webhookUrl))
+            {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.WithColor(Color.DarkBlue);
+                eb.WithAuthor(player.PlayerName/*, $"/api/players/avatar/{playerId}"*/);
+                eb.AddField("SteamID", $"[{player.PlayerId}](https://steamcommunity.com/profiles/" + player.PlayerId + ")", true);
+                eb.AddField("Country", country, true);
+                eb.WithTimestamp(player.PlayerCreated);
+
+                await client.SendMessageAsync(embeds: new List<Embed>() { eb.Build() });
+            }
         }
 
         private void InitializePendingUnbans()
@@ -68,24 +86,6 @@ namespace Web.Server.Utilities.DiscordMessager
                 if (punishment.ExpiryDate.HasValue)
                     eb.AddField("Expires", punishment.ExpiryDate);
                 eb.WithTimestamp(punishment.CreateDate);
-
-                await client.SendMessageAsync(embeds: new List<Embed>() { eb.Build() });
-            }
-        }
-
-        public async Task SendPlayerCreatedWebhook(string playerId)
-        {
-            var player = database.GetPlayer(playerId);
-            string country = player.PlayerCountry != null ? $":flag_{player.PlayerCountry.ToLower()}:" : "unkown";
-
-            using (var client = new DiscordWebhookClient(webhookUrl))
-            {
-                EmbedBuilder eb = new EmbedBuilder();
-                eb.WithColor(Color.DarkBlue);
-                eb.WithAuthor(player.PlayerName/*, $"/api/players/avatar/{playerId}"*/);                
-                eb.AddField("SteamID", $"[{player.PlayerId}](https://steamcommunity.com/profiles/" + player.PlayerId + ")", true);
-                eb.AddField("Country", country, true);
-                eb.WithTimestamp(player.PlayerCreated);
 
                 await client.SendMessageAsync(embeds: new List<Embed>() { eb.Build() });
             }

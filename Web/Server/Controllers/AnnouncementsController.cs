@@ -45,7 +45,7 @@ namespace Web.Server.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<List<Announcement>> GetAnnouncements([FromHeader] int pages = 5)
+        public ActionResult<List<Announcement>> GetAnnouncements([FromQuery] int pages = 5)
         {
             string sql = "SELECT TOP(@pages) a.*, p.* FROM dbo.Announcements as a INNER JOIN dbo.Players as p ON a.AuthorId = p.PlayerId ORDER BY a.CreateDate DESC;";
             List<Announcement> announcements;

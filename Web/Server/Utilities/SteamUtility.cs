@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -13,18 +10,10 @@ namespace Web.Server.Utilities
     {
         const string GetPlayerSummariesUrl = "http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/";
 
-        private readonly HttpClient httpClient;
-        private readonly IConfiguration configuration;
-
-        public SteamUtility(HttpClient httpClient, IConfiguration configuration)
+        public static async Task<SteamPlayer> GetSteamPlayerAsync(string steamId, string steamApi)
         {
-            this.httpClient = httpClient;
-            this.configuration = configuration;
-        }
-
-        public async Task<SteamPlayer> GetSteamPlayerAsync(string steamId)
-        {
-            string content = await httpClient.GetStringAsync(GetPlayerSummariesUrl + $"?key={configuration["SteamAPI"]}&steamids={steamId}");
+            HttpClient httpClient = new HttpClient();
+            string content = await httpClient.GetStringAsync(GetPlayerSummariesUrl + $"?key={steamApi}&steamids={steamId}");
             List<SteamPlayer> players = JObject.Parse(content)["response"]["players"].ToObject<List<SteamPlayer>>();
             return players.FirstOrDefault();
         }

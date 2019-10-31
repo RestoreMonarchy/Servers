@@ -11,13 +11,81 @@ namespace Kits.Commands
 {
     public class CreateKitCommand : IRocketCommand
     {
+        private KitsPlugin pluginInstance => KitsPlugin.Instance;
+        public void Execute(IRocketPlayer caller, string[] command)
+        {
+            UnturnedPlayer player = (UnturnedPlayer)caller;
+
+            if (command.Length < 2)
+            {
+                UnturnedChat.Say(caller, pluginInstance.Translate("CreateKitFormat"), pluginInstance.MessageColor);
+                return;
+            }
+
+            Kit kit = new Kit();
+
+            kit.Name = command[0];
+            if (pluginInstance.KitsCache.Exists(x => x.Name.Equals(kit.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                UnturnedChat.Say(caller, pluginInstance.Translate("CreateKitExists"), pluginInstance.MessageColor);
+                return;
+            }
+
+            int cooldown = 0;
+            if (!int.TryParse(command[1], out cooldown))
+            {
+                UnturnedChat.Say(caller, pluginInstance.Translate("CreateKitInvalidCooldown"), pluginInstance.MessageColor);
+                return;
+            }
+
+            kit.Cooldown = cooldown;
+            uint experience = 0;
+            uint.TryParse(command.ElementAtOrDefault(0), out experience);
+            kit.Experience = experience;
+
+            kit.Items = new List<Kit.Item>();
+
+            var clothing = player.Player.clothing;
+
+            if (clothing.backpack != 0)
+                kit.Items.Add(new Kit.Item(clothing.backpack, clothing.backpackState));
+            if (clothing.vest != 0)
+                kit.Items.Add(new Kit.Item(clothing.vest, clothing.vestState));
+            if (clothing.shirt != 0)
+                kit.Items.Add(new Kit.Item(clothing.shirt, clothing.shirtState));
+            if (clothing.pants != 0)
+                kit.Items.Add(new Kit.Item(clothing.pants, clothing.pantsState));
+            if (clothing.mask != 0)
+                kit.Items.Add(new Kit.Item(clothing.mask, clothing.maskState));
+            if (clothing.hat != 0)
+                kit.Items.Add(new Kit.Item(clothing.hat, clothing.hatState));
+            if (clothing.glasses != 0)
+                kit.Items.Add(new Kit.Item(clothing.glasses, clothing.glassesState));
+
+            for (byte num = 0; num < PlayerInventory.PAGES - 2; num++)
+            {
+                for (byte num2 = 0; num2 < player.Inventory.getItemCount(num); num2++)
+                {
+                    var item = player.Inventory.getItem(num, num2);
+                    if (item == null)
+                        continue;
+
+                    kit.Items.Add(new Kit.Item(item.item.id, item.item.metadata));
+                }
+            }
+
+            pluginInstance.PostKit(kit);
+
+            UnturnedChat.Say(caller, pluginInstance.Translate("CreateKitSuccess", kit.Name, kit.Cooldown, kit.Items.Count), pluginInstance.MessageColor);
+        }
+
         public AllowedCaller AllowedCaller => AllowedCaller.Player;
 
         public string Name => "createkit";
 
         public string Help => "Creates a new kit of your inventory";
 
-        public string Syntax => "<name> <cooldown>";
+        public string Syntax => "<name> <cooldown> [experience]";
 
         public List<string> Aliases => new List<string>()
         {
@@ -25,69 +93,5 @@ namespace Kits.Commands
         };
 
         public List<string> Permissions => new List<string>();
-
-        public void Execute(IRocketPlayer caller, string[] command)
-        {
-            UnturnedPlayer player = (UnturnedPlayer)caller;
-            var plugin = KitsPlugin.Instance;
-
-            if (command.Length < 2)
-            {
-                UnturnedChat.Say(caller, plugin.Translate("CreateKitHelp"), plugin.MessageColor);
-                return;
-            }
-
-            string name = command[0];
-            if (plugin.Configuration.Instance.Kits.Exists(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-            {
-                UnturnedChat.Say(caller, plugin.Translate("CreateKitExists"), plugin.MessageColor);
-                return;
-            }
-            if (!int.TryParse(command[1], out int cooldown))
-            {
-                UnturnedChat.Say(caller, plugin.Translate("CreateKitInvalidCooldown"), plugin.MessageColor);
-                return;
-            }
-
-            List<ushort> items = new List<ushort>();
-            List<Kit.MetadataItem> metadataItems = new List<Kit.MetadataItem>();
-            
-            for (byte num = 0; num < PlayerInventory.PAGES - 2; num++)
-            {                
-                for (byte num2 = 0; num2 < player.Inventory.getItemCount(num); num2++)
-                {
-                    var item = player.Inventory.getItem(num, num2);
-                    if (item == null)
-                        continue;
-
-                    ItemAsset asset = Assets.find(EAssetType.ITEM, item.item.id) as ItemAsset;
-                    if (asset.type == EItemType.GUN)
-                        metadataItems.Add(new Kit.MetadataItem(item.item.id, item.item.metadata));
-                    else
-                        items.Add(item.item.id);
-                }
-            }
-
-            var clothing = player.Player.clothing;
-
-            if (clothing.backpack != 0)
-                items.Add(clothing.backpack);
-            if (clothing.vest != 0)
-                items.Add(clothing.vest);
-            if (clothing.shirt != 0)
-                items.Add(clothing.shirt);
-            if (clothing.pants != 0)
-                items.Add(clothing.pants);
-            if (clothing.mask != 0)
-                items.Add(clothing.mask);
-            if (clothing.hat != 0)
-                items.Add(clothing.hat);
-            if (clothing.glasses != 0)
-                items.Add(clothing.glasses);
-
-            plugin.Configuration.Instance.Kits.Add(new Kit(name, cooldown, items, metadataItems));
-            plugin.Configuration.Save();
-            UnturnedChat.Say(caller, plugin.Translate("CreateKitSuccess", name, cooldown, items.Count + metadataItems.Count), plugin.MessageColor);
-        }
     }
 }

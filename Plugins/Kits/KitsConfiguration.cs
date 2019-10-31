@@ -7,14 +7,14 @@ namespace Kits
     public class KitsConfiguration : IRocketPluginConfiguration
     {
         public string MessageColor { get; set; }
-        public List<Kit> Kits { get; set; }
+        public string APIUrl { get; set; }
+        public string APIKey { get; set; }
 
         public void LoadDefaults()
         {
-            MessageColor = "#10ffdb";
-            Kits = new List<Kit>()
-            {
-            };
+            MessageColor = "yellow";
+            APIUrl = "https://servers.restoremonarchy.com/api/kits";
+            APIKey = "API_KEY";
         }
     }
 }

@@ -6,16 +6,18 @@ namespace CustomMessageAnnouncer
 {
     public class CustomMessageAnnouncerConfiguration : IRocketPluginConfiguration
     {
+        public bool UseRich { get; set; }
         public double MessageInterval { get; set; }
         [XmlArrayItem("Message")]
         public List<Message> Messages { get; set; }
         public void LoadDefaults()
         {
-            MessageInterval = 300;
+            UseRich = false;
+            MessageInterval = 180;
             Messages = new List<Message>()
             {
-                new Message("{size=22}You are playing on RestoreMonarchy!{/size}", "https://i.imgur.com/vWoACbH.png", "yellow"),
-                new Message("{size=22}Visit RestoreMonarchy.com{/size}", "https://i.imgur.com/vWoACbH.png", "yellow")
+                new Message("You are playing on RestoreMonarchy!", "https://i.imgur.com/vWoACbH.png", "yellow"),
+                new Message("Visit RestoreMonarchy.com", "https://i.imgur.com/vWoACbH.png", "yellow")
             };
         }
     }
