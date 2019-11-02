@@ -14,6 +14,7 @@ namespace Web.Server.Controllers
     {
         public List<Kit> Kits { get; set; }
         private readonly DatabaseManager database;
+
         public KitsController(DatabaseManager database)
         {
             this.database = database;

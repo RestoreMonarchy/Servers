@@ -7,7 +7,7 @@
 
 @if (product != null)
 {
-    <h1>You are purchasing @product.Label for @product.Price.ToString("C")</h1>
+    <h1>You are purchasing @product.Name for @product.Price.ToString("C")</h1>
 }
 else
 {
@@ -15,6 +15,18 @@ else
 }
 
 <h3>PayPal, PaySafeCard, Wallet</h3>
+<form action="https://sandbox.paypal.com/cgi-bin/webscr" method="post">
+    <input type="hidden" name="cmd" value="_xclick">
+    <input type="hidden" name="business" value="tomasz.wrona-facilitator@hotmail.com">
+    <input type="hidden" name="item_name" value="Test Item">
+    <input type="hidden" name="item_number" value="@ProductId">
+    <input type="hidden" name="amount" value="5">
+    <input type="hidden" name="no_shipping" value="1">
+    <input type="hidden" name="no_note" value="1">
+    <input type="hidden" name="currency_code" value="EUR">
+    <input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online.">
+    <img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
+</form>
 
 @code {
     [Parameter]

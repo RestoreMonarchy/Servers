@@ -1,0 +1,53 @@
+﻿@inject HttpClient httpClient
+@using System.ComponentModel.DataAnnotations;
+
+@if (ranks != null)
+{
+    <div class="form-row mb-2">
+        <div class="form-group">
+            <label for="rank">Rank</label>
+            <input readonly id="rank" class="form-control-plaintext" value="@(selectedRank.HasValue ? $"{selectedRank.Value.Key} ({selectedRank.Value.Value})" : "")" />
+            @ChildContent
+        </div>
+        <div class="form-group mx-sm-3 dropdown @(filter.Length > 2 ? "show" : "")">
+            <label for="search">Search</label>
+            <input id="search" class="form-control" @bind-value="@filter" @bind-value:event="oninput" placeholder="Find Rank" />
+            <div class="dropdown-menu @(filter.Length > 2 ? "show" : "")">
+                @foreach (var player in filteredRanks)
+                {
+                    <a value="@player.Key" class="dropdown-item" @onclick="((args) => ChangePlayerId(player))" href="javascript:void(0)">
+                        @player.Key (@player.Value)
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+    [Parameter]
+    public short BindingValue { get; set; }
+    [Parameter]
+    public EventCallback<short> BindingValueChanged { get; set; }
+
+    Dictionary<short, string> ranks;
+    string filter = string.Empty;
+    KeyValuePair<short, string>? selectedRank = null;
+    Dictionary<short, string> filteredRanks =>
+        ranks.Where(x => x.Value.ToLower().Contains(filter.ToLower())).Take(3).ToDictionary(x => x.Key, x => x.Value);
+
+    protected override async Task OnInitializedAsync()
+    {
+        ranks = await httpClient.GetJsonAsync<Dictionary<short, string>>("api/ranks/search");
+    }
+
+    async Task ChangePlayerId(KeyValuePair<short, string> rank)
+    {
+        BindingValue = rank.Key;
+        await BindingValueChanged.InvokeAsync(rank.Key);
+        selectedRank = rank;
+        filter = string.Empty;
+    }
+}

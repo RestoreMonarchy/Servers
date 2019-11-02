@@ -30,6 +30,12 @@ namespace Kits.Commands
                 return;
             }
 
+            if (!caller.HasPermission("kit." + kit.Name))
+            {
+                UnturnedChat.Say(caller, pluginInstance.Translate("KitNoPermission"), pluginInstance.MessageColor);
+                return;
+            }
+
             KitCooldown cooldown = pluginInstance.Cooldowns.FirstOrDefault(x => x.Player.CSteamID.Equals(player.CSteamID) && x.Kit.Name.Equals(kit.Name));
 
             if (cooldown != null && cooldown.Timer.Enabled)

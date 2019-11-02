@@ -17,6 +17,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Web.Server.Hubs;
 using Web.Server.Utilities;
 using Web.Server.Utilities.Database;
 using Web.Server.Utilities.DiscordMessager;
@@ -38,7 +39,8 @@ namespace Web.Server
             services.AddTransient<HttpClient>();
             services.AddSingleton<DiscordMessager>();
             services.AddSingleton(database);
-            
+            services.AddSignalR();
+
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
                 .AddCookie(options =>
                 {
@@ -95,6 +97,7 @@ namespace Web.Server
             {
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
+                endpoints.MapHub<ServersHub>("/servershub");
             });
         }
     }

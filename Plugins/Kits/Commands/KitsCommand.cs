@@ -29,7 +29,7 @@ namespace Kits.Commands
                 string cooldownString = string.Empty;
                 var cooldown = pluginInstance.Cooldowns.FirstOrDefault(x => x.Kit.Name == kit.Name && x.Player.Id == caller.Id);
                 if (cooldown != null && cooldown.Timer.Enabled)
-                    cooldownString = " [" + (kit.Cooldown - (DateTime.Now - cooldown.TimeStarted).TotalSeconds).ToString("0") + "s]";
+                    cooldownString = "[" + (kit.Cooldown - (DateTime.Now - cooldown.TimeStarted).TotalSeconds).ToString("0") + "s]";
 
                 sb.Append($" {kit.Name}{cooldownString},");
             }

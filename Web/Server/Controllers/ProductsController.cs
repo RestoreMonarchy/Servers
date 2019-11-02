@@ -20,26 +20,21 @@ namespace Web.Server.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public List<Product> GetProducts([FromHeader] string category)
+        public List<Product> GetProducts()
         {
             return _database.GetProducts();
         }
 
         [HttpPost]
         public Product CreateProduct([FromBody] Product product)
-        {
-            product.LastUpdate = DateTime.Now;
-            product.CreateDate = DateTime.Now;
-
-            product.ProductId = _database.CreateProduct(product);
+        {            
+            product = _database.GetProduct(_database.CreateProduct(product));
             return product;
         }
 
         [HttpPatch]
         public Product PatchProduct([FromBody] Product product)
         {
-            product.LastUpdate = DateTime.Now;
-
             _database.UpdateProduct(product);
             return product;
         }
@@ -51,7 +46,7 @@ namespace Web.Server.Controllers
         }
 
         [HttpGet("{productId}")]
-        public ActionResult<Product> GetProduct(int productId)
+        public ActionResult<Product> GetProduct(short productId)
         {
             return _database.GetProduct(productId);
         }

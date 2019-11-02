@@ -19,7 +19,6 @@ namespace Kits
     public class KitsPlugin : RocketPlugin<KitsConfiguration>
     {
         public static KitsPlugin Instance { get; private set; }
-        private WebClient webClient;
         public List<Kit> KitsCache { get; private set; }
         public List<KitCooldown> Cooldowns { get; set; }
         public Color MessageColor { get; set; }
@@ -27,11 +26,9 @@ namespace Kits
         protected override void Load()
         {
             Instance = this;
-            webClient = new WebClient();
             MessageColor = UnturnedChat.GetColorFromName(Configuration.Instance.MessageColor, Color.green);            
             Cooldowns = new List<KitCooldown>();
             GetKits();
-
             Logger.Log($"{Name} {Assembly.GetName().Version} has been loaded!", ConsoleColor.Yellow);
         }
 
@@ -49,18 +46,17 @@ namespace Kits
                 try
                 {
                     string response;
-                    using (webClient)
+                    using (WebClient wc = new WebClient())
                     {
-                        webClient.Headers.Add("x-api-key", Configuration.Instance.APIKey);
-                        response = webClient.DownloadString(Configuration.Instance.APIUrl);
+                        wc.Headers.Add("x-api-key", Configuration.Instance.APIKey);
+                        response = wc.DownloadString(Configuration.Instance.APIUrl);
                     }
                     KitsCache = JsonConvert.DeserializeObject<List<Kit>>(response);
                     Logger.Log("Kits have been refreshed", ConsoleColor.Yellow);
                 } catch (Exception e)
                 {
                     Logger.LogException(e);
-                }
-                
+                }                
             });
         }
 
@@ -71,11 +67,11 @@ namespace Kits
                 try
                 {
                     string contentString = JsonConvert.SerializeObject(kit);
-                    using (webClient)
+                    using (WebClient wc = new WebClient())
                     {
-                        webClient.Headers.Add("x-api-key", Configuration.Instance.APIKey);
-                        webClient.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-                        webClient.UploadString(Configuration.Instance.APIUrl, contentString);
+                        wc.Headers.Add("x-api-key", Configuration.Instance.APIKey);
+                        wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+                        wc.UploadString(Configuration.Instance.APIUrl, contentString);
                     }                    
                     KitsCache.Add(kit);
                 } catch (Exception e)
@@ -99,8 +95,9 @@ namespace Kits
             { "CooldownExpiredNotify", "Cooldown for kit {0} expired" },
             { "Kits", "Yours kits:" },
             { "NoKits", "You don't have access to any kits" },
-            { "KitFormat", "Format: /kit <name>" },
+            { "KitFormat", "Format: /kit <name>" },            
             { "KitNotFound", "Failed to find any kit with such name" },
+            { "KitNoPermission", "You can't use this kit" },
             { "KitCooldown", "You have to wait {0} seconds before you can use this kit again" },
             { "KitSuccess", "You received kit {0}" },
             { "RefreshKitsPending", "Kits refresh request has been sent" }

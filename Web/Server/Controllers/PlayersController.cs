@@ -8,6 +8,8 @@ using Web.Server.Utilities.Database;
 using System.Collections.Generic;
 using AspNet.Security.ApiKey.Providers;
 using System;
+using Microsoft.AspNetCore.SignalR;
+using Web.Server.Hubs;
 
 namespace Web.Server.Controllers
 {
@@ -17,11 +19,13 @@ namespace Web.Server.Controllers
     {
         private readonly DatabaseManager _database;
         private readonly DiscordMessager _messager;
+        private readonly IHubContext<ServersHub> _hubContext;
 
-        public PlayersController(DatabaseManager database, DiscordMessager messager)
+        public PlayersController(DatabaseManager database, DiscordMessager messager, IHubContext<ServersHub> hubContext)
         {
             this._database = database;
             this._messager = messager;
+            this._hubContext = hubContext;
         }
 
         //[HttpPost]
@@ -59,8 +63,10 @@ namespace Web.Server.Controllers
 
         [HttpGet("search")]
         [AllowAnonymous]
-        public Dictionary<string, string> GetPlayersSearch()
+        public async Task<Dictionary<string, string>> GetPlayersSearch()
         {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            await _hubContext.Clients.All.SendAsync("Notify", $"Home page loaded at: {DateTime.Now}");
             return _database.GetPlayersSearch();
         }
 
@@ -70,6 +76,7 @@ namespace Web.Server.Controllers
         public async Task<Player> GetPlayer(string playerId, [FromQuery] string ip)
         {
             Player player = await _database.GetInitializedPlayerAsync(playerId, ip);
+            
             return player;
         }
     }

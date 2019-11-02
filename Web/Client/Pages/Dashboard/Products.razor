@@ -44,6 +44,10 @@
         </tbody>
     </table>
     <a href="javascript:void(0)" data-toggle="modal" data-target="#productModal" @onclick="(e => { editProduct = new Product(); isEdit = false; })" class="btn btn-float btn-primary my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+    <FormModal>
+
+    </FormModal>
+    
     <ProductForm Product="editProduct" IsEdit="isEdit" OnSubmitted="OnSubmittedAsync" />
 }
 else

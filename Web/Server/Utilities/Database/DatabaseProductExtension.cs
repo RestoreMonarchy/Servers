@@ -9,7 +9,7 @@ namespace Web.Server.Utilities.Database
     {
         public static List<Product> GetProducts(this DatabaseManager database)
         {
-            string sql = "SELECT * FROM dbo.Products;";
+            string sql = "SELECT p.*, r.* FROM dbo.Products AS p LEFT JOIN dbo.Ranks AS r ON p.RankId = r.RankId;";
 
             using (var conn = database.connection)
             {
@@ -17,21 +17,20 @@ namespace Web.Server.Utilities.Database
             }
         }
 
-        public static int CreateProduct(this DatabaseManager database, Product product)
+        public static short CreateProduct(this DatabaseManager database, Product product)
         {
-            string sql = "INSERT INTO dbo.Products (Label, Details, Picture, Price, Category, Duration, LastUpdate, CreateDate) OUTPUT INSERTED.ProductId " +
-                "VALUES (@Label, @Details, @Picture, @Price, @Category, @Duration, @LastUpdate, @CreateDate);";
+            string sql = "INSERT INTO dbo.Products (ShortName, Name, Description, Price, RankId, Coins) OUTPUT INSERTED.ProductId " +
+                "VALUES (@ShortName, @Name, @Description, @Price, @RankId, @Coins);";
 
             using (var conn = database.connection)
             {
-                return conn.ExecuteScalar<int>(sql, product);
+                return conn.ExecuteScalar<short>(sql, product);
             }
         }
 
         public static void UpdateProduct(this DatabaseManager database, Product product)
         {
-            string sql = "UPDATE dbo.Products SET Label = @Label, Details = @Details, Picture = @Picture, Price = @Price, Category = @Category, " +
-                "LastUpdate = @LastUpdate, Duration = @Duration WHERE ProductId = @ProductId;";
+            string sql = "UPDATE dbo.Products SET ShortName = @ShortName, Name = @Name, Description = @Description, Price = @Price WHERE ProductId = @ProductId;";
 
             using (var conn = database.connection)
             {
@@ -41,7 +40,7 @@ namespace Web.Server.Utilities.Database
 
         public static bool ToggleProduct(this DatabaseManager database, int productId)
         {
-            string sql = "UPDATE dbo.Tickets SET Status = ~Status OUTPUT INSERTED.Status WHERE TicketId = @ticketId;";
+            string sql = "UPDATE dbo.Products SET ActiveFlag = ~ActiveFlag OUTPUT INSERTED.ActiveFlag WHERE ProductId = @ProductId;";
 
             using (var conn = database.connection)
             {
@@ -49,13 +48,17 @@ namespace Web.Server.Utilities.Database
             }
         }
 
-        public static Product GetProduct(this DatabaseManager database, int productId)
+        public static Product GetProduct(this DatabaseManager database, short productId)
         {
-            string sql = "SELECT * FROM  dbo.Products WHERE ProductId = @productId;";
+            string sql = "SELECT p.*, r.* FROM dbo.Products AS p LEFT JOIN dbo.Ranks AS r ON p.RankId = r.RankId WHERE p.ProductId = @productId;";
 
             using (var conn = database.connection)
             {
-                return conn.QuerySingle(sql, new { productId });
+                return conn.Query<Product, Rank, Product>(sql, (p, r) => 
+                {
+                    p.Rank = r;
+                    return p;
+                }, new { productId }).FirstOrDefault();
             }
         }
     }

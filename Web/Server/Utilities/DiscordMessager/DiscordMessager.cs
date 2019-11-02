@@ -1,6 +1,7 @@
 ﻿using Core.Models;
 using Discord;
 using Discord.Webhook;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,19 @@ namespace Web.Server.Utilities.DiscordMessager
             database.onPlayerCreated += onPlayerCreatedAsync;
             webhookUrl = configuration["WebhookURL"];
             InitializePendingUnbans();
+        }
+
+        public async Task LogVerifyTaskExceptionAsync(Exception exception)
+        {
+            using (var client = new DiscordWebhookClient(webhookUrl)) 
+            {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.WithColor(Color.Red);
+                eb.WithDescription($"An exception occurated while verifying a payment  ```{exception.Message}```");
+                eb.WithCurrentTimestamp();
+
+                await client.SendMessageAsync(embeds: new List<Embed>() { eb.Build() });
+            }
         }
 
         private async Task onPlayerCreatedAsync(Player player)
