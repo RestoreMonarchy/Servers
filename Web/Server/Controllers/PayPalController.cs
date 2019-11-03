@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using Web.Server.Utilities.Database;
 using Web.Server.Utilities.DiscordMessager;
 
@@ -34,39 +35,154 @@ namespace Web.Server.Controllers
             this.useSandbox = configuration.GetValue<bool>("UsePayPalSandbox");
             this.rootPath = configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
         }
-
         [HttpPost]
-        public ActionResult Receive()
+        public IActionResult Receive()
         {
-            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-            PayPalRespond response = GetPayPalResponse();
-
-            if (response.RespondType == RespondTypeEnum.Verified)
+            IPNContext ipnContext = new IPNContext()
             {
-                System.IO.File.AppendAllText(rootPath + Path.DirectorySeparatorChar + "data.txt", $"{DateTime.Now.ToString()} {response.JsonData}." + Environment.NewLine);
+                IPNRequest = Request
+            };
 
-                Sale sale = _database.GetSale;
+            using (StreamReader reader = new StreamReader(ipnContext.IPNRequest.Body, Encoding.ASCII))
+            {
+                ipnContext.RequestBody = reader.ReadToEnd();
+            }
 
-                //check the amount paid
-                if (order.Total <= response.AmountPaid)
+            //Store the IPN received from PayPal
+            LogRequest(ipnContext);
+
+            //Fire and forget verification task
+            Task.Factory.StartNew(async () => await VerifyTask(ipnContext));
+
+            //Reply back a 200 code
+            return Ok();
+        }
+
+        private async Task VerifyTask(IPNContext ipnContext)
+        {
+            try
+            {
+                var verificationRequest = WebRequest.Create("https://www.sandbox.paypal.com/cgi-bin/webscr");
+
+                //Set values for the verification request
+                verificationRequest.Method = "POST";
+                verificationRequest.ContentType = "application/x-www-form-urlencoded";
+
+                //Add cmd=_notify-validate to the payload
+                string strRequest = "cmd=_notify-validate&" + ipnContext.RequestBody;
+                verificationRequest.ContentLength = strRequest.Length;
+
+                //Attach payload to the verification request
+                using (StreamWriter writer = new StreamWriter(verificationRequest.GetRequestStream(), Encoding.ASCII))
                 {
-                    // IPN Order successfully transacted. Save changes to database
+                    writer.Write(strRequest);
+                }
 
-                    return Ok();
-                }
-                else
+                //Send the request to PayPal and get the response
+                using (StreamReader reader = new StreamReader(verificationRequest.GetResponse().GetResponseStream()))
                 {
-                    // Amount Paid is incorrect
+                    ipnContext.Verification = reader.ReadToEnd();
                 }
+            }
+            catch (Exception exception)
+            {
+                await Task.Factory.StartNew(async () => await _messager.LogVerifyTaskExceptionAsync(exception));
+            }
+
+            ProcessVerificationResponse(ipnContext);
+        }
+
+
+        private void LogRequest(IPNContext ipnContext)
+        {
+            var parsed = HttpUtility.ParseQueryString(ipnContext.RequestBody);
+            
+
+
+            // Persist the request values into a database or temporary data store
+        }
+
+        private void ProcessVerificationResponse(IPNContext ipnContext)
+        {
+            if (ipnContext.Verification.Equals("VERIFIED"))
+            {
+                var body = HttpUtility.ParseQueryString(ipnContext.RequestBody);
+                int saleId = Convert.ToInt32(body["item_number"]);
+                string transactionId = body["txn_id"];
+                string paymentStatus = body["payment_status"];
+                string receiverEmail = body["receiver_email"];
+                decimal paymentGross = Convert.ToInt32(body["payment_gross"]);
+                string currency = body["mc_currency"];
+
+                var sale = _database.GetSale(saleId);
+
+                if (sale != null && paymentStatus == "Completed" && receiverEmail == _configuration["PayPalEmail"] && _database.HasBeenProcessed(transactionId))
+                {
+                    if (sale.Price == paymentGross && sale.Currency == currency)
+                    {
+                        sale.PaymentType = body["payment_type"];
+                        sale.PaymentStatus = paymentStatus;
+                        sale.PayerEmail = body["payer_email"];
+                        sale.TransactionId = transactionId;
+                        sale.TransactionType = body["txn_type"];
+                    }
+                }
+            }
+            else if (ipnContext.Verification.Equals("INVALID"))
+            {
+                //Log for manual investigation
             }
             else
             {
-                // Not verified
+                //Log error
             }
-
-            return Content("");
         }
+
+        private class IPNContext
+        {
+            public HttpRequest IPNRequest { get; set; }
+
+            public string RequestBody { get; set; }
+
+            public string Verification { get; set; } = String.Empty;
+        }
+
+
+        #region Test
+
+
+        //[HttpPost]
+        //public ActionResult Receive()
+        //{
+        //    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+        //    PayPalRespond response = GetPayPalResponse();
+
+        //    if (response.RespondType == RespondTypeEnum.Verified)
+        //    {
+        //        System.IO.File.AppendAllText(rootPath + Path.DirectorySeparatorChar + "data.txt", $"{DateTime.Now.ToString()} {response.JsonData}." + Environment.NewLine);
+
+        //        Sale sale = _database.GetSale;
+
+        //        //check the amount paid
+        //        if (order.Total <= response.AmountPaid)
+        //        {
+        //            // IPN Order successfully transacted. Save changes to database
+
+        //            return Ok();
+        //        }
+        //        else
+        //        {
+        //            // Amount Paid is incorrect
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // Not verified
+        //    }
+
+        //    return Content("");
+        //}
 
         PayPalRespond GetPayPalResponse()
         {
@@ -160,7 +276,7 @@ namespace Web.Server.Controllers
             public string Value { get; set; }
         }
 
+        #endregion
 
-        
     }
 }

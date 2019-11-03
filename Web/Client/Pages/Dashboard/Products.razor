@@ -12,12 +12,13 @@
         <thead>
             <tr>
                 <th scope="col">ID</th>
-                <th scope="col">Name</th>
+                <th scope="col">Short Name</th>
                 <th scope="col">Price</th>
                 <th scope="col">Category</th>
-                <th scope="col">Duration</th>
-                <th scope="col">Last Update</th>
-                <th scope="col">Date Created</th>
+                <th scope="col">Rank</th>
+                <th scope="col">Coins</th>
+                <th scope="col">Visible</th>
+                <th scope="col">Create Date</th>
             </tr>
         </thead>
         <tbody>
@@ -25,30 +26,68 @@
             {
                 <tr>
                     <th scope="row">@product.ProductId</th>
-                    <td>@product.Label</td>
+                    <td>@product.ShortName</td>
                     <td>@product.Price.ToString("C")</td>
                     <td>@product.Category</td>
-                    <td>@(product.Duration == null ? "permanent" : product.Duration + " days")</td>
-                    <td>@product.LastUpdate.ToString()</td>
+                    <td>@(product.Rank == null ? "No Rank" : product.Rank.Name)</td>
+                    <td>@product.Coins</td>
+                    <td>@product.ActiveFlag</td>
                     <td>@product.CreateDate.ToString()</td>
                     <td>
                         <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
                         <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
                             <a class="dropdown-item" data-toggle="modal" data-target="#productModal" href="javascript:void(0)"
-                                @onclick="(e => { editProduct = product; isEdit = true; })">Edit</a>
+                                @onclick="(e => { this.product = product; isEdit = true; })">Edit</a>
                             <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteProductAsync(product))">Delete</a>
+                            <a class="dropdown-item" href="javascript:void(0)" @onclick="@(() => ToggleProductAsync(product))">@(product.ActiveFlag ? "Hide" : "Unhide")</a>
                         </div>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
-    <a href="javascript:void(0)" data-toggle="modal" data-target="#productModal" @onclick="(e => { editProduct = new Product(); isEdit = false; })" class="btn btn-float btn-primary my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
-    <FormModal>
-
+    <a href="javascript:void(0)" data-toggle="modal" data-target="#productModal" @onclick="(e => { product = new Product(); isEdit = false; })" class="btn btn-float btn-primary my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+    <FormModal Id="productModal" Title="Product Form" Model="product" OnValidSubmit="OnSubmittedAsync">
+        <div class="form-group">
+            <label for="name">Short Name</label>
+            <InputText id="shortname" class="form-control" @bind-Value="@product.ShortName" />
+            <div class="validation-message">
+                <ValidationMessage For="@(() => product.ShortName)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="name">Name</label>
+            <InputText id="name" class="form-control" @bind-Value="@product.Name" />
+            <div class="validation-message">
+                <ValidationMessage For="@(() => product.Name)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="description">Description</label>
+            <InputTextArea rows="8" id="descirption" class="form-control" @bind-Value="@product.Description" />
+            <div class="validation-message">
+                <ValidationMessage For="@(() => product.Description)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="price">Price</label>
+            <InputNumber id="price" class="form-control" @bind-Value="@product.Price" />
+            <div class="validation-message">
+                <ValidationMessage For="@(() => product.Price)" />
+            </div>
+        </div>
+        <RanksSearch @bind-BindingValue="@product.RankId">
+            <ValidationMessage class="validation-message" For="@(() => product.RankId)" />
+        </RanksSearch>
+        <div class="form-group">
+            <label for="duration">Coins</label>
+            <InputNumber id="coins" class="form-control" @bind-Value="@product.Coins" />
+            <div class="validation-message">
+                <ValidationMessage For="@(() => product.Coins)" />
+            </div>
+        </div>
     </FormModal>
     
-    <ProductForm Product="editProduct" IsEdit="isEdit" OnSubmitted="OnSubmittedAsync" />
 }
 else
 {
@@ -57,16 +96,16 @@ else
 
 @code {
     List<Product> products;
-    Product editProduct;
+    Product product;
     bool isEdit;
     public bool loaded = false;
 
-    public async Task OnSubmittedAsync(Product product)
+    public async Task OnSubmittedAsync(object obj)
     {
         if (isEdit)
-            await PatchProductAsync(product);
+            await PatchProductAsync(obj as Product);
         else
-            await PostProductAsync(product);
+            await PostProductAsync(obj as Product);
     }
 
     protected override async Task OnInitializedAsync()
@@ -77,8 +116,6 @@ else
 
     public async Task PostProductAsync(Product product)
     {
-        // I don't know how to get an array of bytes from form razro
-
         await httpClient.PostJsonAsync("api/products", product);
     }
 
@@ -88,12 +125,17 @@ else
         var msg = new HttpRequestMessage(new HttpMethod("PATCH"), "api/products");
         msg.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
 
-        var response = await httpClient.SendAsync(msg);
+        await httpClient.SendAsync(msg);
     }
 
     public async Task DeleteProductAsync(Product product)
     {        
         await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, "api/products/" + product.ProductId));
         products.Remove(product);
+    }
+
+    private async Task ToggleProductAsync(Product product)
+    {
+        product.ActiveFlag = await httpClient.PutJsonAsync<bool>("api/products/" + product.ProductId, null);
     }
 }

@@ -15,7 +15,7 @@
             <div class="dropdown-menu @(filter.Length > 2 ? "show" : "")">
                 @foreach (var player in filteredRanks)
                 {
-                    <a value="@player.Key" class="dropdown-item" @onclick="((args) => ChangePlayerId(player))" href="javascript:void(0)">
+                    <a value="@player.Key" class="dropdown-item" @onclick="((args) => ChangeRankId(player))" href="javascript:void(0)">
                         @player.Key (@player.Value)
                     </a>
                 }
@@ -28,9 +28,9 @@
     [Parameter]
     public RenderFragment ChildContent { get; set; }
     [Parameter]
-    public short BindingValue { get; set; }
+    public short? BindingValue { get; set; }
     [Parameter]
-    public EventCallback<short> BindingValueChanged { get; set; }
+    public EventCallback<short?> BindingValueChanged { get; set; }
 
     Dictionary<short, string> ranks;
     string filter = string.Empty;
@@ -43,7 +43,7 @@
         ranks = await httpClient.GetJsonAsync<Dictionary<short, string>>("api/ranks/search");
     }
 
-    async Task ChangePlayerId(KeyValuePair<short, string> rank)
+    async Task ChangeRankId(KeyValuePair<short, string> rank)
     {
         BindingValue = rank.Key;
         await BindingValueChanged.InvokeAsync(rank.Key);

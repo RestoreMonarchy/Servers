@@ -20,7 +20,7 @@ namespace Web.Server.Utilities.Database
 
         public static Dictionary<short, string> GetRanksSearch(this DatabaseManager database)
         {
-            string sql = "SELECT RankId, Name, ValidDays FROM dbo.Players;";
+            string sql = "SELECT RankId, Name, ValidDays FROM dbo.Ranks;";
 
             using (var conn = database.connection)
             {

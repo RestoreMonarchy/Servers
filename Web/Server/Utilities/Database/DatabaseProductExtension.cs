@@ -13,7 +13,11 @@ namespace Web.Server.Utilities.Database
 
             using (var conn = database.connection)
             {
-                return conn.Query<Product>(sql).ToList();
+                return conn.Query<Product, Rank, Product>(sql, (p, r) =>
+                {
+                    p.Rank = r;
+                    return p;
+                }, splitOn: "RankId").ToList();
             }
         }
 
@@ -58,7 +62,7 @@ namespace Web.Server.Utilities.Database
                 {
                     p.Rank = r;
                     return p;
-                }, new { productId }).FirstOrDefault();
+                }, new { productId }, splitOn: "RankId").FirstOrDefault();
             }
         }
     }
