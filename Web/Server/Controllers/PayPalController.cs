@@ -24,19 +24,15 @@ namespace Web.Server.Controllers
         private readonly IConfiguration _configuration;
         private readonly DatabaseManager _database;
         private readonly DiscordMessager _messager;
-        private readonly bool useSandbox = false;
-        private readonly string rootPath;
 
         public PayPalController(IConfiguration configuration, DatabaseManager database, DiscordMessager messager)
         {
             this._configuration = configuration;
             this._database = database;
             this._messager = messager;
-            this.useSandbox = configuration.GetValue<bool>("UsePayPalSandbox");
-            this.rootPath = configuration.GetValue<string>(WebHostDefaults.ContentRootKey);
         }
         [HttpPost]
-        public IActionResult Receive()
+        public async Task<IActionResult> Receive()
         {
             IPNContext ipnContext = new IPNContext()
             {
@@ -45,97 +41,111 @@ namespace Web.Server.Controllers
 
             using (StreamReader reader = new StreamReader(ipnContext.IPNRequest.Body, Encoding.ASCII))
             {
-                ipnContext.RequestBody = reader.ReadToEnd();
+                ipnContext.RequestBody = await reader.ReadToEndAsync();
             }
 
             //Store the IPN received from PayPal
-            LogRequest(ipnContext);
+            await LogRequest(ipnContext);
 
             //Fire and forget verification task
-            Task.Factory.StartNew(async () => await VerifyTask(ipnContext));
+            await Task.Factory.StartNew(() => VerifyTask(ipnContext));
 
             //Reply back a 200 code
             return Ok();
         }
 
-        private async Task VerifyTask(IPNContext ipnContext)
+        private void VerifyTask(IPNContext ipnContext)
         {
             try
             {
                 var verificationRequest = WebRequest.Create("https://www.sandbox.paypal.com/cgi-bin/webscr");
 
-                //Set values for the verification request
                 verificationRequest.Method = "POST";
                 verificationRequest.ContentType = "application/x-www-form-urlencoded";
 
-                //Add cmd=_notify-validate to the payload
                 string strRequest = "cmd=_notify-validate&" + ipnContext.RequestBody;
                 verificationRequest.ContentLength = strRequest.Length;
-
-                //Attach payload to the verification request
+                
                 using (StreamWriter writer = new StreamWriter(verificationRequest.GetRequestStream(), Encoding.ASCII))
                 {
                     writer.Write(strRequest);
                 }
 
-                //Send the request to PayPal and get the response
                 using (StreamReader reader = new StreamReader(verificationRequest.GetResponse().GetResponseStream()))
                 {
                     ipnContext.Verification = reader.ReadToEnd();
                 }
+                
             }
             catch (Exception exception)
             {
-                await Task.Factory.StartNew(async () => await _messager.LogVerifyTaskExceptionAsync(exception));
+                Task.Factory.StartNew(async () => await _messager.LogVerifyTaskExceptionAsync(exception));
             }
-
-            ProcessVerificationResponse(ipnContext);
+            Task.Factory.StartNew(async () => await ProcessVerificationResponse(ipnContext));
         }
 
 
-        private void LogRequest(IPNContext ipnContext)
+        private async Task LogRequest(IPNContext ipnContext)
         {
             var parsed = HttpUtility.ParseQueryString(ipnContext.RequestBody);
-            
-
-
-            // Persist the request values into a database or temporary data store
+            await _messager.SendPayPalMessage(ipnContext.RequestBody);
         }
 
-        private void ProcessVerificationResponse(IPNContext ipnContext)
+        private async Task ProcessVerificationResponse(IPNContext ipnContext)
         {
-            if (ipnContext.Verification.Equals("VERIFIED"))
+            try
             {
-                var body = HttpUtility.ParseQueryString(ipnContext.RequestBody);
-                int saleId = Convert.ToInt32(body["item_number"]);
-                string transactionId = body["txn_id"];
-                string paymentStatus = body["payment_status"];
-                string receiverEmail = body["receiver_email"];
-                decimal paymentGross = Convert.ToInt32(body["payment_gross"]);
-                string currency = body["mc_currency"];
-
-                var sale = _database.GetSale(saleId);
-
-                if (sale != null && paymentStatus == "Completed" && receiverEmail == _configuration["PayPalEmail"] && _database.HasBeenProcessed(transactionId))
+                if (ipnContext.Verification.Equals("VERIFIED"))
                 {
-                    if (sale.Price == paymentGross && sale.Currency == currency)
+                    var body = HttpUtility.ParseQueryString(ipnContext.RequestBody);
+                    int saleId;
+                    int.TryParse(body["custom"], out saleId);
+                    string transactionId = body["txn_id"];
+                    string paymentStatus = body["payment_status"];
+                    string receiverEmail = body["receiver_email"];
+                    decimal paymentGross;
+                    decimal.TryParse(body["mc_gross"], out paymentGross);
+                    string currency = body["mc_currency"];
+
+                    var sale = _database.GetSale(saleId);
+
+                    if (sale != null && paymentStatus == "Completed" && receiverEmail == _configuration["PayPalEmail"] && !_database.HasBeenProcessed(transactionId))
                     {
-                        sale.PaymentType = body["payment_type"];
-                        sale.PaymentStatus = paymentStatus;
-                        sale.PayerEmail = body["payer_email"];
-                        sale.TransactionId = transactionId;
-                        sale.TransactionType = body["txn_type"];
+                        if (sale.Price == paymentGross && sale.Currency == currency)
+                        {
+                            sale.PaymentType = body["payment_type"];
+                            sale.PaymentStatus = paymentStatus;
+                            sale.PayerEmail = body["payer_email"];
+                            sale.TransactionId = transactionId;
+                            sale.TransactionType = body["txn_type"];
+
+                            _database.UpdateSale(sale);
+
+                            await _messager.SendPayPalMessage($"Successfull purchase for {sale.Price} {currency}");
+                        }
+                        else
+                        {
+                            await _messager.SendPayPalMessage($"[SALE {sale.SaleId}] Price `{sale.Price}`!= `{paymentGross}` OR Currency `{sale.Currency}` != {currency}");
+                        }
+                    }
+                    else
+                    {
+                        await _messager.SendPayPalMessage($"[SALE {saleId}] Status: `{paymentStatus}` Receiver: `{receiverEmail}` Already Processed: {_database.HasBeenProcessed(transactionId)}");
                     }
                 }
-            }
-            else if (ipnContext.Verification.Equals("INVALID"))
+                else if (ipnContext.Verification.Equals("INVALID"))
+                {
+                    await _messager.SendPayPalMessage($"Verification Invalid: ```{ipnContext.ToString()}```");
+                }
+                else
+                {
+                    await _messager.SendPayPalMessage($"Error: ```{ipnContext.ToString()}```");
+                }
+            } catch (Exception e)
             {
-                //Log for manual investigation
-            }
-            else
-            {
-                //Log error
-            }
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(e);
+            }            
         }
 
         private class IPNContext
@@ -146,137 +156,5 @@ namespace Web.Server.Controllers
 
             public string Verification { get; set; } = String.Empty;
         }
-
-
-        #region Test
-
-
-        //[HttpPost]
-        //public ActionResult Receive()
-        //{
-        //    System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
-        //    PayPalRespond response = GetPayPalResponse();
-
-        //    if (response.RespondType == RespondTypeEnum.Verified)
-        //    {
-        //        System.IO.File.AppendAllText(rootPath + Path.DirectorySeparatorChar + "data.txt", $"{DateTime.Now.ToString()} {response.JsonData}." + Environment.NewLine);
-
-        //        Sale sale = _database.GetSale;
-
-        //        //check the amount paid
-        //        if (order.Total <= response.AmountPaid)
-        //        {
-        //            // IPN Order successfully transacted. Save changes to database
-
-        //            return Ok();
-        //        }
-        //        else
-        //        {
-        //            // Amount Paid is incorrect
-        //        }
-        //    }
-        //    else
-        //    {
-        //        // Not verified
-        //    }
-
-        //    return Content("");
-        //}
-
-        PayPalRespond GetPayPalResponse()
-        {
-            PayPalRespond output = new PayPalRespond();
-
-            var formVals = new Dictionary<string, string>();
-            formVals.Add("cmd", "_notify-validate");
-
-            string paypalUrl = useSandbox ? "https://www.sandbox.paypal.com/cgi-bin/webscr" : "https://www.paypal.com/cgi-bin/webscr";
-
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(paypalUrl);
-
-            // Set values for the request back
-            req.Method = "POST";
-            req.ContentType = "application/x-www-form-urlencoded";
-
-            byte[] param;
-            using (var ms = new MemoryStream(2048))
-            {
-                Request.Body.CopyTo(ms);
-                param = ms.ToArray();
-            }
-
-            string strRequest = Encoding.ASCII.GetString(param);
-
-            var QueryValues = System.Web.HttpUtility.ParseQueryString(strRequest);
-
-            output.Data = new List<QueryValue>();
-            foreach (var item in QueryValues.AllKeys)
-            {
-                if (item.Equals("txn_id"))
-                    output.TransactionID = QueryValues[item];
-                else if (item.Equals("mc_gross"))
-                {
-                    CultureInfo culture = CultureInfo.CreateSpecificCulture("en-US");
-                    NumberStyles style = NumberStyles.Number;
-
-                    Decimal amountPaid = 0;
-                    Decimal.TryParse(QueryValues[item], style, culture, out amountPaid);
-                    output.AmountPaid = amountPaid;
-                }
-                else if (item.Equals("custom"))
-                    output.OrderID = QueryValues[item];
-
-                output.Data.Add(new QueryValue { Name = item, Value = QueryValues[item] });
-            }
-            output.JsonData = Newtonsoft.Json.JsonConvert.SerializeObject(output.Data);
-
-            StringBuilder sb = new StringBuilder();
-            sb.Append(strRequest);
-
-            foreach (string key in formVals.Keys)
-            {
-                sb.AppendFormat("&{0}={1}", key, formVals[key]);
-            }
-            strRequest += sb.ToString();
-            req.ContentLength = strRequest.Length;
-
-            //Send the request to PayPal and get the response
-            string response = "";
-            using (StreamWriter streamOut = new StreamWriter(req.GetRequestStream(), System.Text.Encoding.ASCII))
-            {
-                streamOut.Write(strRequest);
-                streamOut.Close();
-                using (StreamReader streamIn = new StreamReader(req.GetResponse().GetResponseStream()))
-                {
-                    response = streamIn.ReadToEnd();
-                }
-            }
-
-            output.RespondType = response.Equals("VERIFIED") ? RespondTypeEnum.Verified : RespondTypeEnum.Invalid;
-
-            return output;
-        }
-
-        public enum RespondTypeEnum { Verified, Invalid }
-
-        public class PayPalRespond
-        {
-            public RespondTypeEnum RespondType { get; set; }
-            public List<QueryValue> Data { get; set; }
-            public string JsonData { get; set; }
-            public string TransactionID { get; set; }
-            public string OrderID { get; set; }
-            public Decimal AmountPaid { get; set; }
-        }
-
-        public class QueryValue
-        {
-            public string Name { get; set; }
-            public string Value { get; set; }
-        }
-
-        #endregion
-
     }
 }

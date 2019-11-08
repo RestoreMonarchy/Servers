@@ -6,6 +6,13 @@ namespace Core.Models
 {
     public class Sale
     {
+        public Sale() { }
+        public Sale(short productId, string playerId)
+        {
+            ProductId = productId;
+            PlayerId = playerId;
+        }
+
         public int SaleId { get; set; }
         public short ProductId { get; set; }
         public string PlayerId { get; set; }

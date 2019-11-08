@@ -2,6 +2,10 @@
     $('#' + id).modal('hide')
 }
 
+function ShowModal(id) {
+    $('#' + id).modal('show')
+}
+
 $('#datePicker').pickdate();
 
 //function getFileData(inputId) {

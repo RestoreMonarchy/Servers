@@ -1,5 +1,8 @@
 ﻿@page "/shop/checkout/{ProductId:int}"
+@using Microsoft.AspNetCore.WebUtilities
 @inject HttpClient httpClient
+@inject AuthenticationStateProvider authStateProvider
+@inject NavigationManager nav
 
 <br />
 <br />
@@ -7,35 +10,58 @@
 
 @if (product != null)
 {
-    <h1>You are purchasing @product.Name for @product.Price.ToString("C")</h1>
+    <div class="jumbotron mt-3">
+        <h2>You are buying @product.Name for €@product.Price!</h2>
+        <p class="text-muted">Please don't buy anything yet, until the website is officially released.</p>
+        <hr class="my-4">
+        <p>Be sure to read our <a href="javascript:void(0)">Terms & Conditions</a> before processing the purchase!</p>
+        <form @onsubmit="async () => await CreateSaleAsync()">
+            <button type="submit" class="btn unstyle-button @btnClass" border="0" name="submit"><img src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-large.png" alt="Check out with PayPal" /></button>
+        </form>
+    </div>
 }
 else
 {
     <ProgressBar />
 }
 
-<h3>PayPal, PaySafeCard, Wallet</h3>
-<form action="https://sandbox.paypal.com/cgi-bin/webscr" method="post">
-    <input type="hidden" name="cmd" value="_xclick">
-    <input type="hidden" name="business" value="tomasz.wrona-facilitator@hotmail.com">
-    <input type="hidden" name="item_name" value="Test Item">
-    <input type="hidden" name="item_number" value="@ProductId">
-    <input type="hidden" name="amount" value="5">
-    <input type="hidden" name="no_shipping" value="1">
-    <input type="hidden" name="no_note" value="1">
-    <input type="hidden" name="currency_code" value="EUR">
-    <input type="image" src="https://www.paypal.com/en_AU/i/btn/btn_buynow_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online.">
-    <img alt="" border="0" src="https://www.paypal.com/en_AU/i/scr/pixel.gif" width="1" height="1">
-</form>
-
 @code {
     [Parameter]
     public int ProductId { get; set; }
 
+    Sale sale;
+
+    private string url = "https://www.sandbox.paypal.com/nl/cgi-bin/webscr";
+
     private Product product;
+    string btnClass = "";
 
     protected override async Task OnInitializedAsync()
     {
         product = await httpClient.GetJsonAsync<Product>("api/products/" + ProductId);
+    }
+
+    async Task CreateSaleAsync()
+    {
+        btnClass = "btn-disabled";
+        var state = await authStateProvider.GetAuthenticationStateAsync();
+        sale = new Sale(product.ProductId, state.User.Identity.Name);
+        sale.SaleId = await httpClient.PostJsonAsync<int>("api/sales/", sale);
+
+        Dictionary<string, string> dict = new Dictionary<string, string>()
+    {
+            { "cmd", "_xclick" },
+            { "business", "tomasz.wrona-facilitator@hotmail.com" },
+            { "item_name", product.Name },
+            { "item_number", product.ProductId.ToString() },
+            { "custom", sale.SaleId.ToString() },
+            { "amount", product.Price.ToString() },
+            { "currency_code", "EUR" },
+            { "no_shipping", "1" },
+            { "no_note", "1" }
+        };
+
+        url = QueryHelpers.AddQueryString(url, dict);
+        nav.NavigateTo(url);
     }
 }

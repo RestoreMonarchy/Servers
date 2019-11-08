@@ -1,4 +1,5 @@
 ﻿@inject HttpClient httpClient
+@inject IJSRuntime JsRuntime
 @using Core.Models;
 @using Markdig;
 
@@ -10,14 +11,14 @@
                     <a class="nav-link @(active == "ranks" ? "active" : "")" @onclick="@(x => active = "ranks")" href="javascript:void(0)">Ranks</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(active == "kits" ? "active" : "")" @onclick="@(x => active = "kits")" href="javascript:void(0)">Kits</a>
+                    <a class="nav-link @(active == "coins" ? "active" : "")" @onclick="@(x => active = "coins")" href="javascript:void(0)">Coins</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link @(active == "extras" ? "active" : "")" @onclick="@(x => active = "extras")" href="javascript:void(0)">Extras</a>
+                    <a class="nav-link @(active == "bundle" ? "active" : "")" @onclick="@(x => active = "bundle")" href="javascript:void(0)">Bundles</a>
                 </li>
             </ul>
         </div>
-        <div class="card-body ">
+        <div class="card-body">
             <h4 class="card-title">Restore Monarchy Servers Shop</h4>
             <p class="card-text">Have fun buying the perks that fit you and be sure to give us a review!</p>
             <div class="card-group">
@@ -25,36 +26,13 @@
                 {
                     @foreach (var product in products.Where(x => x.Category.Equals(active, StringComparison.OrdinalIgnoreCase)))
                     {
-                        string modalId = product.ProductId + "Details";
                         <div class="card mr-lg-4" style="max-width: 300px;">
-                            <button class="unstyle-button" type="button" data-toggle="modal" data-target="#@modalId">
-                                <img class="card-img-top" style="max-width: 100%;" src="">
-                            </button>
-
-                            <div class="modal fade" id="@modalId" tabindex="-1" role="dialog" aria-labelledby="@string.Concat(product.ProductId, "DetailsLabel")" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="exampleModalLabel">@product.ShortName</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            @(new MarkupString(product.Description))
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                            <a class="btn btn-info" href="/shop/checkout/@product.ProductId" data-dismiss="modal">Buy Now</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-actions">
-                                <button class="btn btn-info mr-2" type="button" data-toggle="modal" data-target="#@modalId">
+                            <img class="card-img-top" style="max-width: 100%;" src="">
+                            <div class="card-actions text-right">
+                                <button class="btn btn-primary mr-2" type="button" @onclick="@(() => PreviewProduct(product))">
                                     Details
                                 </button>
-                                <a class="btn btn-info" href="/shop/checkout/@product.ProductId">Buy for @product.Price.ToString("C")</a>
+                                <a class="btn btn-primary" href="/shop/checkout/@product.ProductId">Buy for @product.Price.ToString("C")</a>
                             </div>
                         </div>
                     }
@@ -79,9 +57,32 @@
             <div class="card-body">
                 <h5 class="card-title">Discord Guild</h5>
                 <h6 class="card-subtitle mb-2 text-muted">It's time to ditch Skype and TeamSpeak!</h6>
-                <a href="https://discord.gg/SswRqqC" class="btn btn-info">Join us!</a>
+                <a href="https://discord.gg/SswRqqC" class="btn btn-primary">Join us!</a>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="modal fade" id="productPreview" tabindex="-1" role="dialog" aria-labelledby="productPreviewLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        @if (product != null)
+        {
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productPreviewLabel">@product.Name</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @(new MarkupString(Markdown.ToHtml(product.Description)))
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <a class="btn btn-info" href="/shop/checkout/@product.ProductId" data-dismiss="modal">Buy Now</a>
+                </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -89,13 +90,16 @@
     string active = "ranks";
 
     List<Product> products = new List<Product>();
+    Product product;
 
     protected override async Task OnInitializedAsync()
     {
         products = await httpClient.GetJsonAsync<List<Product>>("api/products");
-        foreach (var product in products)
-        {
-            product.Description = Markdown.ToHtml(product.Description);
-        }
+    }
+
+    async Task PreviewProduct(Product product)
+    {
+        this.product = product;
+        await JsRuntime.InvokeVoidAsync("ShowModal", "productPreview");
     }
 }

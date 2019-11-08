@@ -16,12 +16,14 @@ namespace Web.Server.Utilities.DiscordMessager
     {
         public readonly DatabaseManager database;
         private readonly string webhookUrl;
+        private readonly string webhookUrl2;
 
         public DiscordMessager(IConfiguration configuration, DatabaseManager database)
         {
             this.database = database;
             database.onPlayerCreated += onPlayerCreatedAsync;
             webhookUrl = configuration["WebhookURL"];
+            webhookUrl2 = configuration["WebhookURL2"];
             InitializePendingUnbans();
         }
 
@@ -34,6 +36,19 @@ namespace Web.Server.Utilities.DiscordMessager
                 eb.WithDescription($"An exception occurated while verifying a payment  ```{exception.Message}```");
                 eb.WithCurrentTimestamp();
 
+                await client.SendMessageAsync(embeds: new List<Embed>() { eb.Build() });
+            }
+        }
+
+        public async Task SendPayPalMessage(string msg)
+        {
+            using (var client = new DiscordWebhookClient(webhookUrl2))
+            {
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.WithColor(Color.Gold);
+                eb.WithDescription(msg);
+                eb.WithCurrentTimestamp(); ;
+                
                 await client.SendMessageAsync(embeds: new List<Embed>() { eb.Build() });
             }
         }

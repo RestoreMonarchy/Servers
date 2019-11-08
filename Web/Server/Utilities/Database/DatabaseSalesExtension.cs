@@ -21,7 +21,7 @@ namespace Web.Server.Utilities.Database
 
         public static int CreateSale(this DatabaseManager database, Sale sale)
         {
-            string sql = "INSERT INTO dbo.Sales (PlayerId, ProductId, Price, Currency) VALUES (@PlayerId, @ProductId, @Price, @Currency);";
+            string sql = "INSERT INTO dbo.Sales (PlayerId, ProductId, Price, Currency) OUTPUT INSERTED.SaleId VALUES (@PlayerId, @ProductId, @Price, @Currency);";
             
             using (var conn = database.connection)
             {
@@ -41,7 +41,13 @@ namespace Web.Server.Utilities.Database
 
         public static void UpdateSale(this DatabaseManager database, Sale sale)
         {
-            string sql = "";
+            string sql = "UPDATE dbo.Sales SET PaymentType = @PaymentType, PaymentStatus = @PaymentStatus, PayerEmail = @PayerEmail, TransactionId = @TransactionId, " +
+                "TransactionType = @TransactionType WHERE SaleId = @SaleId;";
+
+            using (var conn = database.connection)
+            {
+                conn.Execute(sql, sale);
+            }
         }
     }
 }
