@@ -70,7 +70,6 @@ namespace Web.Server.Controllers
             return _database.GetPlayersSearch();
         }
 
-
         [HttpGet("{playerId}")]
         [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
         public async Task<Player> GetPlayer(string playerId, [FromQuery] string ip)

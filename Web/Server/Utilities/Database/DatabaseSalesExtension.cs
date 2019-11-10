@@ -31,11 +31,18 @@ namespace Web.Server.Utilities.Database
 
         public static Sale GetSale(this DatabaseManager database, int saleId)
         {
-            string sql = "SELECT * FROM dbo.Sales WHERE SaleId = @saleId;";
+            string sql = "SELECT s.*, p.*, r.*, p2.* FROM dbo.Sales s JOIN dbo.Products p ON s.ProductId = p.ProductId LEFT JOIN dbo.Ranks r ON p.RankId = r.RankId JOIN dbo.Players p2 ON s.PlayerId = p2.PlayerId WHERE s.saleId = @saleId;";
 
             using (var conn = database.connection)
             {
-                return conn.Query<Sale>(sql, new { saleId }).FirstOrDefault();
+                return conn.Query<Sale, Product, Rank, Player, Sale>(sql, (s, p, r, p2) => 
+                {
+                    s.Product = p;
+                    s.Product.Rank = r;
+                    s.Player = p2;
+
+                    return s;
+                }, new { saleId }, splitOn: "ProductId,RankId,PlayerId").FirstOrDefault();
             }
         }
 

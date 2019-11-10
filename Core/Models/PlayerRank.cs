@@ -6,6 +6,14 @@ namespace Core.Models
 {
     public class PlayerRank
     {
+        public PlayerRank() { }
+        public PlayerRank(string playerId, short rankId, DateTime validUntil)
+        {
+            PlayerId = playerId;
+            RankId = rankId;
+            ValidUntil = validUntil;
+        }
+
         public string PlayerId { get; set; }
         public short RankId { get; set; }
         public DateTime ValidUntil { get; set; }

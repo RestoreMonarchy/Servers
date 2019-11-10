@@ -40,7 +40,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ranks = await httpClient.GetJsonAsync<Dictionary<short, string>>("api/ranks/search");
+        ranks = (await httpClient.GetJsonAsync<Dictionary<string, string>>("api/ranks/search")).ToDictionary(x => short.Parse(x.Key), x => x.Value);
+        foreach (var pair in ranks)
+        {
+            Console.WriteLine(pair.Key + " " + pair.Value);
+        }
     }
 
     async Task ChangeRankId(KeyValuePair<short, string> rank)

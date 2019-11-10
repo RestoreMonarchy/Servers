@@ -46,6 +46,7 @@ namespace Web.Server.Controllers
         }
 
         [HttpGet("{productId}")]
+        [AllowAnonymous]
         public ActionResult<Product> GetProduct(short productId)
         {
             return _database.GetProduct(productId);

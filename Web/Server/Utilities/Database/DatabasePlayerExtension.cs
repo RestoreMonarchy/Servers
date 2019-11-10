@@ -43,6 +43,16 @@ namespace Web.Server.Utilities.Database
             }
         }
 
+        public static void PayPlayer(this DatabaseManager database, string playerId, decimal amount)
+        {
+            string sql = "UPDATE dbo.Players SET Balance = Balance + @amount WHERE PlayerId = @playerId;";
+
+            using (var conn = database.connection)
+            {
+                conn.Execute(sql, new { playerId, amount });
+            }
+        }
+
         public static async Task InitializePlayerAsync(this DatabaseManager database, CookieValidatePrincipalContext context)
         {
             string steamId = context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);

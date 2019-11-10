@@ -24,5 +24,8 @@ namespace Core.Models
         public decimal Price { get; set; }
         public string Currency { get; set; }
         public DateTime CreateDate { get; set; }
+
+        public virtual Product Product { get; set; }
+        public virtual Player Player { get; set; }
     }
 }

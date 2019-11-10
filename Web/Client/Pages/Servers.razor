@@ -1,0 +1,39 @@
+﻿@page "/servers"
+
+
+<h3>Servers</h3>
+
+@if (address != null)
+{
+    <h2>Address: @address.ToString()</h2>
+}
+
+@if (info != null)
+{
+
+    <h1>@info.Players/@info.MaxPlayers</h1>
+
+}
+
+<button class="btn btn-primary" @onclick="(async () => await Refresh(gameServer))">Refresh</button>
+
+
+@code {
+
+    Info info;
+    IPAddress address;
+    SteamGameServer gameServer;
+      
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Hello");
+        gameServer = new SteamGameServer(new IPEndPoint(IPAddress.Parse("46.242.131.22"), 27015));
+        info = await gameServer.QueryInfoAsync();
+    }
+
+    async Task Refresh(SteamGameServer server)
+    {
+        info = await server.QueryInfoAsync();
+    }
+
+}

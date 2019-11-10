@@ -18,13 +18,23 @@ namespace Web.Server.Utilities.Database
             }
         }
 
+        public static void RankPlayer(this DatabaseManager database, PlayerRank playerRank)
+        {
+            string sql = "INSERT INTO dbo.PlayerRanks (PlayerId, RankId, ValidUntil) VALUES (@PlayerId, @RankId, @ValidUntil);";
+
+            using (var conn = database.connection)
+            {
+                conn.Execute(sql, playerRank);
+            }
+        }
+
         public static Dictionary<short, string> GetRanksSearch(this DatabaseManager database)
         {
             string sql = "SELECT RankId, Name, ValidDays FROM dbo.Ranks;";
 
             using (var conn = database.connection)
             {
-                return conn.Query(sql).ToDictionary(x => (short)x.RankId, x => $"{x.PlayerName} ({x.ValidDays})");
+                return conn.Query(sql).ToDictionary(x => (short)x.RankId, x => $"{x.Name} [{x.ValidDays} days]");
             }
         }
     }

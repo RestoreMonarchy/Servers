@@ -1,13 +1,9 @@
 ﻿using Core.Models;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +27,7 @@ namespace Web.Server.Controllers
             this._database = database;
             this._messager = messager;
         }
+        
         [HttpPost]
         public async Task<IActionResult> Receive()
         {
@@ -44,13 +41,10 @@ namespace Web.Server.Controllers
                 ipnContext.RequestBody = await reader.ReadToEndAsync();
             }
 
-            //Store the IPN received from PayPal
             await LogRequest(ipnContext);
 
-            //Fire and forget verification task
             await Task.Factory.StartNew(() => VerifyTask(ipnContext));
 
-            //Reply back a 200 code
             return Ok();
         }
 
@@ -88,7 +82,7 @@ namespace Web.Server.Controllers
         private async Task LogRequest(IPNContext ipnContext)
         {
             var parsed = HttpUtility.ParseQueryString(ipnContext.RequestBody);
-            await _messager.SendPayPalMessage(ipnContext.RequestBody);
+            await Task.Factory.StartNew(async () => await _messager.SendPayPalMessage($"IPN Message received for transaction **{parsed["txn_id"]}** from **{parsed["payer_email"]}**! ```{ipnContext.RequestBody}```"));
         }
 
         private async Task ProcessVerificationResponse(IPNContext ipnContext)
@@ -120,27 +114,50 @@ namespace Web.Server.Controllers
                             sale.TransactionType = body["txn_type"];
 
                             _database.UpdateSale(sale);
+                            await Task.Factory.StartNew(async () => await GiveFeatures(saleId));
 
-                            await _messager.SendPayPalMessage($"Successfull purchase for {sale.Price} {currency}");
+                            await _messager.SendPayPalMessage($"Successfull purchase for **{sale.Price} {currency}** from **{sale.PayerEmail}**");
                         }
                         else
                         {
-                            await _messager.SendPayPalMessage($"[SALE {sale.SaleId}] Price `{sale.Price}`!= `{paymentGross}` OR Currency `{sale.Currency}` != {currency}");
+                            await _messager.SendPayPalMessage($"**[SALE {sale.SaleId}]** Price `{sale.Price}`!= `{paymentGross}` OR Currency `{sale.Currency}` != {currency}");
                         }
                     }
                     else
                     {
-                        await _messager.SendPayPalMessage($"[SALE {saleId}] Status: `{paymentStatus}` Receiver: `{receiverEmail}` Already Processed: {_database.HasBeenProcessed(transactionId)}");
+                        await _messager.SendPayPalMessage($"**[SALE {saleId}]** Status: `{paymentStatus}` Receiver: `{receiverEmail}` Already Processed: {_database.HasBeenProcessed(transactionId)}");
                     }
                 }
                 else if (ipnContext.Verification.Equals("INVALID"))
                 {
-                    await _messager.SendPayPalMessage($"Verification Invalid: ```{ipnContext.ToString()}```");
+                    await _messager.SendPayPalMessage($"Verification Invalid: ```{ipnContext.RequestBody}```");
                 }
                 else
                 {
-                    await _messager.SendPayPalMessage($"Error: ```{ipnContext.ToString()}```");
+                    await _messager.SendPayPalMessage($"Error: ```{ipnContext.RequestBody}```");
                 }
+            } catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine(e);
+            }            
+        }
+
+        public async Task GiveFeatures(int saleId)
+        {
+            try
+            {
+                var sale = _database.GetSale(saleId);
+
+                if (sale.Product.Coins > 0)
+                    _database.PayPlayer(sale.PlayerId, sale.Product.Coins);
+
+                if (sale.Product.RankId.HasValue)
+                {
+                    _database.RankPlayer(new PlayerRank(sale.PlayerId, sale.Product.Rank.RankId, DateTime.Now.AddDays(sale.Product.Rank.ValidDays)));
+                }
+
+                await _messager.SendPayPalMessage($"Successfully given **{sale.Product.Name}** features, so `{sale.Product.Coins}` coins and `{sale.Product?.Rank?.Name}` rank.");
             } catch (Exception e)
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
