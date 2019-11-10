@@ -12,5 +12,7 @@ namespace Core.Models
         public short ValidDays { get; set; }
         public DateTime CreateDate { get; set; }
         public bool ActiveFlag { get; set; }
+
+        public virtual List<string> Members { get; set; }
     }
 }

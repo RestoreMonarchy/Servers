@@ -1,4 +1,6 @@
-﻿using Core.Models;
+﻿using AspNet.Security.ApiKey.Providers;
+using Core.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using Web.Server.Utilities.Database;
@@ -26,6 +28,13 @@ namespace Web.Server.Controllers
         public Dictionary<short, string> GetRanksSearch()
         {
             return _database.GetRanksSearch();
+        }
+
+        [HttpGet("server")]
+        [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
+        public List<Rank> GetRanksServer()
+        {
+            return _database.GetPlayerRanks();
         }
     }
 }
