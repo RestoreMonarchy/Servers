@@ -75,7 +75,7 @@ namespace Web.Server.Controllers
         public async Task<Player> GetPlayer(string playerId, [FromQuery] string ip)
         {
             Player player = await _database.GetInitializedPlayerAsync(playerId, ip);
-            
+            _database.UpdateLastActivity(playerId);
             return player;
         }
     }

@@ -18,7 +18,7 @@ namespace Web.Server.Utilities.Database
             }
         }
 
-        public static List<Rank> GetPlayerRanks(this DatabaseManager database)
+        public static List<Rank> GetRanksServer(this DatabaseManager database)
         {
             string sql = "SELECT r.*, p.PlayerId FROM dbo.Ranks r JOIN dbo.PlayerRanks p ON r.RankId = p.RankId AND p.ValidUntil > SYSDATETIME();";
 
@@ -51,6 +51,20 @@ namespace Web.Server.Utilities.Database
             using (var conn = database.connection)
             {
                 conn.Execute(sql, playerRank);
+            }
+        }
+
+        public static List<PlayerRank> GetPlayerRanks(this DatabaseManager database, string playerId)
+        {
+            string sql = "SELECT p.*, r.* FROM dbo.PlayerRanks p JOIN dbo.Ranks r ON r.RankId = p.RankId WHERE p.PlayerId = @playerId;";
+            
+            using (var conn = database.connection)
+            {
+                return conn.Query<PlayerRank, Rank, PlayerRank>(sql, (p, r) => 
+                {
+                    p.Rank = r;
+                    return p;
+                }, new { playerId }, splitOn: "RankId").ToList();
             }
         }
 

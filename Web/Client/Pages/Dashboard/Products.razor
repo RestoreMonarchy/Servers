@@ -8,6 +8,7 @@
 <Breadcrumb Items="@(new[] { "Dashboard", "Products" })" />
 @if (loaded)
 {
+<div class="table-responsive-lg">
     <table class="table table-striped">
         <thead>
             <tr>
@@ -37,7 +38,7 @@
                         <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
                         <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
                             <a class="dropdown-item" data-toggle="modal" data-target="#productModal" href="javascript:void(0)"
-                                @onclick="(e => { this.product = product; isEdit = true; })">Edit</a>
+                               @onclick="(e => { this.product = product; isEdit = true; })">Edit</a>
                             <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteProductAsync(product))">Delete</a>
                             <a class="dropdown-item" href="javascript:void(0)" @onclick="@(() => ToggleProductAsync(product))">@(product.ActiveFlag ? "Hide" : "Unhide")</a>
                         </div>
@@ -46,7 +47,9 @@
             }
         </tbody>
     </table>
-    <a href="javascript:void(0)" data-toggle="modal" data-target="#productModal" @onclick="(e => { product = new Product(); isEdit = false; })" class="btn btn-float btn-primary my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+</div>
+    
+    <a href="javascript:void(0)" data-toggle="modal" data-target="#productModal" @onclick="(e => { product = new Product(); isEdit = false; })" class="btn btn-float btn-circle btn-primary my-1 mb-2 mr-2" type="button"><i class="material-icons">add</i></a>
     <FormModal Id="productModal" Title="Product Form" Model="product" OnValidSubmit="OnSubmittedAsync">
         <div class="form-group">
             <label for="name">Short Name</label>

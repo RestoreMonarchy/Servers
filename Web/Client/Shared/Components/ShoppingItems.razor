@@ -26,8 +26,8 @@
                 {
                     @foreach (var product in products.Where(x => x.Category.Equals(active, StringComparison.OrdinalIgnoreCase)))
                     {
-                        <div class="card mr-lg-4" style="max-width: 300px;">
-                            <img class="card-img-top" style="max-width: 100%;" src="">
+                        <div class="card mr-lg-4" style="max-width: 260px;">
+                            <img class="card-img-top" style="max-width: 100%;" src="/img/products/@string.Concat(product.ProductId, ".png")">
                             <div class="card-actions text-right">
                                 <button class="btn btn-primary mr-2" type="button" @onclick="@(() => PreviewProduct(product))">
                                     Details
@@ -79,7 +79,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <a class="btn btn-info" href="/shop/checkout/@product.ProductId" data-dismiss="modal">Buy Now</a>
+                    <a class="btn btn-primary" href="/shop/checkout/@product.ProductId" data-dismiss="modal">Buy Now</a>
                 </div>
             </div>
         }

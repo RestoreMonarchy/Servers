@@ -53,6 +53,16 @@ namespace Web.Server.Utilities.Database
             }
         }
 
+        public static void UpdateLastActivity(this DatabaseManager database, string playerId)
+        {
+            string sql = "UPDATE dbo.Players SET PlayerLastActivity = SYSDATETIME() WHERE PlayerId = @playerId;";
+
+            using (var conn = database.connection)
+            {
+                conn.Execute(sql, new { playerId });
+            }
+        }
+
         public static async Task InitializePlayerAsync(this DatabaseManager database, CookieValidatePrincipalContext context)
         {
             string steamId = context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);

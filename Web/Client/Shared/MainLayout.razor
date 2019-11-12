@@ -1,9 +1,17 @@
 ﻿@inherits LayoutComponentBase
 
-
 <NavMenu />
-<div class="main">
+<div class="main mb-5">
     <div class="content px-4">
         @Body
     </div>
 </div>
+<footer class="page-footer font-small blue">
+
+    <!-- Copyright -->
+    <div class="footer-copyright bg-light text-center py-3">
+        © @DateTime.Now.Year Copyright <a href="https://RestoreMonarchy.com"> RestoreMonarchy.com</a>
+    </div>
+    <!-- Copyright -->
+
+</footer>

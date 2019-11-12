@@ -12,6 +12,17 @@ $secondary: (
 
 @import "material/material.scss";
 
+.footer-copyright {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+}
+
+.btn-circle {
+    position: fixed;
+    right: 0;
+    bottom: 50px;
+}
 
 div #navbarToggler .collapse {
     -webkit-transition-duration: 0.4s;

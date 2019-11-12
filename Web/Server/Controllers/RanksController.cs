@@ -22,7 +22,7 @@ namespace Web.Server.Controllers
         public List<Rank> GetRanks()
         {
             return _database.GetRanks();
-        }
+        }        
 
         [HttpGet("search")]
         public Dictionary<short, string> GetRanksSearch()
@@ -30,11 +30,17 @@ namespace Web.Server.Controllers
             return _database.GetRanksSearch();
         }
 
+        [HttpGet("{playerId}")]
+        public List<PlayerRank> GetPlayerRanks(string playerId)
+        {
+            return _database.GetPlayerRanks(playerId);
+        }
+
         [HttpGet("server")]
         [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
         public List<Rank> GetRanksServer()
         {
-            return _database.GetPlayerRanks();
+            return _database.GetRanksServer();
         }
     }
 }
