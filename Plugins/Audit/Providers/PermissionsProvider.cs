@@ -32,22 +32,18 @@ namespace RestoreMonarchy.Audit.Providers
         {            
             ThreadPool.QueueUserWorkItem((i) => 
             {
-                Logger.LogWarning("Refreshing permissions...");
                 using (WebClient wc = pluginInstance.Client)
                 {
                     PlayerRanks = wc.DownloadJson<List<Rank>>(pluginInstance.Configuration.Instance.APIUrl + "/ranks/server");
                 }
 
-                Logger.LogWarning($"{PlayerRanks.Count} player ranks have been loaded!");
                 List<RocketPermissionsGroup> groups = new List<RocketPermissionsGroup>();
                 foreach (var rank in PlayerRanks)
                 {
                     var perms = rank.PermissionTags.Split(',').Select(p => new Permission(p)).ToList();
-                    groups.Add(new RocketPermissionsGroup(rank.RankId.ToString(), rank.Name, string.Empty, rank.Members, perms));
+                    groups.Add(new RocketPermissionsGroup(rank.ShortName, rank.Name, string.Empty, rank.Members, perms));
                 }
                 permissionGroups = groups;
-
-                Logger.LogWarning($"{groups.Count} groups have been loaded!");
 
             });
         }
@@ -78,7 +74,7 @@ namespace RestoreMonarchy.Audit.Providers
 
         public List<RocketPermissionsGroup> GetGroups(IRocketPlayer player, bool includeParentGroups = false)
         {
-            return permissionGroups.Where(x => x.Members.Exists(y => y == player.Id)).ToList();
+            return permissionGroups.Where(x => x.Members.Exists(y => y == player.Id) || x.Id == "default").ToList();
         }
 
         public List<Permission> GetPermissions(IRocketPlayer player)

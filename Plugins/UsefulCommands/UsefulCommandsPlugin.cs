@@ -45,7 +45,6 @@ namespace UsefulCommands
 
             string reason = string.Join(" ", args.Skip(1));
 
-            UnturnedChat.Say(Translate("RestartNotify", time), color);
             Timer timer = new Timer(1000);
             timer.Elapsed += (o, e) =>
             {
