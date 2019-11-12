@@ -13,7 +13,7 @@ namespace Web.Server.Utilities.Database
                 "LEFT JOIN dbo.TicketAnswers a ON t.TicketId = a.TicketId LEFT JOIN dbo.Players p2 ON a.AuthorId = p2.PlayerId;";
 
             List<Ticket> tickets = new List<Ticket>();
-
+            
             using (var conn = database.connection)
             {
                 conn.Query<Ticket, Player, TicketAnswer, Player, Ticket>(sql, (t, p, a, p2) => 

@@ -9,6 +9,7 @@
 
 @if (loaded)
 {
+<div class="table-responsive-lg">
     <table class="table table-striped">
         <thead>
             <tr>
@@ -26,7 +27,7 @@
                     <th scope="row">@announcement.AnnouncementId</th>
                     <td>@announcement.Title</td>
                     <td><a href="https://steamcommunity.com/profiles/@announcement.AuthorId">@announcement.Author.PlayerName</a></td>
-                    <td>@announcement.UpdateDate.ToString()</td>
+                    <td>@announcement.LastUpdate.ToString()</td>
                     <td>@announcement.CreateDate.ToString()</td>
                     <td>
                         <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
@@ -39,8 +40,9 @@
             }
         </tbody>
     </table>
-    <a href="/dashboard/announcements/add-announcement" class="btn btn-float 
-       my-1 mb-2 mr-2" style="position: absolute; right: 0; bottom: 0;" type="button"><i class="material-icons">add</i></a>
+</div>
+    
+    <a href="/dashboard/announcements/add-announcement" class="btn btn-float btn-circle my-1 mb-2 mr-2" type="button"><i class="material-icons">add</i></a>
 }
 else
 {

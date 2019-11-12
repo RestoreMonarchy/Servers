@@ -6,21 +6,26 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Web.Server.Utilities.Database;
 using System.Collections.Generic;
+using AspNet.Security.ApiKey.Providers;
+using System;
+using Microsoft.AspNetCore.SignalR;
+using Web.Server.Hubs;
 
 namespace Web.Server.Controllers
 {
     [ApiController]
-    [Authorize(Roles = "Moderator, Admin")]
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
         private readonly DatabaseManager _database;
         private readonly DiscordMessager _messager;
+        private readonly IHubContext<ServersHub> _hubContext;
 
-        public PlayersController(DatabaseManager database, DiscordMessager messager)
+        public PlayersController(DatabaseManager database, DiscordMessager messager, IHubContext<ServersHub> hubContext)
         {
             this._database = database;
             this._messager = messager;
+            this._hubContext = hubContext;
         }
 
         //[HttpPost]
@@ -58,20 +63,20 @@ namespace Web.Server.Controllers
 
         [HttpGet("search")]
         [AllowAnonymous]
-        public Dictionary<string, string> GetPlayersSearch()
+        public async Task<Dictionary<string, string>> GetPlayersSearch()
         {
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            await _hubContext.Clients.All.SendAsync("Notify", $"Home page loaded at: {DateTime.Now}");
             return _database.GetPlayersSearch();
         }
 
         [HttpGet("{playerId}")]
-        public ActionResult<Player> GetPlayer(string playerId)
+        [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
+        public async Task<Player> GetPlayer(string playerId, [FromQuery] string ip)
         {
-            Player player = _database.GetPlayer(playerId);
-
-            if (player != null)
-                return Ok(player);
-            else
-                return NotFound(player);
+            Player player = await _database.GetInitializedPlayerAsync(playerId, ip);
+            _database.UpdateLastActivity(playerId);
+            return player;
         }
     }
 }

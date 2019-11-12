@@ -1,0 +1,77 @@
+﻿@page "/servers"
+@inject HttpClient httpClient
+
+<br />
+<br />
+<header class="text-center">
+    <img class="img-fluid" src="/img/logo.png" alt="" height="160" width="160">
+</header>
+<br />
+<br />
+
+<div class="row justify-content-center">
+    <div class="col-xl-9">
+        @if (infos != null)
+        {
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h5 class="card-title">Servers</h5>
+                    <div class="table-responsive text-nowrap card-text">
+                        <table class="table">
+                            <caption>Click <a href="javascript:void(0)" @onclick="(async () => await Refresh())">here</a> to refresh</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Map</th>
+                                    <th scope="col">Mode</th>
+                                    <th scope="col">Players</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var info in infos)
+                                {
+                                    <tr>
+                                        <th>@info.ShortName</th>
+                                        <th scope="row">@info.Name</th>
+                                        <td>@info.Status.Map</td>
+                                        <td>@info.Address:@info.Port</td>
+                                        <td>@info.Status.Players/@info.Status.MaxPlayers</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>            
+        } else
+        {
+            <ProgressBar />
+        }
+    </div>
+    <div class="col-xl-3 d-none d-xl-block">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Discord Guild</h5>
+                <h6 class="card-subtitle mb-2 text-muted">It's time to ditch Skype and TeamSpeak!</h6>
+                <a href="https://discord.gg/SswRqqC" class="btn btn-primary">Join us!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+
+    List<GameServer> infos;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Refresh();
+    }
+
+    async Task Refresh()
+    {
+        infos = await httpClient.GetJsonAsync<List<GameServer>>("api/servers/info");
+    }
+}

@@ -1,0 +1,5 @@
+﻿CREATE TABLE dbo.PlayerRanks (
+	PlayerId VARCHAR(255) NOT NULL CONSTRAINT FK_PlayerRanks_PlayerId REFERENCES dbo.Players(PlayerId),
+	RankId SMALLINT NULL CONSTRAINT FK_PlayerRanks_RankId REFERENCES dbo.Ranks (RankId),
+	ValidUntil DATETIME2(0) NOT NULL CONSTRAINT DF_PlayersRanks_ValidUntil DEFAULT (CONVERT(DATETIME2(0),'2999-12-31',120))
+);

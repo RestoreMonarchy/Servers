@@ -28,11 +28,11 @@ namespace Web.Server.Controllers
         [HttpPost]
         public ActionResult<Announcement> AddAnnouncement([FromBody] Announcement announcement)
         {
-            string sql = "INSERT INTO dbo.Announcements (Title, Content, AuthorId, UpdateDate, CreateDate) " +
-                "VALUES (@Title, @Content, @AuthorId, @UpdateDate, @CreateDate);";
+            string sql = "INSERT INTO dbo.Announcements (Title, Content, AuthorId, LastUpdate, CreateDate) " +
+                "VALUES (@Title, @Content, @AuthorId, @LastUpdate, @CreateDate);";
 
             announcement.CreateDate = DateTime.Now;
-            announcement.UpdateDate = DateTime.Now;
+            announcement.LastUpdate = DateTime.Now;
             announcement.AuthorId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;
 
             using (var conn = connection)
@@ -45,7 +45,7 @@ namespace Web.Server.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public ActionResult<List<Announcement>> GetAnnouncements([FromHeader] int pages = 5)
+        public ActionResult<List<Announcement>> GetAnnouncements([FromQuery] int pages = 5)
         {
             string sql = "SELECT TOP(@pages) a.*, p.* FROM dbo.Announcements as a INNER JOIN dbo.Players as p ON a.AuthorId = p.PlayerId ORDER BY a.CreateDate DESC;";
             List<Announcement> announcements;
@@ -78,14 +78,14 @@ namespace Web.Server.Controllers
             return Ok(announcement);
         }
 
-        [HttpPatch]
-        public ActionResult<int> PatchAnnouncement([FromBody] Announcement announcement)
+        [HttpPut]
+        public ActionResult<int> PutAnnouncement([FromBody] Announcement announcement)
         {
-            string sql = "UPDATE dbo.Announcements SET Title = @Title, Content = @Content, AuthorId = @AuthorId, UpdateDate = @UpdateDate WHERE AnnouncementId = @AnnouncementId;";
+            string sql = "UPDATE dbo.Announcements SET Title = @Title, Content = @Content, AuthorId = @AuthorId, LastUpdate = @LastUpdate WHERE AnnouncementId = @AnnouncementId;";
             int rows = 0;
             using (var conn = connection)
             {
-                rows = conn.Execute(sql, new { announcement.Title, announcement.Content, AuthorId = announcement.AuthorId, UpdateDate = DateTime.Now, announcement.AnnouncementId });
+                rows = conn.Execute(sql, new { announcement.Title, announcement.Content, AuthorId = announcement.AuthorId, LastUpdate = DateTime.Now, announcement.AnnouncementId });
             }
 
             return Ok(rows);

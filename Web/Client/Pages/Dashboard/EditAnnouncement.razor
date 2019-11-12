@@ -31,6 +31,7 @@ else
 
     public async Task UpdateAnnouncementAsync(Announcement editedAnnouncement)
     {
-        await httpClient.SendJsonAsync(new HttpMethod("Patch"), "api/announcements", editedAnnouncement);
+        Console.WriteLine("test");
+        await httpClient.SendJsonAsync(HttpMethod.Put, "api/announcements", editedAnnouncement);
     }
 }

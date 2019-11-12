@@ -7,35 +7,38 @@
 <Breadcrumb Items="@(new[] { "Dashboard", "Tickets" })" />
 @if (tickets != null)
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Title</th>
-                <th scope="col">Category</th>
-                <th scope="col">Author</th>
-                <th scope="col">Responses</th>
-                <th scope="col">Last Update</th>
-                <th scope="col">Date Created</th>
-                <th scope="col">Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var ticket in tickets)
-            {
+    <div class="table-responsive-lg">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <th scope="row">@ticket.TicketId</th>
-                    <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
-                    <td>@ticket.Category</td>
-                    <td>@ticket.AuthorId</td>
-                    <td>@ticket.Answers.Count</td>
-                    <td>@ticket.LastUpdate.ToString()</td>
-                    <td>@ticket.CreateDate.ToString()</td>
-                    <td><a href="javascript:void(0)" @onclick="@(() => ToggleTicketAsync(ticket))">@(ticket.Status ? "Closed" : "Open")</a></td>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Responses</th>
+                    <th scope="col">Last Update</th>
+                    <th scope="col">Date Created</th>
+                    <th scope="col">Status</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var ticket in tickets)
+                {
+                    <tr>
+                        <th scope="row">@ticket.TicketId</th>
+                        <td><a href="/ticket/@ticket.TicketId">@ticket.Title</a></td>
+                        <td>@ticket.Category</td>
+                        <td>@ticket.AuthorId</td>
+                        <td>@ticket.Answers.Count</td>
+                        <td>@ticket.LastUpdate.ToString()</td>
+                        <td>@ticket.CreateDate.ToString()</td>
+                        <td><a href="javascript:void(0)" @onclick="@(() => ToggleTicketAsync(ticket))">@(ticket.Status ? "Closed" : "Open")</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    
 }
 else
 {

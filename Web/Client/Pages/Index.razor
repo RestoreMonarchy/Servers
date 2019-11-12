@@ -18,7 +18,7 @@
         {
             foreach (var announcement in announcements)
             {
-                <dv class="card mb-2">
+                <div class="card mb-2">
                     <div class="card-body">
                         <h5 class="card-title">@announcement.Title</h5>
                         <p class="card-text">                            
@@ -26,7 +26,7 @@
                         </p>
                         <p class="card-text"><small class="text-muted">Published on @announcement.CreateDate.ToString("G", CultureInfo.CreateSpecificCulture("fr-FR")) by @announcement.Author.PlayerName</small></p>
                     </div>
-                </dv>
+                </div>
             }
         }
         else

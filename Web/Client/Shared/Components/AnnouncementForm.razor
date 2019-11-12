@@ -12,16 +12,16 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="inputGroup-sizing-default">Title</span>
                         </div>
-                        <InputText @bind-Value="@Announcement.Title" class="form-control is-invalid" />
-                        <div class="invalid-feedback">
+                        <InputText @bind-Value="@Announcement.Title" class="form-control" />
+                        <div class="validation-message">
                             <ValidationMessage For="@(() => Announcement.Title)" />
                         </div>
                     </div>
                 </h5>
                 <p class="card-text">
                     <h3>Content</h3>
-                    <InputTextArea rows="20" class="form-control is-invalid" @bind-Value="@Announcement.Content"></InputTextArea>
-                    <div class="invalid-feedback">
+                    <InputTextArea rows="20" class="form-control" @bind-Value="@Announcement.Content"></InputTextArea>
+                    <div class="validation-message">
                         <ValidationMessage For="@(() => Announcement.Content)" />
                     </div>
                 </p>

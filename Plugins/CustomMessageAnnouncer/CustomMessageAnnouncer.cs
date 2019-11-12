@@ -1,9 +1,14 @@
-﻿using Rocket.Core.Commands;
-using Rocket.Core.Plugins;
+﻿using Rocket.Core.Plugins;
+using Rocket.Unturned;
 using Rocket.Unturned.Chat;
+using Rocket.Unturned.Events;
+using Rocket.Unturned.Player;
 using SDG.Unturned;
+using System;
+using System.Net;
 using System.Timers;
 using UnityEngine;
+using Logger = Rocket.Core.Logging.Logger;
 
 namespace CustomMessageAnnouncer
 {
@@ -18,6 +23,13 @@ namespace CustomMessageAnnouncer
             timer.AutoReset = true;
             timer.Elapsed += SendMessage;
             timer.Start();
+
+            Logger.Log($"{Name} {Assembly.GetName().Version} has been loaded!");
+        }
+
+        protected override void Unload()
+        {
+            Logger.Log($"{Name} has been unloaded!");
         }
 
         private void SendMessage(object sender, ElapsedEventArgs e)
@@ -26,10 +38,11 @@ namespace CustomMessageAnnouncer
             {
                 index = 0;
             }
+
+            var msg = Configuration.Instance.Messages[index];
+            ChatManager.serverSendMessage(msg.Text.Replace('{', '<').Replace('}', '>'), UnturnedChat.GetColorFromName(msg.Color, Color.green), 
+                iconURL: msg.IconUrl, useRichTextFormatting: Configuration.Instance.UseRich);
             
-            ChatManager.serverSendMessage(Configuration.Instance.Messages[index].Text.Replace('{', '<').Replace('}', '>'), 
-                UnturnedChat.GetColorFromName(Configuration.Instance.Messages[index].Color, Color.green), 
-                iconURL: Configuration.Instance.Messages[index].IconUrl, useRichTextFormatting: true);
             index++;
         }
     }

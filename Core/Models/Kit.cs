@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Xml.Serialization;
+﻿using System.Collections.Generic;
 
 namespace Core.Models
 {
     public class Kit
     {
         public Kit() { }
-        public Kit(string name, int cooldown, List<ushort> items, List<MetadataItem> metadataItems, uint experience = 0, ushort vehicle = 0, decimal price = 0)
+        public Kit(string name, int cooldown, List<Item> items, uint experience = 0, ushort vehicle = 0, decimal price = 0)
         {
             Name = name;
             Cooldown = cooldown;
@@ -16,7 +13,6 @@ namespace Core.Models
             Vehicle = vehicle;
             Price = price;
             Items = items;
-            MetadataItems = metadataItems;
         }
 
         public string Name { get; set; }
@@ -25,22 +21,19 @@ namespace Core.Models
         public ushort Vehicle { get; set; }
         public decimal Price { get; set; }
 
-        [XmlArrayItem("itemid")]
-        public List<ushort> Items { get; set; }
-        public List<MetadataItem> MetadataItems { get; set; }
+        public List<Item> Items { get; set; }
         
-        public class MetadataItem
+        public class Item
         {
-            public MetadataItem() { }
-            public MetadataItem(ushort itemId, byte[] metadata)
+            public Item() { }
+            public Item(ushort itemId, byte[] state = null)
             {
                 ItemId = itemId;
-                Metadata = metadata;
+                State = state;
             }
 
-            [XmlAttribute("id")]
             public ushort ItemId { get; set; }
-            public byte[] Metadata { get; set; }
+            public byte[] State { get; set; }
         }
     }
 }

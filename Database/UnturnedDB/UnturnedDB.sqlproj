@@ -64,15 +64,14 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\PermissionGroups.sql" />
-    <Build Include="dbo\Tables\Permissions.sql" />
-    <Build Include="dbo\Tables\PermissionMembers.sql" />
     <Build Include="dbo\Tables\Players.sql" />
     <Build Include="dbo\Tables\Announcements.sql" />
     <Build Include="dbo\Tables\Products.sql" />
     <Build Include="dbo\Tables\Tickets.sql" />
     <Build Include="dbo\Functions\GetMyTickets.sql" />
     <Build Include="dbo\Tables\PlayerPunishments.sql" />
-    <Build Include="dbo\Tables\ProductPermissions.sql" />
-    <Build Include="dbo\Tables\ProductTransactions.sql" />
+    <Build Include="dbo\Tables\Ranks.sql" />
+    <Build Include="dbo\Tables\Sales.sql" />
+    <Build Include="dbo\Tables\PlayerRanks.sql" />
   </ItemGroup>
 </Project>

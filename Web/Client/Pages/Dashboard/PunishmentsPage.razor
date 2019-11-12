@@ -16,20 +16,20 @@
         </PlayersSearch>
         <div class="form-group">
             <label for="reason">Reason</label>
-            <InputText id="reason" class="form-control is-invalid" @bind-Value="@punishment.Reason" />
-            <div class="invalid-feedback">
+            <InputText id="reason" class="form-control" @bind-Value="@punishment.Reason" />
+            <div class="validation-message">
                 <ValidationMessage For="@(() => punishment.Reason)" />
             </div>
         </div>
         <div class="form-group">
             <label for="name">Category</label>
-            <InputSelect id="category" class="form-control is-invalid" @bind-Value="@punishment.Category">
+            <InputSelect id="category" class="form-control" @bind-Value="@punishment.Category">
                 <option value="">Select Category</option>
                 <option value="ban">Ban</option>
                 <option value="kick">Kick</option>
                 <option value="warn">Warn</option>
             </InputSelect>
-            <div class="invalid-feedback">
+            <div class="validation-message">
                 <ValidationMessage For="@(() => punishment.Category)" />
             </div>
         </div>
@@ -37,8 +37,8 @@
         {
             <div class="form-group">
                 <label for="expiry">Duration (minutes)</label>
-                <input type="number" id="duration" class="form-control is-invalid" @onchange="ChangeExpiryDate" />
-                <div class="invalid-feedback">
+                <input type="number" id="duration" class="form-control" @onchange="ChangeExpiryDate" />
+                <div class="validation-message">
                     <ValidationMessage For="@(() => punishment.ExpiryDate)" />
                 </div>
             </div>
@@ -67,8 +67,6 @@ else
         { "Create Date", "CreateDate" }
     };
 
-    string filter = string.Empty;
-    KeyValuePair<string, string> target;
     List<PlayerPunishment> punishments;
     
     Dictionary<string, string> players;

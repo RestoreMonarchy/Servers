@@ -4,8 +4,9 @@
     <a href="/" class="navbar-brand mr-auto">Restore Monarchy</a>
     <AuthorizeView>
         <Authorized>
-            <a class="link" href="/account"><img src="data:image;base64,@context.User.FindFirst("Avatar").Value" width="35" height="35" class="rounded-circle" /></a>
-            <a class="nav-link font-weight-bold mr-sm-2" href="/account">@context.User.FindFirst("PlayerName").Value</a>
+            <a class="link" href="/account" title="@context.User.FindFirst("PlayerName").Value">
+                <img src="data:image;base64,@context.User.FindFirst("Avatar").Value" width="35" height="35" class="rounded-circle" />
+            </a>            
             <form action="/signout" method="post">
                 <button class="btn btn-outline-primary text-white mr-sm-2" type="submit">Sign Out</button>
             </form>
@@ -24,9 +25,9 @@
             <a class="navbar-brand px-0" href="javascript:void(0)">Restore Monarchy</a>
         </div>
         <nav class="navdrawer-nav">
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/">Home</a>
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/shop">Shop</a>
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/support">Support</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/"><i class="material-icons">home</i> Home</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/shop"><i class="material-icons">shopping_cart</i> Shop</a>
+            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/servers"><i class="material-icons">sports_esports</i> Servers</a>
         </nav>
         <AuthorizeView Roles="Admin, Moderator">
             <Authorized>
