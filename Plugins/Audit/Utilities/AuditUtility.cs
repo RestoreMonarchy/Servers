@@ -22,8 +22,6 @@ namespace RestoreMonarchy.Audit.Utilities
                 Logger.LogException(e);
             }
 
-            Logger.LogWarning(body);
-
             try
             {
                 obj = JsonConvert.DeserializeObject<T>(body);

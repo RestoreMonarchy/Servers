@@ -20,7 +20,7 @@ namespace Web.Server.Utilities.Database
 
         public static List<Rank> GetRanksServer(this DatabaseManager database)
         {
-            string sql = "SELECT r.*, p.PlayerId FROM dbo.Ranks r JOIN dbo.PlayerRanks p ON r.RankId = p.RankId AND p.ValidUntil > SYSDATETIME();";
+            string sql = "SELECT r.*, p.PlayerId FROM dbo.Ranks r LEFT JOIN dbo.PlayerRanks p ON r.RankId = p.RankId AND p.ValidUntil > SYSDATETIME();";
 
             List<Rank> ranks = new List<Rank>();
             using (var conn = database.connection)
@@ -35,7 +35,8 @@ namespace Web.Server.Utilities.Database
                         ranks.Add(rank);
                     }
 
-                    rank.Members.Add(p);
+                    if (p != null)
+                        rank.Members.Add(p);
                     
                     return rank;
                 }, splitOn: "PlayerId");
