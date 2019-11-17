@@ -1,15 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Core.Models;
-using Web.Server.Utilities.DiscordMessager;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
-using Web.Server.Utilities.Database;
+using Web.Server.Extensions.Database;
 using System.Collections.Generic;
 using AspNet.Security.ApiKey.Providers;
-using System;
-using Microsoft.AspNetCore.SignalR;
-using Web.Server.Hubs;
+using RestoreMonarchy.Database;
+using Web.Server.Services;
 
 namespace Web.Server.Controllers
 {
@@ -17,28 +15,14 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class PlayersController : ControllerBase
     {
-        private readonly DatabaseManager _database;
-        private readonly DiscordMessager _messager;
-        private readonly IHubContext<ServersHub> _hubContext;
+        private readonly IDatabaseManager _database;
+        private readonly PlayersService _playersService;
 
-        public PlayersController(DatabaseManager database, DiscordMessager messager, IHubContext<ServersHub> hubContext)
+        public PlayersController(IDatabaseManager database, PlayersService playersService)
         {
-            this._database = database;
-            this._messager = messager;
-            this._hubContext = hubContext;
+            _database = database;
+            _playersService = playersService;
         }
-
-        //[HttpPost]
-        //public async Task<Player> CreatePlayer([FromBody] Player player)
-        //{
-        //    player = _database.CreatePlayer(player);
-
-        //    if (player != null)
-        //    {
-                
-        //    }
-        //    return player;
-        //}
 
         [HttpGet]
         [AllowAnonymous]
@@ -63,10 +47,8 @@ namespace Web.Server.Controllers
 
         [HttpGet("search")]
         [AllowAnonymous]
-        public async Task<Dictionary<string, string>> GetPlayersSearch()
+        public Dictionary<string, string> GetPlayersSearch()
         {
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            await _hubContext.Clients.All.SendAsync("Notify", $"Home page loaded at: {DateTime.Now}");
             return _database.GetPlayersSearch();
         }
 
@@ -74,7 +56,7 @@ namespace Web.Server.Controllers
         [Authorize(AuthenticationSchemes = ApiKeyDefaults.AuthenticationScheme)]
         public async Task<Player> GetPlayer(string playerId, [FromQuery] string ip)
         {
-            Player player = await _database.GetInitializedPlayerAsync(playerId, ip);
+            Player player = await _playersService.GetInitializedPlayerAsync(playerId, ip);
             _database.UpdateLastActivity(playerId);
             return player;
         }

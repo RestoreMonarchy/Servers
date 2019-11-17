@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Web.Server.Utilities.Database;
+using RestoreMonarchy.Database;
+using Web.Server.Extensions.Database;
 using Web.Server.Utilities.DiscordMessager;
 
 namespace Web.Server.Controllers
@@ -16,9 +17,9 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class PunishmentsController : ControllerBase
     {
-        private readonly DatabaseManager _database;
+        private readonly IDatabaseManager _database;
         private readonly DiscordMessager _messager;
-        public PunishmentsController(DatabaseManager database, DiscordMessager messager)
+        public PunishmentsController(IDatabaseManager database, DiscordMessager messager)
         {
             _database = database;
             _messager = messager;

@@ -2,8 +2,9 @@
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestoreMonarchy.Database;
+using RestoreMonarchy.Database.FileDatabase;
 using System.Collections.Generic;
-using Web.Server.Utilities.Database;
 
 namespace Web.Server.Controllers
 {
@@ -13,18 +14,18 @@ namespace Web.Server.Controllers
     public class KitsController : ControllerBase
     {
         public List<Kit> Kits { get; set; }
-        private readonly DatabaseManager database;
+        private readonly IFileDatabase _kitsDatabase;
 
-        public KitsController(DatabaseManager database)
+        public KitsController(IDatabaseManager database)
         {
-            this.database = database;
-            Kits = database.KitsDataManager.ReadObject<Kit>();
+            this._kitsDatabase = database.GetFileDatabase("kits");
+            Kits = database.GetFileDatabase("kits").ReadObject<Kit>();
         }
 
         [HttpGet]        
         public ActionResult<List<Kit>> GetKits([FromHeader] string apikey)
         {
-            Kits = database.KitsDataManager.ReadObject<Kit>();
+            Kits = _kitsDatabase.ReadObject<Kit>();
             return Ok(Kits);
         }
 
@@ -32,14 +33,14 @@ namespace Web.Server.Controllers
         public void PostKit([FromBody] Kit kit)
         {
             Kits.Add(kit);
-            database.KitsDataManager.SaveObject(Kits);
+            _kitsDatabase.SaveObject(Kits);
         }
 
         [HttpDelete("{kitName}")]
         public void DeleteKit(string kitName)
         {
             Kits.RemoveAll(x => x.Name == kitName);
-            database.KitsDataManager.SaveObject(Kits);
+            _kitsDatabase.SaveObject(Kits);
         }
     }
 }

@@ -6,14 +6,15 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RestoreMonarchy.Database;
 using SteamWebAPI2.Utilities;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Web.Server.Hubs;
-using Web.Server.Utilities.Database;
 using Web.Server.Utilities.DiscordMessager;
+using Microsoft.Extensions.Logging;
+using Web.Server.Services;
 
 namespace Web.Server
 {
@@ -28,20 +29,21 @@ namespace Web.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
-            SteamWebInterfaceFactory steamFactory = new SteamWebInterfaceFactory(Configuration["SteamAPI"]);
-
-            DatabaseManager database = new DatabaseManager(Configuration);
+            services.AddLogging();
+            services.AddSingleton(new SteamWebInterfaceFactory(Configuration["SteamAPI"]));
+            services.AddSingleton<IDatabaseManager>(new DatabaseManager(Configuration.GetConnectionString("DefaultConnection"), Configuration.GetValue<string>(WebHostDefaults.ContentRootKey)));
             services.AddTransient<HttpClient>();
             services.AddSingleton<DiscordMessager>();
-            services.AddSingleton(database);
-            services.AddSignalR();
-
+            services.AddSingleton<PlayersService>();
+            services.AddSingleton<CustomCookieAuthenticationEvents>();
+            
+            
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
                 .AddCookie(options =>
                 {
                     options.LoginPath = "/signin";
-                    options.LogoutPath = "/signout";
-                    options.Events.OnValidatePrincipal = database.InitializePlayerAsync;
+                    options.LogoutPath = "/signout";                    
+                    options.EventsType = typeof(CustomCookieAuthenticationEvents);
                 }).AddSteam().AddApiKey(options =>
                 {
                     options.Events = new ApiKeyEvents
@@ -73,14 +75,16 @@ namespace Web.Server
                     new[] { "application/octet-stream" });
             });
 
+            // for Nginx
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.KnownProxies.Add(System.Net.IPAddress.Parse("10.0.0.100"));
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            loggerFactory.AddFile("Logs/web.server-{Date}.log");
             app.UseStaticFiles();
             app.UseClientSideBlazorFiles<Client.Startup>();
 
@@ -92,7 +96,6 @@ namespace Web.Server
             {
                 endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToClientSideBlazor<Client.Startup>("index.html");
-                endpoints.MapHub<ServersHub>("/servershub");
             });
         }
     }
