@@ -18,11 +18,33 @@ namespace Web.Server.Controllers
             this._database = database;
         }
 
+        [Authorize(Roles = "Moderator, Admin")]
         [HttpGet]
         public List<Rank> GetRanks()
         {
-            return _database.GetRanks();
-        }        
+            return _database.GetRanksServer();
+        }
+
+        [Authorize(Roles = "Moderator, Admin")]
+        [HttpPost]
+        public short CreateRank([FromBody] Rank rank)
+        {
+            return _database.CreateRank(rank);
+        }
+
+        [Authorize(Roles = "Moderator, Admin")]
+        [HttpPut("{rankId}")]
+        public void PutPermission(int rankId, [FromQuery] string permission)
+        {
+            _database.AddPermission(rankId, permission);
+        }
+
+        [Authorize(Roles = "Moderator, Admin")]
+        [HttpDelete("{rankId}")]
+        public void DeletePermission(int rankId, [FromQuery] string permission)
+        {
+            _database.DeletePermission(rankId, permission);
+        }
 
         [HttpGet("search")]
         public Dictionary<short, string> GetRanksSearch()
