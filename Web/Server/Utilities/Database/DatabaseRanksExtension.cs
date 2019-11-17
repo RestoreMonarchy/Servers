@@ -18,6 +18,16 @@ namespace Web.Server.Utilities.Database
             }
         }
 
+        public static short CreateRank(this DatabaseManager database, Rank rank)
+        {
+            string sql = "INSERT INTO dbo.Ranks (ShortName, Name, ValidDays) OUTPUT INSERTED.RankId VALUES (@ShortName, @Name, @ValidDays);";
+
+            using (var conn = database.connection)
+            {
+                return conn.ExecuteScalar<short>(sql, rank);
+            }
+        }
+
         public static List<Rank> GetRanksServer(this DatabaseManager database)
         {
             string sql = "SELECT r.*, p.PlayerId FROM dbo.Ranks r LEFT JOIN dbo.PlayerRanks p ON r.RankId = p.RankId AND p.ValidUntil > SYSDATETIME();";
@@ -43,6 +53,26 @@ namespace Web.Server.Utilities.Database
             }
 
             return ranks;            
+        }
+
+        public static void AddPermission(this DatabaseManager database, int rankId, string permission)
+        {
+            string sql = "UPDATE dbo.Ranks SET PermissionTags = CAST(CASE WHEN PermissionTags IS NULL THEN @permission ELSE PermissionTags + ',' + @permission END AS VARCHAR(1024)) WHERE RankId = @rankId;";
+
+            using (var conn = database.connection)
+            {
+                conn.Execute(sql, new { rankId, permission });
+            }
+        }
+
+        public static void DeletePermission(this DatabaseManager database, int rankId, string permission)
+        {
+            string sql = "UPDATE dbo.Ranks SET PermissionTags = CAST(CASE WHEN PermissionTags = @permission THEN NULL ELSE REPLACE(PermissionTags, ',' + @permission, '')  END AS VARCHAR(1024)) WHERE RankId = @rankId;";
+
+            using (var conn = database.connection)
+            {
+                conn.Execute(sql, new { rankId, permission });
+            }
         }
 
         public static void RankPlayer(this DatabaseManager database, PlayerRank playerRank)

@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace Web.Server.Utilities.Database
 {
-    
-
     public class DatabaseManager
     {
         public readonly IConfiguration configuration;

@@ -18,6 +18,11 @@ $secondary: (
     width: 100%;
 }
 
+.input-text {
+    border-width: 0 0 1px;
+    max-width: 140px;
+}
+
 .btn-circle {
     position: fixed;
     right: 0;

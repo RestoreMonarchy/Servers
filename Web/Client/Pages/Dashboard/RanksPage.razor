@@ -1,0 +1,108 @@
+﻿@page "/dashboard/ranks"
+@inject HttpClient httpClient
+@using System.Linq;
+@attribute [Authorize(Roles = "Admin")]
+
+<Breadcrumb Items="@(new[] { "Dashboard", "Ranks" })" />
+
+@if (ranks != null)
+{
+    <ul class="list-group">
+        @foreach (var rank in ranks)
+        {
+        <li class="list-group-item">
+            <span class="font-weight-bold mr-2">@rank.Name</span>
+            @foreach (var permission in GetPermissions(rank))
+            {
+                <span class="chip">@permission <button @onclick="() => RemovePermission(rank, permission)" class="close"><i class="material-icons">cancel</i></button></span>
+            }
+            <input class="ml-3 input-text" type="text" placeholder="Add permission" @bind=@perm @onkeyup="(e) => AddPermission(e, rank)" />  
+            <span class="badge badge-primary badge-pill float-right">@rank.Members.Count</span>
+        </li>
+        }
+        <li class="list-group-item">
+            <EditForm class="form-inline" Model="Rank" OnValidSubmit="CreateRank">
+                <DataAnnotationsValidator />
+                <span class="mr-sm-3 font-weight-bold">Create Rank: </span>
+                <label for="rankShortName" class="sr-only">Short Name</label>
+                <InputText class="form-control mr-sm-2" id="rankShortName" @bind-Value="@Rank.ShortName" placeholder="ID" />
+                <div class="validation-message">
+                    <ValidationMessage For="@(() => Rank.ShortName)" />
+                </div>
+                <label for="rankName" class="sr-only">Name</label>
+                <InputText class="form-control mr-sm-2" id="rankName" @bind-Value="@Rank.Name" placeholder="Name" />
+                <div class="validation-message">
+                    <ValidationMessage For="@(() => Rank.Name)" />
+                </div>
+                <label for="rankValidDays" class="sr-only">Valid Days</label>
+                <input type="number" class="form-control" id="rankValidDays" bind-value="@Rank.ValidDays" placeholder="Valid Days" />
+                <div class="validation-message">
+                    <ValidationMessage For="@(() => Rank.ValidDays)" />
+                </div>
+                <button type="submit" class="btn btn-primary ml-3">Create</button>
+            </EditForm>            
+        </li>
+    </ul>
+
+}
+else
+{
+    <ProgressBar />
+}
+
+
+@code {
+    public Rank Rank = new Rank();
+    List<Rank> ranks;
+    string perm = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ranks = await httpClient.GetJsonAsync<List<Rank>>("api/ranks");
+    }
+
+    async Task RemovePermission(Rank rank, string permission)
+    {
+        await httpClient.DeleteAsync($"api/ranks/{rank.RankId}?permission={permission}");
+        if (rank.PermissionTags == permission)
+            rank.PermissionTags = null;
+         else
+            rank.PermissionTags = rank.PermissionTags.Replace("," + permission, string.Empty);
+    }
+
+    async Task AddPermission(KeyboardEventArgs eventArgs, Rank rank)
+    {
+        if (eventArgs.Key == "Enter" && !string.IsNullOrEmpty(perm))
+        {
+            await httpClient.PutAsync($"api/ranks/{rank.RankId}?permission={perm}", null);
+            if (rank.PermissionTags == null)
+            {
+                rank.PermissionTags = perm;
+            } else
+            {
+                rank.PermissionTags += $",{perm}";
+            }
+
+            perm = string.Empty;
+        }
+    }
+
+    async Task CreateRank()
+    {
+        Rank.RankId = await httpClient.PostJsonAsync<short>("api/ranks", Rank);
+        Rank.Members = new List<string>();
+        ranks.Add(Rank);
+        Rank = new Rank();
+    }
+
+    List<string> GetPermissions(Rank rank)
+    {
+        if (rank.PermissionTags == null)
+        {
+            return new List<string>();
+        } else
+        {
+            return rank.PermissionTags.Split(',').ToList();
+        }
+    }
+}

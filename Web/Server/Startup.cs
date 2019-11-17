@@ -1,24 +1,17 @@
-using AspNet.Security.ApiKey.Providers;
 using AspNet.Security.ApiKey.Providers.Events;
 using AspNet.Security.ApiKey.Providers.Extensions;
-using Core.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+using SteamWebAPI2.Utilities;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Web.Server.Hubs;
-using Web.Server.Utilities;
 using Web.Server.Utilities.Database;
 using Web.Server.Utilities.DiscordMessager;
 
@@ -35,6 +28,8 @@ namespace Web.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            SteamWebInterfaceFactory steamFactory = new SteamWebInterfaceFactory(Configuration["SteamAPI"]);
+
             DatabaseManager database = new DatabaseManager(Configuration);
             services.AddTransient<HttpClient>();
             services.AddSingleton<DiscordMessager>();
