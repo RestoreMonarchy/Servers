@@ -1,9 +1,10 @@
 ﻿using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestoreMonarchy.Database;
 using System;
 using System.Collections.Generic;
-using Web.Server.Utilities.Database;
+using Web.Server.Extensions.Database;
 
 namespace Web.Server.Controllers
 {
@@ -12,8 +13,8 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly DatabaseManager _database;
-        public ProductsController(DatabaseManager database)
+        private readonly IDatabaseManager _database;
+        public ProductsController(IDatabaseManager database)
         {
             _database = database;
         }

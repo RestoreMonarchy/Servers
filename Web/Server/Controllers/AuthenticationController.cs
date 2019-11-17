@@ -4,16 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Core.Models;
 using Web.Server.Utilities;
-using Web.Server.Utilities.Database;
+using Web.Server.Extensions.Database;
 using System.Security.Claims;
+using RestoreMonarchy.Database;
 
 namespace Web.Server.Controllers
 {
     public class AuthenticationController : Controller
     {
-        private readonly DatabaseManager _database;
+        private readonly IDatabaseManager _database;
         
-        public AuthenticationController(DatabaseManager database)
+        public AuthenticationController(IDatabaseManager database)
         {
             _database = database;
         }

@@ -3,25 +3,25 @@ using Discord;
 using Discord.Webhook;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using RestoreMonarchy.Database;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 using System.Timers;
-using Web.Server.Utilities.Database;
+using Web.Server.Extensions.Database;
 
 namespace Web.Server.Utilities.DiscordMessager
 {
     public class DiscordMessager
     {
-        public readonly DatabaseManager database;
+        public readonly IDatabaseManager database;
         private readonly string webhookUrl;
         private readonly string webhookUrl2;
 
-        public DiscordMessager(IConfiguration configuration, DatabaseManager database)
+        public DiscordMessager(IConfiguration configuration, IDatabaseManager database)
         {
             this.database = database;
-            database.onPlayerCreated += onPlayerCreatedAsync;
             webhookUrl = configuration["WebhookURL"];
             webhookUrl2 = configuration["WebhookURL2"];
             InitializePendingUnbans();

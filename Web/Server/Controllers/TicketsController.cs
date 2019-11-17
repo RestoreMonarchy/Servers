@@ -1,11 +1,12 @@
 ﻿using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestoreMonarchy.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using Web.Server.Utilities.Database;
+using Web.Server.Extensions.Database;
 
 namespace Web.Server.Controllers
 {
@@ -13,9 +14,9 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class TicketsController : Controller
     {
-        private readonly DatabaseManager database;
+        private readonly IDatabaseManager database;
 
-        public TicketsController(DatabaseManager database)
+        public TicketsController(IDatabaseManager database)
         {
             this.database = database;
         }

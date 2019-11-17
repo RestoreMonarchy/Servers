@@ -2,8 +2,9 @@
 using Core.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestoreMonarchy.Database;
 using System.Collections.Generic;
-using Web.Server.Utilities.Database;
+using Web.Server.Extensions.Database;
 
 namespace Web.Server.Controllers
 {
@@ -11,9 +12,9 @@ namespace Web.Server.Controllers
     [Route("api/[controller]")]
     public class RanksController : ControllerBase
     {
-        private readonly DatabaseManager _database;
+        private readonly IDatabaseManager _database;
 
-        public RanksController(DatabaseManager database)
+        public RanksController(IDatabaseManager database)
         {
             this._database = database;
         }

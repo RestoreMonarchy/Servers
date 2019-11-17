@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using RestoreMonarchy.Database;
 using System;
 using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using Web.Server.Utilities.Database;
+using Web.Server.Extensions.Database;
 using Web.Server.Utilities.DiscordMessager;
 
 namespace Web.Server.Controllers
@@ -18,10 +19,10 @@ namespace Web.Server.Controllers
     public class PayPalController : ControllerBase
     {        
         private readonly IConfiguration _configuration;
-        private readonly DatabaseManager _database;
+        private readonly IDatabaseManager _database;
         private readonly DiscordMessager _messager;
 
-        public PayPalController(IConfiguration configuration, DatabaseManager database, DiscordMessager messager)
+        public PayPalController(IConfiguration configuration, IDatabaseManager database, DiscordMessager messager)
         {
             this._configuration = configuration;
             this._database = database;

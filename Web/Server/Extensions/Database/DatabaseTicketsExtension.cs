@@ -1,20 +1,21 @@
 ﻿using Core.Models;
 using Dapper;
+using RestoreMonarchy.Database;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Web.Server.Utilities.Database
+namespace Web.Server.Extensions.Database
 {
     public static class DatabaseTicketsExtension
     {
-        public static List<Ticket> GetTickets(this DatabaseManager database)
+        public static List<Ticket> GetTickets(this IDatabaseManager database)
         {
             string sql = "SELECT t.*, p.*, a.*, p2.* FROM dbo.Tickets t LEFT JOIN dbo.Players p ON t.AuthorId = p.PlayerId " +
                 "LEFT JOIN dbo.TicketAnswers a ON t.TicketId = a.TicketId LEFT JOIN dbo.Players p2 ON a.AuthorId = p2.PlayerId;";
 
             List<Ticket> tickets = new List<Ticket>();
             
-            using (var conn = database.connection)
+            using (var conn = database.Connection)
             {
                 conn.Query<Ticket, Player, TicketAnswer, Player, Ticket>(sql, (t, p, a, p2) => 
                 {
@@ -38,13 +39,13 @@ namespace Web.Server.Utilities.Database
             return tickets;
         }
 
-        public static Ticket GetTicket(this DatabaseManager database, int ticketId)
+        public static Ticket GetTicket(this IDatabaseManager database, int ticketId)
         {
             string sql = "SELECT t.*, p.*, a.*, p2.* FROM dbo.Tickets t LEFT JOIN dbo.Players p ON t.AuthorId = p.PlayerId " +
                 "LEFT JOIN dbo.TicketAnswers a ON t.TicketId = a.TicketId LEFT JOIN dbo.Players p2 ON a.AuthorId = p2.PlayerId WHERE t.TicketId = @ticketId;";
 
             Ticket ticket = null;
-            using (var conn = database.connection)
+            using (var conn = database.Connection)
             {
                 conn.Query<Ticket, Player, TicketAnswer, Player, Ticket>(sql, (t, p, a, p2) =>
                 {
@@ -66,33 +67,33 @@ namespace Web.Server.Utilities.Database
             return ticket;
         }
 
-        public static int CreateTicket(this DatabaseManager database, Ticket ticket)
+        public static int CreateTicket(this IDatabaseManager database, Ticket ticket)
         {
             string sql = "INSERT INTO dbo.Tickets (Title, Content, Category, AuthorId, LastUpdate, CreateDate) " +
                 "OUTPUT INSERTED.TicketId VALUES (@Title, @Content, @Category, @AuthorId, @LastUpdate, @CreateDate);";
 
-            using (var conn = database.connection)
+            using (var conn = database.Connection)
             {
                 return conn.ExecuteScalar<int>(sql, ticket);
             }
         }
 
-        public static int CreateAnswer(this DatabaseManager database, TicketAnswer answer)
+        public static int CreateAnswer(this IDatabaseManager database, TicketAnswer answer)
         {
             string sql = "INSERT INTO dbo.TicketAnswers (TicketId, Content, AuthorId, LastUpdate, CreateDate) OUTPUT INSERTED.AnswerId " +
                 "VALUES (@TicketId, @Content, @AuthorId, @LastUpdate, @CreateDate);";
 
-            using (var conn = database.connection)
+            using (var conn = database.Connection)
             {
                 return conn.ExecuteScalar<int>(sql, answer);
             }
         }
 
-        public static bool ToggleTicket(this DatabaseManager database, int ticketId)
+        public static bool ToggleTicket(this IDatabaseManager database, int ticketId)
         {
             string sql = "UPDATE dbo.Tickets SET Status = ~Status OUTPUT INSERTED.Status WHERE TicketId = @ticketId;";
             
-            using (var conn = database.connection)
+            using (var conn = database.Connection)
             {
                 return conn.ExecuteScalar<bool>(sql, new { ticketId });
             }
