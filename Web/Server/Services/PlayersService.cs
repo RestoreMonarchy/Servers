@@ -19,12 +19,15 @@ namespace Web.Server.Services
         private readonly IDatabaseManager _database;
         private readonly SteamWebInterfaceFactory _steamFactory;
         private readonly ILogger<PlayersService> _logger;
+        private readonly HttpClient _httpClient;
 
-        public PlayersService(IDatabaseManager database, SteamWebInterfaceFactory steamFactory, ILogger<PlayersService> logger)
+        public PlayersService(IDatabaseManager database, SteamWebInterfaceFactory steamFactory, ILogger<PlayersService> logger, HttpClient httpClient)
         {
             _database = database;
             _steamFactory = steamFactory;
             _logger = logger;
+            _httpClient = httpClient;
+            _httpClient.Timeout = TimeSpan.FromSeconds(2);
         }
 
         public async Task<Player> GetInitializedPlayerAsync(string steamId, string ip)
@@ -32,12 +35,17 @@ namespace Web.Server.Services
             Player player = _database.GetPlayer(steamId);
             if (player == null)
             {
-                var steamUser = _steamFactory.CreateSteamWebInterface<SteamUser>(new HttpClient());
+                var steamUser = _steamFactory.CreateSteamWebInterface<SteamUser>(_httpClient);
                 // pretty risky here using ulong.Parse()
                 var summaries = await steamUser.GetPlayerSummaryAsync(ulong.Parse(steamId));
                 player = new Player(steamId, summaries.Data.Nickname, await GetCountryAsync(ip));
+                player.PlayerAvatar = await GetAvatarDataAsync(summaries.Data.AvatarFullUrl);
 
-                _database.CreatePlayer(player);
+                if (player.PlayerCountry == null)
+                    player.PlayerCountry = summaries.Data.CountryCode;
+
+                player = _database.CreatePlayer(player); 
+                EventsHandler.RaisePlayerCreated(player);
             } else
             {
                 _database.UpdateLastActivity(steamId);
@@ -59,15 +67,18 @@ namespace Web.Server.Services
             context.Principal.AddIdentity(new ClaimsIdentity(claims, "DefaultAuth"));
         }
 
-        public async Task<string> GetCountryAsync(string ip)
+        public async Task<byte[]> GetAvatarDataAsync(string url)
         {
-            HttpClient httpClient = new HttpClient();
-            httpClient.Timeout = TimeSpan.FromSeconds(2);
+            return await _httpClient.GetByteArrayAsync(url);
+        }
+
+        public async Task<string> GetCountryAsync(string ip)
+        {            
             string countryCode = null;
             try
             {
                 string url = "http://ip-api.com/json/" + ip;
-                string content = await httpClient.GetStringAsync(url);
+                string content = await _httpClient.GetStringAsync(url);
                 JObject obj = JObject.Parse(content);
 
                 if (obj["status"].ToString() == "success")

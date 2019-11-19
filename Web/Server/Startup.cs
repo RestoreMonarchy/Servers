@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Web.Server.Utilities.DiscordMessager;
 using Microsoft.Extensions.Logging;
 using Web.Server.Services;
+using RestoreMonarchy.Database.FileDatabase;
 
 namespace Web.Server
 {
@@ -29,9 +30,12 @@ namespace Web.Server
 
         public void ConfigureServices(IServiceCollection services)
         {
+            var database = new DatabaseManager(Configuration.GetConnectionString("DefaultConnection"), Configuration.GetValue<string>(WebHostDefaults.ContentRootKey));
+            database.CreateFileDatabase("kits", EFileDatabaseType.JsonFileDatabase);
+
             services.AddLogging();
             services.AddSingleton(new SteamWebInterfaceFactory(Configuration["SteamAPI"]));
-            services.AddSingleton<IDatabaseManager>(new DatabaseManager(Configuration.GetConnectionString("DefaultConnection"), Configuration.GetValue<string>(WebHostDefaults.ContentRootKey)));
+            services.AddSingleton<IDatabaseManager>(database);
             services.AddTransient<HttpClient>();
             services.AddSingleton<DiscordMessager>();
             services.AddSingleton<PlayersService>();
