@@ -1,7 +1,6 @@
 ﻿using Core.Models;
 using Discord;
 using Discord.Webhook;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using RestoreMonarchy.Database;
 using System;
@@ -10,6 +9,7 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System.Timers;
 using Web.Server.Extensions.Database;
+using Web.Server.Services;
 
 namespace Web.Server.Utilities.DiscordMessager
 {
@@ -24,6 +24,7 @@ namespace Web.Server.Utilities.DiscordMessager
             this.database = database;
             webhookUrl = configuration["WebhookURL"];
             webhookUrl2 = configuration["WebhookURL2"];
+            EventsHandler.OnPlayerCreated += onPlayerCreatedAsync;
             InitializePendingUnbans();
         }
 
@@ -53,8 +54,10 @@ namespace Web.Server.Utilities.DiscordMessager
             }
         }
 
-        private async Task onPlayerCreatedAsync(Player player)
+        private async void onPlayerCreatedAsync(Player player)
         {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("I was called either btw :(");
             string country = player.PlayerCountry != null ? $":flag_{player.PlayerCountry.ToLower()}:" : "unkown";
 
             using (var client = new DiscordWebhookClient(webhookUrl))
@@ -66,7 +69,9 @@ namespace Web.Server.Utilities.DiscordMessager
                 eb.AddField("Country", country, true);
                 eb.WithTimestamp(player.PlayerCreated);
 
+                Console.WriteLine("Builded and should send now pls");
                 await client.SendMessageAsync(embeds: new List<Embed>() { eb.Build() });
+                Console.WriteLine("Send, hurrah!");
             }
         }
 

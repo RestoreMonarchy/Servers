@@ -10,10 +10,10 @@ namespace RestoreMonarchy.Database.FileDatabase
     {
         private readonly string _dataPath;        
 
-        public JsonFileDatabase(string dir, string fileName)
+        public JsonFileDatabase(string dir, string name)
         {
-            NameIdentifier = fileName;
-            _dataPath = Path.Combine(dir, fileName);            
+            NameIdentifier = name;
+            _dataPath = Path.Combine(dir, name + ".json");            
         }
 
         public string NameIdentifier { get; private set; }
