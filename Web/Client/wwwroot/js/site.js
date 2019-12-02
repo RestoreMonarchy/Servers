@@ -6,48 +6,33 @@ function ShowModal(id) {
     $('#' + id).modal('show')
 }
 
-$('#datePicker').pickdate();
+function ConfirmAlert(title, content, icon) {
+    return new Promise((resolve) => {
+        Swal.fire({
+            title: title,
+            text: content,
+            icon: icon,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Confirm',
+        }).then((result) => {
+            if (result.value) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
+        });
+    });
+}
 
-//function getFileData(inputId) {
-//    var file = document.getElementById(inputId).files[0];
-//    if (file) {
-//        // create reader
-//        var reader = new FileReader();
-//        reader.readAsText(file);
-//        reader.onload = function (e) {
-//            var data = {
-//                content: e.result.split(',')[1]
-//            };  
-//            return data;
-//        };
-//    }
-//}
-
-//// Resource: https://remibou.github.io/Upload-file-with-Blazor/
-//const readUploadedFileAsText = (inputFile) => {
-//    const temporaryFileReader = new FileReader();
-//    return new Promise((resolve, reject) => {
-//        temporaryFileReader.onerror = () => {
-//            temporaryFileReader.abort();
-//            reject(new DOMException("Problem parsing input file."));
-//        };
-//        temporaryFileReader.addEventListener("load", function () {
-//            var data = {
-//                content: temporaryFileReader.result.split(',')[1]
-//            };
-//            resolve(data);
-//        }, false);
-//        temporaryFileReader.readAsDataURL(inputFile.files[0]);
-//    });
-//};
-
-
-//window.getFileData = (inputFile) => {
-//    var uploadFile = document.getElementById(inputFile);
-//    return readUploadedFileAsText(uploadFile);
-//};
-//Blazor.registerFunction("getFileData", function (inputFile) {
-    
-//});
-
-
+function NotifyAlert(title, icon, duration) {
+    Swal.fire({
+        position: 'top-end',
+        icon: icon,
+        title: title,
+        showConfirmButton: false,
+        heightAuto: false,
+        timer: duration
+    })
+}

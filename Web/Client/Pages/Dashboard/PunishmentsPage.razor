@@ -1,8 +1,8 @@
-﻿@page "/dashboard/punishments"
+﻿@attribute [Authorize(Roles = "Admin, Moderator")]
+@page "/dashboard/punishments"
+@layout DashboardLayout
 @inject HttpClient httpClient
 @inject IJSRuntime JsRuntime
-@attribute [Authorize(Roles = "Admin, Moderator")]
-@using System.Globalization;
 
 <br />
 <br />
@@ -10,7 +10,7 @@
 @if (punishments != null)
 {
     <DataTable Data="punishments" Categories="categories" FormModalId="@("#punishmentModal")" TableStructure="tableStructure" Title="Punishments" />
-    <FormModal Id="punishmentModal" Title="Create Punishment" Model="punishment" OnValidSubmit="SumbitAsync">                
+    <FormModal Id="punishmentModal" Title="Create Punishment" Model="punishment" OnValidSubmit="SumbitAsync">
         <PlayersSearch @bind-BindingValue="@punishment.PlayerId">
             <ValidationMessage class="validation-message" For="@(() => punishment.PlayerId)" />
         </PlayersSearch>
@@ -56,10 +56,10 @@ else
         "ban",
         "kick",
         "warn"
-    };
+            };
 
     Dictionary<string, string> tableStructure = new Dictionary<string, string>()
-    {
+{
         { "ID", "PunishmentId" },
         { "Player", "Player.PlayerName" },
         { "Punisher", "Punisher.PlayerName" },
@@ -68,7 +68,7 @@ else
     };
 
     List<PlayerPunishment> punishments;
-    
+
     Dictionary<string, string> players;
     PlayerPunishment punishment = new PlayerPunishment();
 

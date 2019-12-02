@@ -1,48 +1,48 @@
-﻿@page "/dashboard/announcements"
+﻿@attribute [Authorize(Roles = "Admin, Moderator")]
+@page "/dashboard/announcements"
+@layout DashboardLayout
 @using Core.Models;
 @using Markdig;
 @inject HttpClient httpClient
-@inject AuthenticationStateProvider authenticationStateProvider
-@attribute [Authorize(Roles = "Admin, Moderator")]
 
-<Breadcrumb Items="@(new[] { "Dashboard", "Announcements" })" />
+<Breadcrumb Items="@(new Dictionary<string, string>() { { "Dashboard", "" }, { "Announcements", "" } })" />
 
 @if (loaded)
 {
-<div class="table-responsive-lg">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Title</th>
-                <th scope="col">Author</th>
-                <th scope="col">Last Update</th>
-                <th scope="col">Date Created</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var announcement in announcements)
-            {
+    <div class="table-responsive-lg">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <th scope="row">@announcement.AnnouncementId</th>
-                    <td>@announcement.Title</td>
-                    <td><a href="https://steamcommunity.com/profiles/@announcement.AuthorId">@announcement.Author.PlayerName</a></td>
-                    <td>@announcement.LastUpdate.ToString()</td>
-                    <td>@announcement.CreateDate.ToString()</td>
-                    <td>
-                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
-                        <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
-                            <a class="dropdown-item" href="/dashboard/announcements/edit-announcement/@announcement.AnnouncementId">Edit</a>
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteAnnouncement(announcement))">Delete</a>
-                        </div>
-                    </td>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Author</th>
+                    <th scope="col">Last Update</th>
+                    <th scope="col">Date Created</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</div>
-    
-    <a href="/dashboard/announcements/add-announcement" class="btn btn-float btn-circle my-1 mb-2 mr-2" type="button"><i class="material-icons">add</i></a>
+            </thead>
+            <tbody>
+                @foreach (var announcement in announcements)
+                {
+                    <tr>
+                        <th scope="row">@announcement.AnnouncementId</th>
+                        <td>@announcement.Title</td>
+                        <td><a href="https://steamcommunity.com/profiles/@announcement.AuthorId">@announcement.Author.PlayerName</a></td>
+                        <td>@announcement.LastUpdate.ToString()</td>
+                        <td>@announcement.CreateDate.ToString()</td>
+                        <td>
+                            <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
+                            <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
+                                <a class="dropdown-item" href="/dashboard/announcements/edit-announcement/@announcement.AnnouncementId">Edit</a>
+                                <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteAnnouncement(announcement))">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <a href="/dashboard/announcements/create-announcement" class="btn btn-primary btn-float btn-circle my-1 mb-2 mr-2" type="button"><i class="material-icons">add</i></a>
 }
 else
 {

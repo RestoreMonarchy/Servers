@@ -58,7 +58,7 @@ namespace Web.Server.Services
             string steamId = context.Principal.FindFirst(ClaimTypes.NameIdentifier).Value.Substring(37);
             string ip = context.Request.HttpContext.Connection.RemoteIpAddress.ToString();
 
-            Player player = await GetInitializedPlayerAsync(steamId, ip);
+            Player player = await GetInitializedPlayerAsync(steamId, ip);            
 
             List<Claim> claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.Name, player.PlayerId));
@@ -73,7 +73,7 @@ namespace Web.Server.Services
         }
 
         public async Task<string> GetCountryAsync(string ip)
-        {            
+        {
             string countryCode = null;
             try
             {

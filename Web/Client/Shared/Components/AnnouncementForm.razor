@@ -12,7 +12,7 @@
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="inputGroup-sizing-default">Title</span>
                         </div>
-                        <InputText @bind-Value="@Announcement.Title" class="form-control" />
+                        <input type="text" @bind-Value="@Announcement.Title" @bind-Value:event="oninput" class="form-control" />
                         <div class="validation-message">
                             <ValidationMessage For="@(() => Announcement.Title)" />
                         </div>
@@ -20,7 +20,7 @@
                 </h5>
                 <p class="card-text">
                     <h3>Content</h3>
-                    <InputTextArea rows="20" class="form-control" @bind-Value="@Announcement.Content"></InputTextArea>
+                    <InputTextArea rows="20" class="form-control" @bind-Value="@Announcement.Content" />
                     <div class="validation-message">
                         <ValidationMessage For="@(() => Announcement.Content)" />
                     </div>
@@ -30,6 +30,7 @@
                         Published on @DateTime.Now.ToString("G") by You
                     </small>
                 </p>
+                <button class="btn btn-primary float-right mt-3" type="submit">@(IsEdit ? "Update" : "Create")</button>
             </div>
         </div>
         <div class="card col-xl-6">
@@ -45,7 +46,7 @@
             </div>
         </div>
     </div>
-    <button class="btn btn-primary mt-2" type="submit">@(IsEdit ? "Update" : "Create")</button>
+    
 </EditForm>
 
 @code {

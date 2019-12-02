@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using Web.Server.Extensions.Database;
+using Web.Server.Utilities;
 
 namespace Web.Server.Controllers
 {
@@ -15,7 +16,6 @@ namespace Web.Server.Controllers
     public class TicketsController : Controller
     {
         private readonly IDatabaseManager database;
-
         public TicketsController(IDatabaseManager database)
         {
             this.database = database;
@@ -23,6 +23,7 @@ namespace Web.Server.Controllers
 
         [Authorize]
         [HttpPost("Answer")]
+        [Cooldown(Cooldown = 60)]
         public TicketAnswer CreateAnswer([FromBody] TicketAnswer answer)
         {
             var steamId = User.FindFirst(x => x.Type == ClaimTypes.Name).Value;

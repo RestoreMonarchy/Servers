@@ -1,0 +1,25 @@
+﻿@attribute [Authorize(Roles = "Admin, Moderator")]
+@page "/dashboard/announcements/create-announcement"
+@layout DashboardLayout
+@using Core.Models;
+@inject HttpClient httpClient
+
+<Breadcrumb Items="breadcrump" />
+
+<AnnouncementForm IsEdit="false" Announcement="announcement" OnSubmitted="PostAnnouncementAsync" />
+
+@code {
+    Announcement announcement = new Announcement();
+    Dictionary<string, string> breadcrump = new Dictionary<string, string>()
+{
+        { "Dashboard", "" },
+        { "Announcements", "/dashboard/announcements" },
+        { "Create Announcement", "" }
+    };
+
+
+    public async Task PostAnnouncementAsync(Announcement announcement)
+    {
+        await httpClient.PostJsonAsync("api/announcements", announcement);
+    }
+}

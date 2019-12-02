@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using System.Net.Http;
 using Web.Client.Providers;
 
 namespace Web.Client

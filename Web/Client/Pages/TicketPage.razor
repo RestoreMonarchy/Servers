@@ -1,70 +1,72 @@
-﻿@page "/ticket/{TicketId:int}"
+﻿@attribute [Authorize]
+@page "/ticket/{TicketId:int}"
 @inject HttpClient httpClient
-@attribute [Authorize]
 @inject AuthenticationStateProvider authenticationStateProvider
+@inject IJSRuntime js
 
-@if (loaded)
+@if (ticket != null)
 {
-    if (ticket != null && ticket.AuthorId != null)
+    <div class="card mt-3">
+        <h5 class="card-header font-weight-bold">
+            <img src="data:image;base64,@Convert.ToBase64String(ticket.Author.PlayerAvatar)" class="rounded-circle" width="35" height="35"> @ticket.Author.PlayerName
+        </h5>
+        <div class="card-body">
+            <h4 class="card-title">@ticket.Title</h4>
+            <p class="card-text">@ticket.Content</p>
+        </div>
+        <div class="card-footer text-muted">
+            Create Date @ticket.CreateDate.ToString("G") Last Update @ticket.LastUpdate.ToString("G")
+        </div>
+    </div>
+    @foreach (var answer in ticket.Answers)
     {
         <div class="card mt-3">
             <h5 class="card-header font-weight-bold">
-                <img src="data:image;base64,@Convert.ToBase64String(ticket.Author.PlayerAvatar)" class="rounded-circle" width="35" height="35"> @ticket.Author.PlayerName
+                <img src="data:image;base64,@Convert.ToBase64String(answer.Author.PlayerAvatar)" class="rounded-circle" width="35" height="35"> @answer.Author.PlayerName
             </h5>
             <div class="card-body">
-                <h4 class="card-title">@ticket.Title</h4>
-                <p class="card-text">@ticket.Content</p>
+                <p class="card-text">@answer.Content</p>
             </div>
             <div class="card-footer text-muted">
-                Create Date @ticket.CreateDate.ToString("G") Last Update @ticket.LastUpdate.ToString("G")
+                Create Date @answer.CreateDate.ToString("G") Last Update @answer.LastUpdate.ToString("G")
             </div>
         </div>
-        @foreach (var answer in ticket.Answers)
-        {
-            <div class="card mt-3">
-                <h5 class="card-header font-weight-bold">
-                    <img src="data:image;base64,@Convert.ToBase64String(answer.Author.PlayerAvatar)" class="rounded-circle" width="35" height="35"> @answer.Author.PlayerName
-                </h5>
-                <div class="card-body">
-                    <p class="card-text">@answer.Content</p>
-                </div>
-                <div class="card-footer text-muted">
-                    Create Date @answer.CreateDate.ToString("G") Last Update @answer.LastUpdate.ToString("G")
-                </div>
+    }
+
+    if (!ticket.Status)
+    {
+        <div class="card mt-3">
+            <h5 class="card-header font-weight-bold">
+                <img src="data:image;base64,@state.User.FindFirst("Avatar").Value" class="rounded-circle" width="35" height="35"> @state.User.FindFirst("PlayerName").Value
+            </h5>
+            <div class="card-body">
+                <EditForm Model="response" OnValidSubmit="SubmitAsync">
+                    <DataAnnotationsValidator />
+                    <p class="card-text">
+                        <InputTextArea rows="4" id="content" class="form-control" @bind-Value="@response.Content" />
+                    </p>
+                    <div class="validation-message">
+                        <ValidationMessage For="@(() => response.Content)" />
+                    </div>
+                    <button type="submit" class="btn btn-primary float-right">Submit</button>
+                </EditForm>
             </div>
-        }
-        if (!ticket.Status)
-        {
-            <div class="card mt-3">
-                <h5 class="card-header font-weight-bold">
-                    <img src="data:image;base64,@state.User.FindFirst("Avatar").Value" class="rounded-circle" width="35" height="35"> @state.User.FindFirst("PlayerName").Value
-                </h5>
-                <div class="card-body">
-                    <EditForm Model="newAnswer" OnValidSubmit="SubmitAsync">
-                        <DataAnnotationsValidator />
-                        <p class="card-text"><InputTextArea rows="4" id="content" class="form-control" @bind-Value="@newAnswer.Content" /></p>
-                        <div class="validation-message">
-                            <ValidationMessage For="@(() => newAnswer.Content)" />
-                        </div>
-                        <button type="submit" class="btn btn-primary float-right">Submit</button>
-                    </EditForm>
-                </div>
-                <div class="card-footer text-muted">
-                    Create Date @DateTime.Now.ToString("G") Last Update @DateTime.Now.ToString("G")
-                </div>
+            <div class="card-footer text-muted">
+                Create Date @DateTime.Now.ToString("G") Last Update @DateTime.Now.ToString("G")
             </div>
-        }
-        else
-        {
-            <div class="alert alert-danger mt-3" role="alert">
-                <i class="material-icons">warning</i> The ticket is closed
-            </div>
-        }
+        </div>
     }
     else
     {
-        <h3 class="display-3 mt-5 text-center">It seems like you are not a part of this ticket</h3>
+        <div class="alert alert-danger mt-3" role="alert">
+            <i class="material-icons">warning</i> The ticket is closed
+        </div>
     }
+
+}
+else if (!isAuthorized)
+{
+    <div class="display-4 text-center mt-3">You are unauthorized to see this ticket</div>
 }
 else
 {
@@ -75,11 +77,12 @@ else
 @code {
     [Parameter]
     public int TicketId { get; set; }
+
     private Ticket ticket;
-    private TicketAnswer newAnswer = new TicketAnswer();
-    bool isAuthorized = false;
-    bool loaded = false;
+    private TicketAnswer response = new TicketAnswer();
+
     AuthenticationState state;
+    bool isAuthorized = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,17 +92,26 @@ else
         if (response.StatusCode != HttpStatusCode.Unauthorized)
         {
             ticket = await response.Content.GetJsonAsync<Ticket>();
-            isAuthorized = true;
         }
-
-        loaded = true;
+        else
+        {
+            isAuthorized = false;
+        }
     }
 
     private async Task SubmitAsync()
     {
-        newAnswer.TicketId = ticket.TicketId;
-        newAnswer.AuthorId = state.User.Identity.Name;
-        ticket.Answers.Add(await httpClient.SendJsonAsync<TicketAnswer>(HttpMethod.Post, "/api/tickets/answer", newAnswer));
-        newAnswer = new TicketAnswer();
+        response.TicketId = ticket.TicketId;
+        var result = await httpClient.SendJsonResponseAsync<TicketAnswer>(HttpMethod.Post, "api/tickets/answer", response);
+        if (result.StatusCode == HttpStatusCode.BadRequest)
+        {
+            await js.DisplayMessage("Cooldown", $"{result.Cooldown} seconds", AlertIcon.ERROR);
+        }
+        else
+        {
+            ticket.Answers.Add(result.Content);
+            await js.Notify("Successfully sent your answer!", AlertIcon.SUCCESS, 1500);
+            response = new TicketAnswer();
+        }
     }
 }
