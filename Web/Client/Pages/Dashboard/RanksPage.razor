@@ -1,24 +1,25 @@
-﻿@page "/dashboard/ranks"
+﻿@attribute [Authorize(Roles = "Admin")]
+@page "/dashboard/ranks"
+@layout DashboardLayout
 @inject HttpClient httpClient
 @using System.Linq;
-@attribute [Authorize(Roles = "Admin")]
 
-<Breadcrumb Items="@(new[] { "Dashboard", "Ranks" })" />
+<Breadcrumb Items="@(new Dictionary<string, string>() { { "Dashboard", "" }, { "Ranks", "" } })" />
 
 @if (ranks != null)
 {
     <ul class="list-group">
         @foreach (var rank in ranks)
         {
-        <li class="list-group-item">
-            <span class="font-weight-bold mr-2">@rank.Name</span>
-            @foreach (var permission in GetPermissions(rank))
-            {
-                <span class="chip">@permission <button @onclick="() => RemovePermission(rank, permission)" class="close"><i class="material-icons">cancel</i></button></span>
-            }
-            <input class="ml-3 input-text" type="text" placeholder="Add permission" @bind=@perm @onkeyup="(e) => AddPermission(e, rank)" />  
-            <span class="badge badge-primary badge-pill float-right">@rank.Members.Count</span>
-        </li>
+            <li class="list-group-item">
+                <span class="font-weight-bold mr-2">@rank.Name</span>
+                @foreach (var permission in GetPermissions(rank))
+                {
+                    <span class="chip">@permission <button @onclick="() => RemovePermission(rank, permission)" class="close"><i class="material-icons">cancel</i></button></span>
+                }
+                <input class="ml-3 input-text" type="text" placeholder="Add permission" @bind=@perm @onkeyup="(e) => AddPermission(e, rank)" />
+                <span class="badge badge-primary badge-pill float-right">@rank.Members.Count</span>
+            </li>
         }
         <li class="list-group-item">
             <EditForm class="form-inline" Model="Rank" OnValidSubmit="CreateRank">
@@ -40,7 +41,7 @@
                     <ValidationMessage For="@(() => Rank.ValidDays)" />
                 </div>
                 <button type="submit" class="btn btn-primary ml-3">Create</button>
-            </EditForm>            
+            </EditForm>
         </li>
     </ul>
 
@@ -66,7 +67,7 @@ else
         await httpClient.DeleteAsync($"api/ranks/{rank.RankId}?permission={permission}");
         if (rank.PermissionTags == permission)
             rank.PermissionTags = null;
-         else
+        else
             rank.PermissionTags = rank.PermissionTags.Replace("," + permission, string.Empty);
     }
 
@@ -78,7 +79,8 @@ else
             if (rank.PermissionTags == null)
             {
                 rank.PermissionTags = perm;
-            } else
+            }
+            else
             {
                 rank.PermissionTags += $",{perm}";
             }
@@ -100,7 +102,8 @@ else
         if (rank.PermissionTags == null)
         {
             return new List<string>();
-        } else
+        }
+        else
         {
             return rank.PermissionTags.Split(',').ToList();
         }

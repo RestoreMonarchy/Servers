@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Core.Models;
@@ -29,8 +28,6 @@ namespace Web.Server.Controllers
         [HttpPost]
         public async Task<PlayerPunishment> CreatePunishment([FromBody] PlayerPunishment punishment)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
-            
             punishment.PunisherId = User.FindFirst(ClaimTypes.Name).Value;
             punishment.CreateDate = DateTime.Now;
             punishment.PunishmentId = _database.CreatePunishment(punishment);
@@ -56,7 +53,6 @@ namespace Web.Server.Controllers
         public List<PlayerPunishment> GetMyPunishments()
         {
             var punishments = _database.GetPlayerPunishments(User.FindFirst(ClaimTypes.Name).Value);
-
             return punishments;    
         }
     }

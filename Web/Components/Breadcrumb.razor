@@ -1,13 +1,43 @@
-﻿<nav class="mt-4 mb-3" aria-label="breadcrumb">
+﻿@using System.Text;
+
+<nav class="mt-4 mb-3" aria-label="breadcrumb">
     <ol class="breadcrumb">
-        @for (int i = 0; i < Items.Length; i++)
+        @foreach (var item in Items)
         {
-            <li class="breadcrumb-item @(i + 1 == Items.Length ? "active" : "")">@Items[i]</li>
+            <li class="breadcrumb-item @GetItemClass(item.Key)">@Item(item)</li>
         }
     </ol>
 </nav>
 
 @code {
     [Parameter]
-    public string[] Items { get; set; }
+    public Dictionary<string, string> Items { get; set; }
+
+    MarkupString Item(KeyValuePair<string, string> item)
+    {
+        StringBuilder sb = new StringBuilder();
+        if (!string.IsNullOrEmpty(item.Value))
+        {
+            sb.Append($"<a href='{item.Value}'>");
+        }
+
+        sb.Append(item.Key);
+
+        if (!string.IsNullOrEmpty(item.Value))
+        {
+            sb.Append("</a>");
+        }
+
+        return new MarkupString(sb.ToString());
+    }
+
+    string GetItemClass(string key)
+    {
+        if (key == Items.Keys.LastOrDefault())
+        {
+            return "active";
+        }
+
+        return string.Empty;
+    }
 }

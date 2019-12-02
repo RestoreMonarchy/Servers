@@ -39,8 +39,7 @@ namespace Web.Server
             services.AddTransient<HttpClient>();
             services.AddSingleton<DiscordMessager>();
             services.AddSingleton<PlayersService>();
-            services.AddSingleton<CustomCookieAuthenticationEvents>();
-            
+            services.AddSingleton<CustomCookieAuthenticationEvents>();            
             
             services.AddAuthentication(options => { options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;})
                 .AddCookie(options =>

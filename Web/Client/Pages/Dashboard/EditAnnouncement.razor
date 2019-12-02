@@ -1,10 +1,9 @@
 ﻿@page "/dashboard/announcements/edit-announcement/{id:int}"
 @using Newtonsoft.Json;
 @inject HttpClient httpClient
-@*@inject AuthenticationStateProvider authenticationStateProvider*@
 @attribute [Authorize(Roles = "Admin, Moderator")]
 
-<Breadcrumb Items="@(new[] { "Dashboard", "Announcements", "Edit Announcement" })" />
+<Breadcrumb Items="breadcrump" />
 
 @if (announcement != null)
 {
@@ -31,7 +30,13 @@ else
 
     public async Task UpdateAnnouncementAsync(Announcement editedAnnouncement)
     {
-        Console.WriteLine("test");
         await httpClient.SendJsonAsync(HttpMethod.Put, "api/announcements", editedAnnouncement);
     }
+
+    Dictionary<string, string> breadcrump = new Dictionary<string, string>()
+    {
+        { "Dashboard", "" },
+        { "Announcements", "/dashboard/announcements" },
+        { "Edit Announcement", "" }
+    };
 }

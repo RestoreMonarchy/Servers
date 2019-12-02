@@ -1,54 +1,54 @@
-﻿@page "/dashboard/products"
-@using Core.Models;
+﻿@attribute [Authorize(Roles = "Admin, Moderator")]
+@page "/dashboard/products"
+@layout DashboardLayout
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
-@using Newtonsoft.Json;
-@attribute [Authorize(Roles = "Admin, Moderator")]
 
-<Breadcrumb Items="@(new[] { "Dashboard", "Products" })" />
+<Breadcrumb Items="@(new Dictionary<string, string>() { { "Dashboard", "" }, { "Products", "" } })" />
+
 @if (loaded)
 {
-<div class="table-responsive-lg">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th scope="col">ID</th>
-                <th scope="col">Short Name</th>
-                <th scope="col">Price</th>
-                <th scope="col">Category</th>
-                <th scope="col">Rank</th>
-                <th scope="col">Coins</th>
-                <th scope="col">Visible</th>
-                <th scope="col">Create Date</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var product in products)
-            {
+    <div class="table-responsive-lg">
+        <table class="table table-striped">
+            <thead>
                 <tr>
-                    <th scope="row">@product.ProductId</th>
-                    <td>@product.ShortName</td>
-                    <td>@product.Price.ToString("C")</td>
-                    <td>@product.Category</td>
-                    <td>@(product.Rank == null ? "No Rank" : product.Rank.Name)</td>
-                    <td>@product.Coins</td>
-                    <td>@product.ActiveFlag</td>
-                    <td>@product.CreateDate.ToString()</td>
-                    <td>
-                        <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
-                        <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
-                            <a class="dropdown-item" data-toggle="modal" data-target="#productModal" href="javascript:void(0)"
-                               @onclick="(e => { this.product = product; isEdit = true; })">Edit</a>
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteProductAsync(product))">Delete</a>
-                            <a class="dropdown-item" href="javascript:void(0)" @onclick="@(() => ToggleProductAsync(product))">@(product.ActiveFlag ? "Hide" : "Unhide")</a>
-                        </div>
-                    </td>
+                    <th scope="col">ID</th>
+                    <th scope="col">Short Name</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Rank</th>
+                    <th scope="col">Coins</th>
+                    <th scope="col">Visible</th>
+                    <th scope="col">Create Date</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</div>
-    
+            </thead>
+            <tbody>
+                @foreach (var product in products)
+                {
+                    <tr>
+                        <th scope="row">@product.ProductId</th>
+                        <td>@product.ShortName</td>
+                        <td>@product.Price.ToString("C")</td>
+                        <td>@product.Category</td>
+                        <td>@(product.Rank == null ? "No Rank" : product.Rank.Name)</td>
+                        <td>@product.Coins</td>
+                        <td>@product.ActiveFlag</td>
+                        <td>@product.CreateDate.ToString()</td>
+                        <td>
+                            <button aria-expanded="false" aria-haspopup="true" class="btn btn-outline my-0" data-toggle="dropdown" id="cardTableDrop2" type="button"><i class="material-icons">more_vert</i></button>
+                            <div aria-labelledby="cardTableDrop2" class="dropdown-menu dropdown-menu-right menu">
+                                <a class="dropdown-item" data-toggle="modal" data-target="#productModal" href="javascript:void(0)"
+                                   @onclick="(e => { this.product = product; isEdit = true; })">Edit</a>
+                                <a class="dropdown-item" href="javascript:void(0)" @onclick="@(e => DeleteProductAsync(product))">Delete</a>
+                                <a class="dropdown-item" href="javascript:void(0)" @onclick="@(() => ToggleProductAsync(product))">@(product.ActiveFlag ? "Hide" : "Unhide")</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
     <a href="javascript:void(0)" data-toggle="modal" data-target="#productModal" @onclick="(e => { product = new Product(); isEdit = false; })" class="btn btn-float btn-circle btn-primary my-1 mb-2 mr-2" type="button"><i class="material-icons">add</i></a>
     <FormModal Id="productModal" Title="Product Form" Model="product" OnValidSubmit="OnSubmittedAsync">
         <div class="form-group">
@@ -90,7 +90,7 @@
             </div>
         </div>
     </FormModal>
-    
+
 }
 else
 {
@@ -112,7 +112,7 @@ else
     }
 
     protected override async Task OnInitializedAsync()
-    {        
+    {
         products = await httpClient.GetJsonAsync<List<Product>>("api/products");
         loaded = true;
     }
@@ -124,15 +124,11 @@ else
 
     public async Task PatchProductAsync(Product product)
     {
-        string content = JsonConvert.SerializeObject(product);
-        var msg = new HttpRequestMessage(new HttpMethod("PATCH"), "api/products");
-        msg.Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json");
-
-        await httpClient.SendAsync(msg);
+        await httpClient.SendJsonResponseAsync(new HttpMethod("PATCH"), "api/products/" + product.ProductId, product);
     }
 
     public async Task DeleteProductAsync(Product product)
-    {        
+    {
         await httpClient.SendAsync(new HttpRequestMessage(HttpMethod.Delete, "api/products/" + product.ProductId));
         products.Remove(product);
     }

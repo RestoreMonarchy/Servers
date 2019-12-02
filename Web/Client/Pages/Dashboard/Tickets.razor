@@ -1,10 +1,11 @@
-﻿@page "/dashboard/tickets"
-@using Core.Models;
+﻿@attribute [Authorize(Roles = "Admin, Moderator")]
+@page "/dashboard/tickets"
+@layout DashboardLayout
 @inject HttpClient httpClient
 @inject AuthenticationStateProvider authenticationStateProvider
-@attribute [Authorize(Roles = "Admin, Moderator")]
 
-<Breadcrumb Items="@(new[] { "Dashboard", "Tickets" })" />
+<Breadcrumb Items="@(new Dictionary<string, string>() { { "Dashboard", "" }, { "Tickets", "" } })" />
+
 @if (tickets != null)
 {
     <div class="table-responsive-lg">
@@ -38,7 +39,7 @@
             </tbody>
         </table>
     </div>
-    
+
 }
 else
 {

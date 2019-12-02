@@ -24,9 +24,10 @@ namespace Core.Models
         public string Name { get; set; }
         public string Address { get; set; }
         public string IP { get; set; }
+        public byte[] IP_Binary { get; set; }
         public int Port { get; set; }
         public int QueryPort { get; set; }
-
+        public bool Enabled { get; set; }
 
         public virtual GameServerStatus Status { get; set; }
     }

@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq;
 using Core.Models;
-using Web.Server.Utilities;
 using Web.Server.Extensions.Database;
 using System.Security.Claims;
 using RestoreMonarchy.Database;
