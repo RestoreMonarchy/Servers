@@ -25,9 +25,9 @@
             <a class="navbar-brand px-0" href="javascript:void(0)">Restore Monarchy</a>
         </div>
         <nav class="navdrawer-nav">
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/"><i class="material-icons">home</i> Home</a>
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/shop"><i class="material-icons">shopping_cart</i> Shop</a>
-            <a data-toggle="navdrawer" data-target="#navdrawerDefault" class="nav-item nav-link" href="/servers"><i class="material-icons">sports_esports</i> Servers</a>
+            <a href="javascript:void(0)" class="nav-item nav-link" @onclick="@(async () => await @GoAsync("/"))"><i class="material-icons">home</i> Home</a>
+            <a href="javascript:void(0)" class="nav-item nav-link" @onclick="@(async () => await @GoAsync("/shop"))"><i class="material-icons">shopping_cart</i> Shop</a>
+            <a href="javascript:void(0)" class="nav-item nav-link" @onclick="@(async () => await @GoAsync("/servers"))"><i class="material-icons">sports_esports</i> Servers</a>
         </nav>
         <AuthorizeView Roles="Admin, Moderator">
             <Authorized>

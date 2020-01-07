@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UsefulCommands", "UsefulCom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Audit", "Audit\Audit.csproj", "{B94D6BE3-B152-4E18-ACAA-59B7860631E8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VehicleDrop", "VehicleDrop\VehicleDrop.csproj", "{65DB2502-DBDA-45C5-9EDA-B0BDFCA93C23}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{B94D6BE3-B152-4E18-ACAA-59B7860631E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B94D6BE3-B152-4E18-ACAA-59B7860631E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B94D6BE3-B152-4E18-ACAA-59B7860631E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65DB2502-DBDA-45C5-9EDA-B0BDFCA93C23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65DB2502-DBDA-45C5-9EDA-B0BDFCA93C23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65DB2502-DBDA-45C5-9EDA-B0BDFCA93C23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65DB2502-DBDA-45C5-9EDA-B0BDFCA93C23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,14 +1,12 @@
 ﻿<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly">
-        <Found Context="routeData">            
+    <Router AppAssembly="@typeof(Program).Assembly">        
+        <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-                <NotAuthorized>                    
+                <NotAuthorized>
                     <h1 class="display-3 mt-5 text-center">You are not authorized to see content of this page!</h1>
                 </NotAuthorized>
                 <Authorizing>
-                    <div class="progress mt-4">
-                        <div class="progress-bar progress-bar-indeterminate" role="progressbar"></div>
-                    </div>
+                    <ProgressBar />
                 </Authorizing>
             </AuthorizeRouteView>
         </Found>
@@ -16,7 +14,6 @@
             <LayoutView Layout="@typeof(MainLayout)">
                 <p>Sorry, there's nothing at this address.</p>
             </LayoutView>
-        </NotFound>
-        
+        </NotFound>        
     </Router>
 </CascadingAuthenticationState>

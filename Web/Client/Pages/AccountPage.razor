@@ -1,15 +1,9 @@
 ﻿@page "/account"
-@using Core.Models;
-@inject HttpClient httpClient
-@inject AuthenticationStateProvider authenticationStateProvider
-@attribute [Authorize]
 @using System.Globalization;
 
-<br />
-<br />
-@if (player != null && tickets != null && punishments != null)
+@if (isLoaded)
 {
-    <div class="row">
+    <div class="row mt-4">
         <div class="col-lg-4">
             <div class="row justify-content-center mb-3">
                 <div class="col-lg-auto">
@@ -74,7 +68,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var punishment in punishments.Where(x=> x.Category == "ban"))
+                                @foreach (var punishment in punishments.Where(x => x.Category == "ban"))
                                 {
                                     <tr class="@GetPunishmentClass(punishment)">
                                         <td scope="row">@punishment.PunishmentId</td>
@@ -113,47 +107,9 @@
                 </Tab>
             </Tabs>
         </div>
-    </div>    
+    </div>
 }
 else
 {
     <ProgressBar />
-}
-
-@code {
-    Player player;
-    List<Ticket> tickets;
-    List<PlayerPunishment> punishments;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await authenticationStateProvider.GetAuthenticationStateAsync();
-        player = await httpClient.GetJsonAsync<Player>("api/players");
-        tickets = await httpClient.GetJsonAsync<List<Ticket>>("api/tickets");
-        punishments = await httpClient.GetJsonAsync<List<PlayerPunishment>>("api/punishments");
-    }
-
-    public async Task OnSubmittedAsync(Ticket ticket)
-    {
-        await PostTicketAsync(ticket);
-    }
-
-    public async Task PostTicketAsync(Ticket ticket)
-    {
-        ticket = await httpClient.PostJsonAsync<Ticket>("api/tickets", ticket);
-        tickets.Add(ticket);
-    }
-
-    string GetTicketClass(Ticket ticket)
-    {
-        return ticket.Status ? "table-active" : string.Empty;
-    }
-
-    string GetPunishmentClass(PlayerPunishment punishment)
-    {
-        if (punishment.Category == "ban" && punishment.ExpiryDate == null || punishment.ExpiryDate > DateTime.Now)
-            return "table-danger";
-        else
-            return string.Empty;
-    }
 }

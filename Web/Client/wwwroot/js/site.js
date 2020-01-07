@@ -6,6 +6,14 @@ function ShowModal(id) {
     $('#' + id).modal('show')
 }
 
+function ShowNavdrawer(id) {
+    $('#' + id).navdrawer('show')
+}
+
+function HideNavdrawer(id) {
+    $('#' + id).navdrawer('hide')
+}
+
 function ConfirmAlert(title, content, icon) {
     return new Promise((resolve) => {
         Swal.fire({
