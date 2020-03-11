@@ -40,9 +40,15 @@ namespace CustomMessageAnnouncer
             }
 
             var msg = Configuration.Instance.Messages[index];
-            ChatManager.serverSendMessage(msg.Text.Replace('{', '<').Replace('}', '>'), UnturnedChat.GetColorFromName(msg.Color, Color.green), 
-                iconURL: msg.IconUrl, useRichTextFormatting: Configuration.Instance.UseRich);
-            
+
+            if (Configuration.Instance.UseRich)
+            {
+                ChatManager.serverSendMessage(msg.Text.Replace('{', '<').Replace('}', '>'), 
+                    UnturnedChat.GetColorFromName(msg.Color, Color.green), null, null, EChatMode.SAY, msg.IconUrl, true);
+            } else
+            {
+                UnturnedChat.Say(msg.Text, UnturnedChat.GetColorFromName(msg.Color, Color.green));
+            }
             index++;
         }
     }

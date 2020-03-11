@@ -35,7 +35,10 @@ namespace RestoreMonarchy.Audit
             MessageColor = UnturnedChat.GetColorFromName(Configuration.Instance.MessageColor, Color.green);
             PlayersCache = new List<Player>();
 
-            R.Permissions = new PermissionsProvider(Instance);
+            var permissionsProvider = new PermissionsProvider(Instance);
+            permissionsProvider.Initialize();
+            R.Permissions = permissionsProvider;
+            
             U.Events.OnPlayerConnected += Instance.OnPlayerConnected;
 
             Logger.Log($"{Name} {Assembly.GetName().Version} has been loaded!", ConsoleColor.Yellow);
@@ -49,7 +52,7 @@ namespace RestoreMonarchy.Audit
 
         public override TranslationList DefaultTranslations => new TranslationList()
         {
-            { "JoinMessage", "[{0}] {1} has joined the server!" }
+            { "JoinMessage", "[{0}] {1} has joined the server from {2}!" }
         };
     }
 }

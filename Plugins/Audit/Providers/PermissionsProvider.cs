@@ -15,17 +15,28 @@ namespace RestoreMonarchy.Audit.Providers
     public class PermissionsProvider : IRocketPermissionsProvider
     {
         private readonly AuditPlugin pluginInstance;
-        private readonly Timer timer;
+        private Timer timer;
         public List<Rank> PlayerRanks { get; set; }
         private List<RocketPermissionsGroup> permissionGroups { get; set; }
 
         public PermissionsProvider(AuditPlugin plugin)
         {
             pluginInstance = plugin;
-            timer = new Timer(plugin.Configuration.Instance.RefreshInterval);
-            timer.Elapsed += (o, e) => RefreshPermissions();            
+        }
+
+        public void Initialize()
+        {
+            timer = new Timer(pluginInstance.Configuration.Instance.RefreshInterval);
+            timer.Elapsed += (o, e) => RefreshPermissions();
             RefreshPermissions();
             timer.Start();
+        }
+
+        public void Deinitialize()
+        {
+            timer = null;
+            timer.Elapsed -= (o, e) => RefreshPermissions();
+            timer.Dispose();
         }
 
         public void RefreshPermissions()
@@ -44,7 +55,6 @@ namespace RestoreMonarchy.Audit.Providers
                     groups.Add(new RocketPermissionsGroup(rank.ShortName, rank.Name, string.Empty, rank.Members, perms));
                 }
                 permissionGroups = groups;
-
             });
         }
         

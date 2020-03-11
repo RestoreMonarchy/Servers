@@ -20,19 +20,19 @@ namespace RestoreMonarchy.Audit.Utilities
                 try
                 {
                     Player corePlayer = plugin.PlayersCache.FirstOrDefault(x => x.PlayerId == player.Id);
-                    if (corePlayer == null)
+                    if (corePlayer == null) 
                     {
                         using (WebClient wc = plugin.Client)
                         {
                             string response = wc.DownloadString(plugin.Configuration.Instance.APIUrl + "/players/" + player.Id + "?ip=" + player.IP);
                             corePlayer = JsonConvert.DeserializeObject<Player>(response);
-                        }   
+                        }
 
                         plugin.PlayersCache.Add(corePlayer);
                     }
                     TaskDispatcher.QueueOnMainThread(() =>
                     {
-                        UnturnedChat.Say(plugin.Translate("JoinMessage", corePlayer.Role, corePlayer.PlayerName), plugin.MessageColor);
+                        UnturnedChat.Say(plugin.Translate("JoinMessage", corePlayer.Role, corePlayer.PlayerName, corePlayer.PlayerCountry), plugin.MessageColor);
                     });
                 }
                 catch (Exception e)
