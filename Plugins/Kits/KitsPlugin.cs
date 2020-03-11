@@ -28,18 +28,18 @@ namespace Kits
             Instance = this;
             MessageColor = UnturnedChat.GetColorFromName(Configuration.Instance.MessageColor, Color.green);            
             Cooldowns = new List<KitCooldown>();
-            GetKits();
+            RefreshKits();
             Logger.Log($"{Name} {Assembly.GetName().Version} has been loaded!", ConsoleColor.Yellow);
         }
 
         [RocketCommand("refreshkits", "Refreshes the kits")]
         public void RefreshKits(IRocketPlayer caller, params string[] command)
         {
-            GetKits();
+            RefreshKits();
             UnturnedChat.Say(caller, Translate("RefreshKitsPending"), MessageColor);
         }
 
-        public void GetKits()
+        public void RefreshKits()
         {
             ThreadPool.QueueUserWorkItem((i) =>
             {
