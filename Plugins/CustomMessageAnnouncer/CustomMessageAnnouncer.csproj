@@ -64,6 +64,9 @@
   <ItemGroup>
     <Compile Include="CustomMessageAnnouncer.cs" />
     <Compile Include="CustomMessageAnnouncerConfiguration.cs" />
+    <Compile Include="Models\CommandsCommand.cs" />
+    <Compile Include="Models\RocketTextCommand.cs" />
+    <Compile Include="Models\TextCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

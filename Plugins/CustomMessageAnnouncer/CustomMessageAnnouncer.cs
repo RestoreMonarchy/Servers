@@ -1,11 +1,9 @@
-﻿using Rocket.Core.Plugins;
-using Rocket.Unturned;
+﻿using CustomMessageAnnouncer.Models;
+using Rocket.API.Collections;
+using Rocket.Core;
+using Rocket.Core.Plugins;
 using Rocket.Unturned.Chat;
-using Rocket.Unturned.Events;
-using Rocket.Unturned.Player;
 using SDG.Unturned;
-using System;
-using System.Net;
 using System.Timers;
 using UnityEngine;
 using Logger = Rocket.Core.Logging.Logger;
@@ -17,15 +15,29 @@ namespace CustomMessageAnnouncer
         private Timer timer;
         private int index = 0;
 
+        public static CustomMessageAnnouncer Instance { get; private set; }
+
         protected override void Load()
         {
+            Instance = this;
             timer = new Timer(Configuration.Instance.MessageInterval * 1000);
             timer.AutoReset = true;
             timer.Elapsed += SendMessage;
             timer.Start();
+            
+            foreach (var textCommand in Configuration.Instance.TextCommands)
+            {
+                var cmd = new RocketTextCommand(textCommand.Name, textCommand.Help, textCommand.Color, textCommand.Message);
+                R.Commands.Register(cmd);
+            }
 
             Logger.Log($"{Name} {Assembly.GetName().Version} has been loaded!");
         }
+
+        public override TranslationList DefaultTranslations => new TranslationList()
+        {
+            { "Commands", "Your commands: {0}" }
+        };
 
         protected override void Unload()
         {
