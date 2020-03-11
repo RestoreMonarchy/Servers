@@ -58,7 +58,7 @@ namespace UsefulCommands
                     UnturnedChat.Say(Translate("RestartSuccess"), color);
                     SaveManager.save();
                     Provider.shutdown(0, reason);
-                    timer.Enabled = false;
+                    timer.Dispose();
                 }
             };
             timer.Start();
